@@ -1,12 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 
 import healthRouter from './routes/health.js';
-
-dotenv.config();
+import subscribeRouter from './routes/subscribe.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +26,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/health', healthRouter);
+app.use('/api/subscribe', subscribeRouter);
 
 // Start server
 app.listen(PORT, () => {
