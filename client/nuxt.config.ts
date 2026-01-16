@@ -18,14 +18,14 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Objetos de tradición, hechos para durar. Próximamente.' },
+        { name: 'description', content: 'Hecho para durar. Como las cosas bien hechas.' },
         { name: 'theme-color', content: '#741617' },
         // Open Graph (Facebook, LinkedIn, WhatsApp)
         { property: 'og:title', content: 'El Gran Peón | Herencia Clásica' },
-        { property: 'og:description', content: 'Objetos de tradición, hechos para durar. Próximamente.' },
+        { property: 'og:description', content: 'Hecho para durar. Como las cosas bien hechas.' },
         { property: 'og:type', content: 'website' },
         { property: 'og:url', content: 'https://elgranpeon.com' },
-        { property: 'og:image', content: 'https://elgranpeon.com/images/og-image.jpg' },
+        { property: 'og:image', content: 'https://elgranpeon.com/images/og-image.jpg?v=4' },
         { property: 'og:image:width', content: '1200' },
         { property: 'og:image:height', content: '630' },
         { property: 'og:locale', content: 'es_AR' },
@@ -33,8 +33,8 @@ export default defineNuxtConfig({
         // Twitter Card
         { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'El Gran Peón | Herencia Clásica' },
-        { name: 'twitter:description', content: 'Objetos de tradición, hechos para durar. Próximamente.' },
-        { name: 'twitter:image', content: 'https://elgranpeon.com/images/og-image.jpg' },
+        { name: 'twitter:description', content: 'Hecho para durar. Como las cosas bien hechas.' },
+        { name: 'twitter:image', content: 'https://elgranpeon.com/images/og-image.jpg?v=4' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
