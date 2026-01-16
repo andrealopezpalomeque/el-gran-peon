@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "generate-favicons": "node scripts/generate-favicon.js"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
@@ -17,5 +18,8 @@
     "pinia": "^3.0.4",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

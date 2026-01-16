@@ -65,3 +65,10 @@
     @apply btn border-2 border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-brand-cream;
   }
 }
+
+/* Utilities Layer */
+@layer utilities {
+  .logo-light {
+    filter: brightness(0) invert(1);
+  }
+}
