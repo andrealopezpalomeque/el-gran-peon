@@ -14,16 +14,27 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'es',
       },
-      title: 'El Gran Peon | Herencia Clasica',
+      title: 'El Gran Peón | Herencia Clásica',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Objetos de tradicion, hechos para durar. Proximamente.' },
+        { name: 'description', content: 'Objetos de tradición, hechos para durar. Próximamente.' },
         { name: 'theme-color', content: '#741617' },
-        { property: 'og:title', content: 'El Gran Peon | Herencia Clasica' },
-        { property: 'og:description', content: 'Objetos de tradicion, hechos para durar. Proximamente.' },
+        // Open Graph (Facebook, LinkedIn, WhatsApp)
+        { property: 'og:title', content: 'El Gran Peón | Herencia Clásica' },
+        { property: 'og:description', content: 'Objetos de tradición, hechos para durar. Próximamente.' },
         { property: 'og:type', content: 'website' },
         { property: 'og:url', content: 'https://elgranpeon.com' },
+        { property: 'og:image', content: 'https://elgranpeon.com/images/og-image.jpg' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:locale', content: 'es_AR' },
+        { property: 'og:site_name', content: 'El Gran Peón' },
+        // Twitter Card
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'El Gran Peón | Herencia Clásica' },
+        { name: 'twitter:description', content: 'Objetos de tradición, hechos para durar. Próximamente.' },
+        { name: 'twitter:image', content: 'https://elgranpeon.com/images/og-image.jpg' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
