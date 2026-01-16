@@ -21,3 +21,6 @@ Thumbs.db
 
 # Firebase
 .firebase/
+
+# Claude Code
+.claude/
