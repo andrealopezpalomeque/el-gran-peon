@@ -4,6 +4,7 @@ async function generateOgImage() {
   const width = 1200;
   const height = 630;
   const burgundy = { r: 116, g: 22, b: 23, alpha: 1 }; // #741617
+  const cream = { r: 254, g: 252, b: 240, alpha: 1 }; // #FEFCF0
 
   // Create burgundy background
   const background = sharp({
@@ -15,18 +16,34 @@ async function generateOgImage() {
     }
   });
 
-  // Resize logo to fit nicely (around 350px wide)
-  // Using negate to invert the burgundy logo to cream
-  const logo = await sharp('./public/images/logo.png')
-    .negate({ alpha: false })
-    .resize(350, null, { fit: 'inside' })
+  // Resize logo and extract its alpha channel
+  const resizedLogo = sharp('./public/images/logo.png')
+    .resize(350, null, { fit: 'inside' });
+
+  const resizedLogoBuffer = await resizedLogo.toBuffer();
+  const resizedMeta = await sharp(resizedLogoBuffer).metadata();
+
+  // Extract alpha channel from logo to use as mask
+  const alphaChannel = await sharp(resizedLogoBuffer)
+    .extractChannel(3)
     .toBuffer();
 
-  const logoMetadata = await sharp(logo).metadata();
+  // Create cream-colored logo using the alpha as mask
+  const logo = await sharp({
+    create: {
+      width: resizedMeta.width,
+      height: resizedMeta.height,
+      channels: 3,
+      background: { r: cream.r, g: cream.g, b: cream.b },
+    }
+  })
+    .joinChannel(alphaChannel)
+    .png()
+    .toBuffer();
 
   // Center the logo
-  const left = Math.round((width - logoMetadata.width) / 2);
-  const top = Math.round((height - logoMetadata.height) / 2);
+  const left = Math.round((width - resizedMeta.width) / 2);
+  const top = Math.round((height - resizedMeta.height) / 2);
 
   // Composite logo onto background
   await background
