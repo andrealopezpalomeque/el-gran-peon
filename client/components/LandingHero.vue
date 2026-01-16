@@ -10,19 +10,14 @@
 
     <!-- Content -->
     <div class="relative z-10 container mx-auto px-6 text-center pt-24">
-      <!-- Tagline -->
-      <p class="font-sans text-brand-cream/80 text-tagline-mobile md:text-tagline tracking-widest uppercase mb-6">
-        Herencia Clásica
-      </p>
-
-      <!-- Headline -->
+      <!-- Headline (all uppercase) -->
       <h1 class="font-display text-brand-cream text-hero-mobile md:text-hero mb-8">
-        Acá empieza El Gran Peón
+        ACÁ EMPIEZA EL GRAN PEÓN
       </h1>
 
       <!-- Subtitle -->
       <p class="font-serif text-brand-cream/90 text-lg md:text-xl max-w-md mx-auto mb-10">
-        Objetos de tradición, hechos para durar.
+        Hecho para durar. Como las cosas bien hechas.
       </p>
 
       <!-- Subscribe Form -->

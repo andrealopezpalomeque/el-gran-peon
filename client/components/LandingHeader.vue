@@ -3,8 +3,8 @@
     <div class="container mx-auto px-6">
       <img
         src="/images/logo.png"
-        alt="El Gran Peón"
-        class="h-32 md:h-44 mx-auto logo-light"
+        alt="El Gran Peón - Herencia Clásica"
+        class="h-56 md:h-64 mx-auto logo-light"
       />
     </div>
   </header>
