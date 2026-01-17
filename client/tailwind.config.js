@@ -49,6 +49,14 @@ export default {
         'DEFAULT': '200ms',
       },
 
+      minHeight: {
+        'dvh': '100dvh',
+      },
+
+      height: {
+        'dvh': '100dvh',
+      },
+
       backgroundImage: {
         'gradient-overlay': 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5))',
       },

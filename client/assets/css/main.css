@@ -71,4 +71,8 @@
   .logo-light {
     filter: brightness(0) invert(1);
   }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
 }

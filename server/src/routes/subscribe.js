@@ -5,7 +5,7 @@ const router = Router();
 
 router.post('/', async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, source } = req.body;
 
     // Validate email
     if (!email) {
@@ -32,7 +32,7 @@ router.post('/', async (req, res) => {
     const docRef = await subscribersRef.add({
       email: normalizedEmail,
       createdAt: new Date(),
-      source: 'landing-page',
+      source: source || 'landing-page',
     });
 
     console.log(`New subscriber: ${normalizedEmail} (${docRef.id})`);

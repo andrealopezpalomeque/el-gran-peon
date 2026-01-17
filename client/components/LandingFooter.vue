@@ -1,5 +1,5 @@
 <template>
-  <footer class="absolute bottom-0 left-0 right-0 z-10 py-6">
+  <footer class="absolute bottom-0 left-0 right-0 z-10 py-4 pb-safe">
     <div class="container mx-auto px-6">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-brand-cream/60 font-sans text-xs">
         <!-- Copyright -->
