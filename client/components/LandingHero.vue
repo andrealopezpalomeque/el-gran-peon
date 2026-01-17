@@ -13,13 +13,17 @@
       </p>
 
       <!-- Subscribe Form -->
-      <form @submit.prevent="handleSubmit" class="max-w-sm mx-auto">
+      <form @submit.prevent="handleSubmit" class="max-w-sm mx-auto" action="#" method="post">
+        <label for="email" class="sr-only">Email</label>
         <div class="flex flex-col sm:flex-row gap-3">
           <input
             v-model="email"
             type="email"
+            id="email"
             name="email"
             autocomplete="email"
+            inputmode="email"
+            enterkeyhint="send"
             required
             placeholder="Ingresá tu email"
             class="flex-1 px-4 py-3 bg-brand-cream/10 border border-brand-cream/30 text-brand-cream placeholder-brand-cream/50 font-sans text-sm focus:outline-none focus:border-brand-cream/60 transition-colors"
