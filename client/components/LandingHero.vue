@@ -26,6 +26,8 @@
           <input
             v-model="email"
             type="email"
+            name="email"
+            autocomplete="email"
             required
             placeholder="Ingresá tu email"
             class="flex-1 px-4 py-3 bg-brand-cream/10 border border-brand-cream/30 text-brand-cream placeholder-brand-cream/50 font-sans text-sm focus:outline-none focus:border-brand-cream/60 transition-colors"
