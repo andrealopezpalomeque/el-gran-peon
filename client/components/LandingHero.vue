@@ -1,14 +1,5 @@
 <template>
-  <section class="relative min-h-dvh h-dvh flex items-center justify-center overflow-hidden">
-    <!-- Background Image - extends into safe areas -->
-    <div
-      class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style="top: -50px; bottom: -50px; left: 0; right: 0;"
-      :style="{ backgroundImage: 'url(/images/hero.jpg)' }"
-    >
-      <div class="absolute inset-0 bg-black/50" style="top: -50px; bottom: -50px;"></div>
-    </div>
-
+  <section class="relative min-h-dvh h-dvh flex items-center justify-center">
     <!-- Content -->
     <div class="relative z-10 container mx-auto px-6 text-center pt-24">
       <!-- Headline (all uppercase) -->
