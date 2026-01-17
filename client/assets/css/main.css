@@ -36,10 +36,17 @@
 @layer base {
   html {
     @apply antialiased;
+    height: 100dvh;
+    overflow: hidden;
+    background-color: #741617;
   }
 
   body {
-    @apply bg-brand-cream text-brand-olive font-sans;
+    @apply bg-brand-primary text-brand-olive font-sans;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+    background: url('/images/hero.jpg') center/cover no-repeat fixed;
   }
 
   h1, h2, h3 {

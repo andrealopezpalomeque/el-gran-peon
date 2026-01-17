@@ -1,11 +1,8 @@
 <template>
-  <footer class="absolute bottom-0 left-0 right-0 z-10 py-4 pb-safe">
-    <div class="container mx-auto px-6">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-brand-cream/60 font-sans text-xs">
-        <!-- Copyright -->
-        <p>© 2026 El Gran Peón. Todos los derechos reservados.</p>
-
-        <!-- Social -->
+  <footer class="absolute bottom-0 left-0 right-0 z-10 px-6 pb-6 pt-4" style="padding-bottom: max(1.5rem, env(safe-area-inset-bottom));">
+    <div class="container mx-auto">
+      <div class="flex flex-col items-center gap-2 text-brand-cream/60 font-sans text-xs">
+        <!-- Social first -->
         <a
           href="https://instagram.com/granpeon"
           target="_blank"
@@ -17,6 +14,9 @@
           </svg>
           @granpeon
         </a>
+
+        <!-- Copyright below -->
+        <p>© 2026 El Gran Peón. Todos los derechos reservados.</p>
       </div>
     </div>
   </footer>
