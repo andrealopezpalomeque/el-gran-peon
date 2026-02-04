@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "el-gran-peon"
+  },
+  "targets": {
+    "el-gran-peon": {
+      "hosting": {
+        "home": ["el-gran-peon"],
+        "admin": ["el-gran-peon-admin"]
+      }
+    }
   }
 }
