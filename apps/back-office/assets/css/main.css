@@ -37,16 +37,14 @@
   html {
     @apply antialiased;
     height: 100%;
-    overflow: hidden;
-    background-color: #000;
+    background-color: #FEFCF0;
   }
 
   body {
     @apply text-brand-olive font-sans;
     height: 100%;
     min-height: 100dvh;
-    overflow: hidden;
-    background-color: #000;
+    background-color: #FEFCF0;
   }
 
   h1, h2, h3 {
