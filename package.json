@@ -1,0 +1,15 @@
+{
+  "name": "el-gran-peon",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev:home": "cd apps/home && npm run dev",
+    "dev:admin": "cd apps/back-office && npm run dev",
+    "dev:api": "cd services/api && npm run dev",
+    "build:home": "cd apps/home && npm run build",
+    "build:admin": "cd apps/back-office && npm run build"
+  }
+}
