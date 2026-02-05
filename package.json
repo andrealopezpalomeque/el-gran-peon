@@ -10,6 +10,6 @@
     "dev:admin": "cd apps/back-office && npm run dev",
     "dev:api": "cd services/api && npm run dev",
     "build:home": "cd apps/home && npm run generate",
-    "build:admin": "cd apps/back-office && npm run build"
+    "build:admin": "cd apps/back-office && npm run generate"
   }
 }
