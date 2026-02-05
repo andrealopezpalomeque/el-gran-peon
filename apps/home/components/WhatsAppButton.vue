@@ -3,7 +3,7 @@
     :href="whatsappUrl"
     target="_blank"
     rel="noopener noreferrer"
-    class="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-12 md:h-12 bg-[#25D366] text-white flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-200 pb-safe-area"
+    class="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-12 md:h-12 rounded-full bg-[#25D366] text-white flex items-center justify-center hover:scale-105 hover:shadow-lg transition-all duration-200 pb-safe-area"
     aria-label="Contactar por WhatsApp"
     :class="mounted ? 'animate-enter' : 'opacity-0 translate-y-4'"
   >
