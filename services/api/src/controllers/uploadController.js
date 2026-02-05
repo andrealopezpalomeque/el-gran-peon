@@ -16,7 +16,7 @@ function createUploader(folderFn) {
 }
 
 const productImageUploader = createUploader((req) => {
-  const folder = req.body.folder || req.body.productId || `product-${Date.now()}`;
+  const folder = req.body.folder || req.body.productId || 'unsorted';
   return `el-gran-peon/products/${folder}`;
 });
 

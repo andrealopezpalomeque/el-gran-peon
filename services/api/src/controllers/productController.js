@@ -124,7 +124,7 @@ export async function createProduct(req, res) {
     }
 
     const slug = slugify(name, { lower: true, strict: true });
-    const cloudinaryFolder = req.body.cloudinaryFolder || (slug + '-' + Date.now());
+    const cloudinaryFolder = req.body.cloudinaryFolder || slug;
     const now = new Date();
 
     const data = {

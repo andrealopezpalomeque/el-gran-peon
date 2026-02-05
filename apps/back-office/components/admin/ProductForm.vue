@@ -280,12 +280,10 @@ const generatedSlug = computed(() => {
     .replace(/^-+|-+$/g, '')
 })
 
-// Stable image folder: generated once for new products, or from existing product
-const stableTimestamp = Date.now()
+// Image folder: from existing product, or generated from slug
 const imageFolder = computed(() => {
   if (props.product?.cloudinaryFolder) return props.product.cloudinaryFolder
-  if (generatedSlug.value) return `${generatedSlug.value}-${stableTimestamp}`
-  return `product-${stableTimestamp}`
+  return generatedSlug.value || 'unsorted'
 })
 
 // Children of selected parent
