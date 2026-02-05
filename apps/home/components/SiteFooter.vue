@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-brand-olive text-brand-cream">
+  <footer class="bg-[#3a392d] text-brand-cream">
     <div class="container mx-auto px-6 py-16">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         <!-- Column 1: Brand -->
@@ -93,7 +93,7 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div class="border-t border-brand-cream/10 bg-brand-olive">
+    <div class="border-t border-brand-cream/10 bg-[#32312a]">
       <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
         <p class="font-sans text-xs text-brand-cream/50">
           &copy; 2026 El Gran Peón. Todos los derechos reservados.

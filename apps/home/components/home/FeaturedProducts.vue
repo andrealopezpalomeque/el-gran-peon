@@ -7,7 +7,7 @@
       Lo que elegimos para vos
     </p>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-      <ProductProductCard
+      <ProductCard
         v-for="product in products"
         :key="product.id"
         :product="product"
