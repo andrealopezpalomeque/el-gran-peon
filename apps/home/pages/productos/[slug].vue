@@ -173,9 +173,15 @@
               ? 'bg-brand-olive/10 text-brand-olive/40 cursor-not-allowed'
               : 'bg-brand-primary text-brand-cream hover:bg-brand-primary/90'"
             :disabled="product.stock === 0"
+            @click="addToCart"
           >
             {{ product.stock === 0 ? 'SIN STOCK' : 'AGREGAR AL CARRITO' }}
           </button>
+
+          <!-- Success message -->
+          <p v-if="added" class="mt-4 text-green-700 font-sans text-sm">
+            Producto agregado al carrito
+          </p>
 
           <!-- Divider -->
           <div class="border-t border-brand-olive/10 mt-8 pt-8">
@@ -234,6 +240,16 @@ const loading = ref(true)
 const selectedImageIndex = ref(0)
 const mainImgBroken = ref(false)
 const quantity = ref(1)
+const added = ref(false)
+const cart = useCartStore()
+
+const addToCart = () => {
+  if (product.value) {
+    cart.addProduct(product.value, quantity.value)
+    added.value = true
+    setTimeout(() => { added.value = false }, 2000)
+  }
+}
 
 function onThumbError(e) {
   e.target.src = '/images/icon.png'
