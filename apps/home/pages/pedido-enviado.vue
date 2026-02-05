@@ -30,7 +30,7 @@
       CONTINUAR EN WHATSAPP
     </a>
 
-    <p v-if="whatsappUrl" class="font-sans text-xs text-brand-olive/50 mt-3">
+    <p class="font-sans text-xs text-brand-olive/50 mt-3">
       No se abrio WhatsApp? Comunicate directamente al
       <a href="tel:+543794007759" class="text-brand-primary hover:text-brand-primary/80 transition-colors">+54 379 400 7759</a>
     </p>
@@ -45,20 +45,18 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const route = useRoute()
+const whatsappUrl = ref(null)
 
-const whatsappUrl = computed(() => {
-  const encoded = route.query.whatsapp
-  if (encoded) {
-    try {
-      return decodeURIComponent(encoded)
-    } catch {
-      return null
-    }
+onMounted(() => {
+  const url = sessionStorage.getItem('elgranpeon-whatsapp')
+  if (url) {
+    whatsappUrl.value = url
+    sessionStorage.removeItem('elgranpeon-whatsapp')
+    // Auto-open WhatsApp
+    window.open(url, '_blank')
   }
-  return null
 })
 
 useHead({
