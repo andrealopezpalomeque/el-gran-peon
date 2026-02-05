@@ -148,6 +148,7 @@
       <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">IMAGENES</h3>
 
       <AdminMultiImageUpload
+        ref="imageUploader"
         v-model="form.images"
         :max-images="6"
         upload-endpoint="/api/upload/product-image"
@@ -213,10 +214,10 @@
     <div class="flex gap-3 pt-4 border-t-2 border-brand-olive/10">
       <button
         type="submit"
-        :disabled="isLoading"
+        :disabled="isLoading || isUploading"
         class="px-6 py-2 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors disabled:opacity-50"
       >
-        {{ isLoading ? 'Guardando...' : 'Guardar Producto' }}
+        {{ isLoading ? 'Guardando...' : isUploading ? 'Subiendo imagenes...' : 'Guardar Producto' }}
       </button>
       <button
         type="button"
@@ -240,6 +241,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['save', 'cancel'])
+
+const imageUploader = ref(null)
+const isUploading = computed(() => imageUploader.value?.uploading ?? false)
 
 const form = ref({
   name: '',

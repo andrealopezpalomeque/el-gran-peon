@@ -163,6 +163,8 @@ function moveImage(fromIndex, toIndex) {
   emit('update:modelValue', reordered)
 }
 
+defineExpose({ uploading })
+
 async function removeImage(index) {
   const img = props.modelValue[index]
   if (img.publicId) {
