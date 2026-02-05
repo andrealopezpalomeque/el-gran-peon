@@ -18,8 +18,8 @@
           class="px-3 py-1.5 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
         >
           <option value="">Todas las categorias</option>
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-            {{ cat.name }}
+          <option v-for="cat in flatCategories" :key="cat.id" :value="cat.id">
+            {{ cat.label }}
           </option>
         </select>
       </div>
@@ -98,7 +98,10 @@
 
             <!-- Categoria -->
             <td class="py-3 pr-4">
-              <span class="font-sans text-sm text-brand-olive/60">{{ product.categoryName || '-' }}</span>
+              <span v-if="product.parentCategoryName && product.categoryName" class="font-sans text-sm text-brand-olive/60">
+                {{ product.parentCategoryName }} → {{ product.categoryName }}
+              </span>
+              <span v-else class="font-sans text-sm text-brand-olive/60">{{ product.categoryName || product.parentCategoryName || '-' }}</span>
             </td>
 
             <!-- Precio -->
@@ -186,11 +189,27 @@ const filterCategory = ref('')
 const filterFeatured = ref(false)
 const filterInactive = ref(false)
 
+// Flatten nested categories into a single list with labels
+const flatCategories = computed(() => {
+  const flat = []
+  for (const parent of categories.value) {
+    flat.push({ id: parent.id, label: parent.name })
+    if (parent.children && parent.children.length > 0) {
+      for (const child of parent.children) {
+        flat.push({ id: child.id, label: `  ${parent.name} → ${child.name}` })
+      }
+    }
+  }
+  return flat
+})
+
 const filteredProducts = computed(() => {
   let result = products.value
 
   if (filterCategory.value) {
-    result = result.filter(p => p.categoryId === filterCategory.value)
+    result = result.filter(p =>
+      p.categoryId === filterCategory.value || p.parentCategoryId === filterCategory.value
+    )
   }
 
   if (filterFeatured.value) {

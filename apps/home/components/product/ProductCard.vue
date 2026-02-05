@@ -1,7 +1,7 @@
 <template>
   <NuxtLink :to="`/productos/${product.slug}`" class="group block">
     <!-- Image -->
-    <div class="aspect-square overflow-hidden bg-brand-olive/5">
+    <div class="aspect-[3/4] overflow-hidden bg-brand-cream">
       <img
         v-if="product.images && product.images.length && !imgBroken"
         :src="product.images[0].url"

@@ -5,7 +5,7 @@
       <div class="h-3 w-48 bg-brand-olive/5 mb-6" />
       <div class="md:flex gap-10">
         <div class="md:w-1/2">
-          <div class="aspect-[4/3] bg-brand-olive/5" />
+          <div class="aspect-[4/3] bg-brand-cream" />
         </div>
         <div class="md:w-1/2 mt-6 md:mt-0 space-y-4">
           <div class="h-3 w-20 bg-brand-olive/5" />
@@ -40,12 +40,12 @@
         <!-- Left: Image Gallery -->
         <div class="md:w-1/2">
           <!-- Main image with carousel arrows -->
-          <div class="relative group aspect-[4/3] overflow-hidden bg-brand-olive/5">
+          <div class="relative group aspect-[4/3] overflow-hidden bg-brand-cream">
             <img
               v-if="mainImage && !mainImgBroken"
               :src="mainImage"
               :alt="product.name"
-              class="w-full h-full object-cover"
+              class="w-full h-full object-contain"
               @error="mainImgBroken = true"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
@@ -55,7 +55,7 @@
             <!-- Carousel arrows (only if multiple images) -->
             <template v-if="product.images && product.images.length > 1">
               <button
-                class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-cream/80 text-brand-olive hover:bg-brand-cream transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 opacity-0 group-hover:opacity-100"
                 @click="prevImage"
                 aria-label="Imagen anterior"
               >
@@ -64,7 +64,7 @@
                 </svg>
               </button>
               <button
-                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-cream/80 text-brand-olive hover:bg-brand-cream transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 opacity-0 group-hover:opacity-100"
                 @click="nextImage"
                 aria-label="Imagen siguiente"
               >
@@ -74,7 +74,7 @@
               </button>
 
               <!-- Image counter -->
-              <span class="absolute bottom-3 right-3 font-sans text-xs text-brand-cream bg-black/40 px-2 py-1">
+              <span class="absolute bottom-3 right-3 font-sans text-xs text-white bg-brand-olive/50 px-2 py-1">
                 {{ selectedImageIndex + 1 }} / {{ product.images.length }}
               </span>
             </template>
