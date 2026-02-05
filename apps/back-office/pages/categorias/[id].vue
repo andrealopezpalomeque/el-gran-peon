@@ -11,6 +11,53 @@
       </div>
 
       <form v-else @submit.prevent="handleSubmit" class="max-w-2xl">
+        <!-- Category type -->
+        <div class="mb-5">
+          <label class="block font-sans text-sm text-brand-olive/70 mb-2">Tipo de categoria</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                v-model="categoryType"
+                type="radio"
+                value="parent"
+                class="w-4 h-4 accent-brand-primary"
+              />
+              <span class="font-sans text-sm text-brand-olive">Categoria principal</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                v-model="categoryType"
+                type="radio"
+                value="child"
+                class="w-4 h-4 accent-brand-primary"
+              />
+              <span class="font-sans text-sm text-brand-olive">Subcategoria</span>
+            </label>
+          </div>
+          <p v-if="hasChildren && categoryType === 'child'" class="mt-2 font-sans text-xs text-red-600">
+            Esta categoria tiene subcategorias. Cambiarla a subcategoria afectara a las categorias hijas.
+          </p>
+        </div>
+
+        <!-- Parent selector (only for subcategories) -->
+        <div v-if="categoryType === 'child'" class="mb-5">
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Categoria padre *</label>
+          <select
+            v-model="form.parentId"
+            required
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          >
+            <option value="" disabled>Seleccionar categoria padre</option>
+            <option
+              v-for="parent in availableParents"
+              :key="parent.id"
+              :value="parent.id"
+            >
+              {{ parent.name }}
+            </option>
+          </select>
+        </div>
+
         <!-- Name -->
         <div class="mb-5">
           <label class="block font-sans text-sm text-brand-olive/70 mb-1">Nombre *</label>
@@ -96,6 +143,9 @@ const { get, put } = useApi()
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
+const categoryType = ref('parent')
+const hasChildren = ref(false)
+const allCategories = ref([])
 
 const form = ref({
   name: '',
@@ -103,17 +153,35 @@ const form = ref({
   order: 0,
   isActive: true,
   image: '',
+  parentId: '',
+})
+
+// Filter out the current category from available parents
+const availableParents = computed(() => {
+  return allCategories.value.filter(c => !c.parentId && c.id !== route.params.id)
 })
 
 onMounted(async () => {
   try {
-    const category = await get(`/api/categories/${route.params.id}`)
+    const [category, flat] = await Promise.all([
+      get(`/api/categories/${route.params.id}`),
+      get('/api/categories/flat'),
+    ])
+
+    allCategories.value = flat
+
+    // Check if this category has children
+    hasChildren.value = flat.some(c => c.parentId === route.params.id)
+
+    categoryType.value = category.parentId ? 'child' : 'parent'
+
     form.value = {
       name: category.name || '',
       description: category.description || '',
       order: category.order ?? 0,
       isActive: category.isActive ?? true,
       image: category.image || '',
+      parentId: category.parentId || '',
     }
   } catch (err) {
     error.value = 'Error al cargar la categoria'
@@ -128,7 +196,15 @@ async function handleSubmit() {
   error.value = ''
 
   try {
-    await put(`/api/categories/${route.params.id}`, form.value)
+    const data = {
+      name: form.value.name,
+      description: form.value.description,
+      order: form.value.order,
+      isActive: form.value.isActive,
+      image: form.value.image,
+      parentId: categoryType.value === 'child' ? form.value.parentId : null,
+    }
+    await put(`/api/categories/${route.params.id}`, data)
     router.push('/categorias')
   } catch (err) {
     error.value = err.message || 'Error al actualizar la categoria'

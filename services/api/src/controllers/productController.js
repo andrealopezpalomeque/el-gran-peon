@@ -9,7 +9,7 @@ export async function listActiveProducts(req, res) {
     const snapshot = await productsRef.where('isActive', '==', true).get();
     let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Filter by category slug
+    // Filter by child category slug
     if (req.query.category) {
       const catSnapshot = await db.collection('categories')
         .where('slug', '==', req.query.category)
@@ -22,6 +22,29 @@ export async function listActiveProducts(req, res) {
 
       const categoryId = catSnapshot.docs[0].id;
       products = products.filter(p => p.categoryId === categoryId);
+    }
+
+    // Filter by parent category slug (returns all products under that parent)
+    if (req.query.parentCategory) {
+      const parentSnapshot = await db.collection('categories')
+        .where('slug', '==', req.query.parentCategory)
+        .where('parentId', '==', null)
+        .limit(1)
+        .get();
+
+      if (parentSnapshot.empty) {
+        return res.json([]);
+      }
+
+      const parentId = parentSnapshot.docs[0].id;
+
+      // Get all child category IDs under this parent
+      const childrenSnapshot = await db.collection('categories')
+        .where('parentId', '==', parentId)
+        .get();
+
+      const categoryIds = [parentId, ...childrenSnapshot.docs.map(d => d.id)];
+      products = products.filter(p => categoryIds.includes(p.categoryId) || p.parentCategoryId === parentId);
     }
 
     // Filter featured
@@ -91,7 +114,8 @@ export async function createProduct(req, res) {
   try {
     const {
       name, description, shortDescription, price, compareAtPrice,
-      categoryId, categoryName, images, stock, isActive, isFeatured,
+      categoryId, categoryName, parentCategoryId, parentCategoryName,
+      images, stock, isActive, isFeatured,
       tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
     } = req.body;
 
@@ -112,6 +136,8 @@ export async function createProduct(req, res) {
       compareAtPrice: compareAtPrice || null,
       categoryId,
       categoryName: categoryName || '',
+      parentCategoryId: parentCategoryId || null,
+      parentCategoryName: parentCategoryName || '',
       images: images || [],
       cloudinaryFolder,
       stock: stock ?? 0,

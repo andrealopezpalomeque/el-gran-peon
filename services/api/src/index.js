@@ -10,6 +10,7 @@ import categoriesRouter from './routes/categories.js';
 import productsRouter from './routes/products.js';
 import uploadRouter from './routes/upload.js';
 import ordersRouter from './routes/orders.js';
+import seedRouter from './routes/seed.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -35,6 +36,7 @@ app.use('/api/categories', categoriesRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/seed', seedRouter);
 
 // Start server
 app.listen(PORT, () => {

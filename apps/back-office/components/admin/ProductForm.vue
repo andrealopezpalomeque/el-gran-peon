@@ -96,27 +96,50 @@
       </div>
     </div>
 
-    <!-- Section 3: Categoria -->
+    <!-- Section 3: Categoria (cascading dropdowns) -->
     <div class="mb-8">
       <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">CATEGORIA</h3>
 
-      <div class="mb-5">
-        <label class="block font-sans text-sm text-brand-olive/70 mb-1">Categoria *</label>
-        <select
-          v-model="form.categoryId"
-          required
-          class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
-          @change="onCategoryChange"
-        >
-          <option value="" disabled>Seleccionar categoria</option>
-          <option
-            v-for="cat in categories"
-            :key="cat.id"
-            :value="cat.id"
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <!-- Parent category dropdown -->
+        <div>
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Categoria principal *</label>
+          <select
+            v-model="selectedParentId"
+            required
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+            @change="onParentChange"
           >
-            {{ cat.name }}
-          </option>
-        </select>
+            <option value="" disabled>Seleccionar categoria</option>
+            <option
+              v-for="cat in categories"
+              :key="cat.id"
+              :value="cat.id"
+            >
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Child category dropdown (only if parent has children) -->
+        <div v-if="selectedParentChildren.length > 0">
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Subcategoria *</label>
+          <select
+            v-model="selectedChildId"
+            required
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+            @change="onChildChange"
+          >
+            <option value="" disabled>Seleccionar subcategoria</option>
+            <option
+              v-for="child in selectedParentChildren"
+              :key="child.id"
+              :value="child.id"
+            >
+              {{ child.name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -226,6 +249,8 @@ const form = ref({
   compareAtPrice: null,
   categoryId: '',
   categoryName: '',
+  parentCategoryId: null,
+  parentCategoryName: '',
   images: [],
   stock: 0,
   isActive: true,
@@ -237,6 +262,8 @@ const form = ref({
 
 const unlimitedStock = ref(false)
 const tagsInput = ref('')
+const selectedParentId = ref('')
+const selectedChildId = ref('')
 
 // Slug generation
 const generatedSlug = computed(() => {
@@ -252,8 +279,48 @@ const generatedSlug = computed(() => {
 // Image folder (from existing product or generated slug)
 const imageFolder = computed(() => {
   if (props.product?.cloudinaryFolder) return props.product.cloudinaryFolder
-  return generatedSlug.value || 'unsorted'
+  return generatedSlug.value || `product-${Date.now()}`
 })
+
+// Children of selected parent
+const selectedParentChildren = computed(() => {
+  if (!selectedParentId.value) return []
+  const parent = props.categories.find(c => c.id === selectedParentId.value)
+  return parent?.children || []
+})
+
+// When parent changes
+function onParentChange() {
+  selectedChildId.value = ''
+  const parent = props.categories.find(c => c.id === selectedParentId.value)
+  if (!parent) return
+
+  // If parent has no children, assign directly to parent
+  if (!parent.children || parent.children.length === 0) {
+    form.value.categoryId = parent.id
+    form.value.categoryName = parent.name
+    form.value.parentCategoryId = null
+    form.value.parentCategoryName = ''
+  } else {
+    // Clear until child is selected
+    form.value.categoryId = ''
+    form.value.categoryName = ''
+    form.value.parentCategoryId = parent.id
+    form.value.parentCategoryName = parent.name
+  }
+}
+
+// When child changes
+function onChildChange() {
+  const parent = props.categories.find(c => c.id === selectedParentId.value)
+  const child = parent?.children?.find(c => c.id === selectedChildId.value)
+  if (!child || !parent) return
+
+  form.value.categoryId = child.id
+  form.value.categoryName = child.name
+  form.value.parentCategoryId = parent.id
+  form.value.parentCategoryName = parent.name
+}
 
 // Populate form when product prop is provided (edit mode)
 watch(() => props.product, (product) => {
@@ -266,6 +333,8 @@ watch(() => props.product, (product) => {
       compareAtPrice: product.compareAtPrice ?? null,
       categoryId: product.categoryId || '',
       categoryName: product.categoryName || '',
+      parentCategoryId: product.parentCategoryId || null,
+      parentCategoryName: product.parentCategoryName || '',
       images: product.images || [],
       stock: product.stock === -1 ? 0 : (product.stock ?? 0),
       isActive: product.isActive ?? true,
@@ -276,6 +345,16 @@ watch(() => props.product, (product) => {
     }
     unlimitedStock.value = product.stock === -1
     tagsInput.value = (product.tags || []).join(', ')
+
+    // Set cascading dropdown state from existing product data
+    if (product.parentCategoryId) {
+      selectedParentId.value = product.parentCategoryId
+      selectedChildId.value = product.categoryId
+    } else if (product.categoryId) {
+      // Product is assigned directly to a parent (no children)
+      selectedParentId.value = product.categoryId
+      selectedChildId.value = ''
+    }
   }
 }, { immediate: true })
 
@@ -284,11 +363,6 @@ watch(unlimitedStock, (val) => {
   if (val) form.value.stock = -1
   else if (form.value.stock === -1) form.value.stock = 0
 })
-
-function onCategoryChange() {
-  const cat = props.categories.find(c => c.id === form.value.categoryId)
-  if (cat) form.value.categoryName = cat.name
-}
 
 function handleSubmit() {
   // Parse tags from input

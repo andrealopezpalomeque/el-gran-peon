@@ -80,10 +80,10 @@ async function uploadFile(file) {
 
   try {
     const formData = new FormData()
-    formData.append('image', file)
     if (props.folder) {
       formData.append('folder', props.folder)
     }
+    formData.append('image', file)
 
     // Simulate progress
     const progressInterval = setInterval(() => {

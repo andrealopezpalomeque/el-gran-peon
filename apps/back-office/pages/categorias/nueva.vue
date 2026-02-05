@@ -5,7 +5,55 @@
         <h2 class="font-sans text-brand-olive text-2xl font-semibold">Nueva Categoria</h2>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="max-w-2xl">
+      <div v-if="loadingParents" class="text-center py-12">
+        <p class="font-sans text-brand-olive/60 text-sm">Cargando...</p>
+      </div>
+
+      <form v-else @submit.prevent="handleSubmit" class="max-w-2xl">
+        <!-- Category type -->
+        <div class="mb-5">
+          <label class="block font-sans text-sm text-brand-olive/70 mb-2">Tipo de categoria</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                v-model="categoryType"
+                type="radio"
+                value="parent"
+                class="w-4 h-4 accent-brand-primary"
+              />
+              <span class="font-sans text-sm text-brand-olive">Categoria principal</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                v-model="categoryType"
+                type="radio"
+                value="child"
+                class="w-4 h-4 accent-brand-primary"
+              />
+              <span class="font-sans text-sm text-brand-olive">Subcategoria</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Parent selector (only for subcategories) -->
+        <div v-if="categoryType === 'child'" class="mb-5">
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Categoria padre *</label>
+          <select
+            v-model="form.parentId"
+            required
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          >
+            <option value="" disabled>Seleccionar categoria padre</option>
+            <option
+              v-for="parent in parentCategories"
+              :key="parent.id"
+              :value="parent.id"
+            >
+              {{ parent.name }}
+            </option>
+          </select>
+        </div>
+
         <!-- Name -->
         <div class="mb-5">
           <label class="block font-sans text-sm text-brand-olive/70 mb-1">Nombre *</label>
@@ -50,8 +98,8 @@
           </label>
         </div>
 
-        <!-- Image -->
-        <div class="mb-8">
+        <!-- Image (only for parent categories) -->
+        <div v-if="categoryType === 'parent'" class="mb-8">
           <label class="block font-sans text-sm text-brand-olive/70 mb-2">Imagen</label>
           <AdminImageUpload
             v-model="form.image"
@@ -84,11 +132,14 @@
 </template>
 
 <script setup>
-const { post } = useApi()
+const { get, post } = useApi()
 const router = useRouter()
 
 const saving = ref(false)
 const error = ref('')
+const loadingParents = ref(true)
+const parentCategories = ref([])
+const categoryType = ref('parent')
 
 const form = ref({
   name: '',
@@ -96,6 +147,18 @@ const form = ref({
   order: 0,
   isActive: true,
   image: '',
+  parentId: '',
+})
+
+onMounted(async () => {
+  try {
+    const flat = await get('/api/categories/flat')
+    parentCategories.value = flat.filter(c => !c.parentId)
+  } catch (err) {
+    console.error('Error loading parent categories:', err)
+  } finally {
+    loadingParents.value = false
+  }
 })
 
 async function handleSubmit() {
@@ -103,7 +166,15 @@ async function handleSubmit() {
   error.value = ''
 
   try {
-    await post('/api/categories', form.value)
+    const data = {
+      name: form.value.name,
+      description: form.value.description,
+      order: form.value.order,
+      isActive: form.value.isActive,
+      image: form.value.image,
+      parentId: categoryType.value === 'child' ? form.value.parentId : null,
+    }
+    await post('/api/categories', data)
     router.push('/categorias')
   } catch (err) {
     error.value = err.message || 'Error al crear la categoria'

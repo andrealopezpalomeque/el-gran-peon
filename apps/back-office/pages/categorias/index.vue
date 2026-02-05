@@ -21,70 +21,99 @@
         <p class="font-sans text-brand-olive/60 text-sm">No hay categorias creadas.</p>
       </div>
 
-      <!-- Table -->
-      <div v-else class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b-2 border-brand-olive/10">
-              <th class="text-left font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Nombre</th>
-              <th class="text-left font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Descripcion</th>
-              <th class="text-left font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Orden</th>
-              <th class="text-left font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Estado</th>
-              <th class="text-right font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="cat in categories"
-              :key="cat.id"
-              class="border-b border-brand-olive/5"
-            >
-              <td class="py-3 pr-4">
-                <div class="flex items-center gap-3">
-                  <img
-                    v-if="cat.image"
-                    :src="cat.image"
-                    :alt="cat.name"
-                    class="w-10 h-10 object-cover border border-brand-olive/10"
-                  />
-                  <div v-else class="w-10 h-10 bg-brand-olive/5 border border-brand-olive/10" />
-                  <span class="font-sans text-sm text-brand-olive font-medium">{{ cat.name }}</span>
-                </div>
-              </td>
-              <td class="py-3 pr-4">
-                <span class="font-sans text-sm text-brand-olive/60">{{ cat.description || '-' }}</span>
-              </td>
-              <td class="py-3 pr-4">
-                <span class="font-sans text-sm text-brand-olive/60">{{ cat.order ?? 0 }}</span>
-              </td>
-              <td class="py-3 pr-4">
-                <AdminStatusBadge :status="cat.isActive" type="active" />
-              </td>
-              <td class="py-3 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <NuxtLink
-                    :to="`/categorias/${cat.id}`"
-                    class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary hover:text-brand-cream transition-colors"
-                  >
-                    Editar
-                  </NuxtLink>
-                  <button
-                    @click="confirmDelete(cat)"
-                    class="px-3 py-1 font-sans text-xs text-red-700 border border-red-300 hover:bg-red-700 hover:text-white transition-colors"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Nested category list -->
+      <div v-else class="space-y-6">
+        <div
+          v-for="parent in categories"
+          :key="parent.id"
+          class="border-2 border-brand-olive/10"
+        >
+          <!-- Parent category header -->
+          <div class="flex items-center justify-between px-4 py-3 bg-brand-olive/5">
+            <div class="flex items-center gap-3">
+              <img
+                v-if="parent.image"
+                :src="parent.image"
+                :alt="parent.name"
+                class="w-10 h-10 object-cover border border-brand-olive/10"
+              />
+              <div v-else class="w-10 h-10 bg-brand-olive/10 border border-brand-olive/10" />
+              <div>
+                <span class="font-sans text-sm text-brand-olive font-semibold">{{ parent.name }}</span>
+                <span v-if="parent.description" class="block font-sans text-xs text-brand-olive/50">{{ parent.description }}</span>
+              </div>
+              <AdminStatusBadge :status="parent.isActive" type="active" />
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-sans text-xs text-brand-olive/40 mr-2">Orden: {{ parent.order ?? 0 }}</span>
+              <NuxtLink
+                :to="`/categorias/${parent.id}`"
+                class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary hover:text-brand-cream transition-colors"
+              >
+                Editar
+              </NuxtLink>
+              <button
+                @click="confirmDelete(parent)"
+                class="px-3 py-1 font-sans text-xs text-red-700 border border-red-300 hover:bg-red-700 hover:text-white transition-colors"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+
+          <!-- Child categories -->
+          <div v-if="parent.children && parent.children.length > 0">
+            <table class="w-full">
+              <tbody>
+                <tr
+                  v-for="child in parent.children"
+                  :key="child.id"
+                  class="border-t border-brand-olive/5"
+                >
+                  <td class="py-2 pl-8 pr-4">
+                    <div class="flex items-center gap-3">
+                      <span class="font-sans text-xs text-brand-olive/30">&mdash;</span>
+                      <span class="font-sans text-sm text-brand-olive">{{ child.name }}</span>
+                    </div>
+                  </td>
+                  <td class="py-2 pr-4">
+                    <span class="font-sans text-xs text-brand-olive/40">Orden: {{ child.order ?? 0 }}</span>
+                  </td>
+                  <td class="py-2 pr-4">
+                    <AdminStatusBadge :status="child.isActive" type="active" />
+                  </td>
+                  <td class="py-2 pr-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <NuxtLink
+                        :to="`/categorias/${child.id}`"
+                        class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary hover:text-brand-cream transition-colors"
+                      >
+                        Editar
+                      </NuxtLink>
+                      <button
+                        @click="confirmDelete(child)"
+                        class="px-3 py-1 font-sans text-xs text-red-700 border border-red-300 hover:bg-red-700 hover:text-white transition-colors"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- No children -->
+          <div v-else class="px-8 py-2 border-t border-brand-olive/5">
+            <span class="font-sans text-xs text-brand-olive/30 italic">Sin subcategorias</span>
+          </div>
+        </div>
       </div>
 
       <AdminConfirmModal
         :visible="showDeleteModal"
         title="Eliminar categoria"
-        :message="`Se eliminara la categoria '${categoryToDelete?.name}'. Esta accion no se puede deshacer.`"
+        :message="deleteMessage"
         @confirm="deleteCategory"
         @cancel="showDeleteModal = false"
       />
@@ -99,6 +128,11 @@ const categories = ref([])
 const loading = ref(true)
 const showDeleteModal = ref(false)
 const categoryToDelete = ref(null)
+
+const deleteMessage = computed(() => {
+  if (!categoryToDelete.value) return ''
+  return `Se eliminara la categoria '${categoryToDelete.value.name}'. Esta accion no se puede deshacer.`
+})
 
 async function loadCategories() {
   loading.value = true
@@ -121,7 +155,7 @@ async function deleteCategory() {
 
   try {
     await apiDelete(`/api/categories/${categoryToDelete.value.id}`)
-    categories.value = categories.value.filter(c => c.id !== categoryToDelete.value.id)
+    await loadCategories()
   } catch (error) {
     console.error('Error deleting category:', error)
     alert(error.message || 'Error al eliminar la categoria')

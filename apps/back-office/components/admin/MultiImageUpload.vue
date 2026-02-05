@@ -129,8 +129,8 @@ async function uploadFiles(files) {
   for (let i = 0; i < toUpload.length; i++) {
     try {
       const formData = new FormData()
-      formData.append('image', toUpload[i])
       if (props.folder) formData.append('folder', props.folder)
+      formData.append('image', toUpload[i])
 
       const data = await upload(props.uploadEndpoint, formData)
       uploaded.push({

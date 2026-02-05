@@ -3,6 +3,7 @@ import { requireAuth } from '../middleware/auth.js';
 import {
   listActiveCategories,
   listAllCategories,
+  listFlatCategories,
   getCategory,
   createCategory,
   updateCategory,
@@ -13,6 +14,7 @@ const router = Router();
 
 router.get('/', listActiveCategories);
 router.get('/all', requireAuth, listAllCategories);
+router.get('/flat', requireAuth, listFlatCategories);
 router.get('/:id', getCategory);
 router.post('/', requireAuth, createCategory);
 router.put('/:id', requireAuth, updateCategory);
