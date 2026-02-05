@@ -276,10 +276,12 @@ const generatedSlug = computed(() => {
     .replace(/^-+|-+$/g, '')
 })
 
-// Image folder (from existing product or generated slug)
+// Stable image folder: generated once for new products, or from existing product
+const stableTimestamp = Date.now()
 const imageFolder = computed(() => {
   if (props.product?.cloudinaryFolder) return props.product.cloudinaryFolder
-  return generatedSlug.value || `product-${Date.now()}`
+  if (generatedSlug.value) return `${generatedSlug.value}-${stableTimestamp}`
+  return `product-${stableTimestamp}`
 })
 
 // Children of selected parent
@@ -376,6 +378,7 @@ function handleSubmit() {
     tags,
     compareAtPrice: form.value.compareAtPrice || null,
     bulkMinQuantity: form.value.bulkAvailable ? form.value.bulkMinQuantity : null,
+    cloudinaryFolder: imageFolder.value,
   }
 
   emit('save', data)

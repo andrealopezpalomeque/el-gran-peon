@@ -43,12 +43,13 @@ async function handleSave(productData) {
   error.value = ''
 
   try {
-    // 1. Create product without images first
+    // 1. Create product (with cloudinaryFolder for consistent naming) without images
     const { images, ...dataWithoutImages } = productData
     const created = await post('/api/products', {
       ...dataWithoutImages,
       images: [],
     })
+
 
     // 2. If there are already uploaded images, update the product with them
     if (images && images.length > 0) {

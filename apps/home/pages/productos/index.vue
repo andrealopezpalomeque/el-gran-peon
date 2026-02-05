@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto px-4 md:px-6 py-10 md:py-16">
+  <div class="container mx-auto px-4 md:px-6 pt-4 pb-10 md:pt-6 md:pb-16">
     <!-- Breadcrumb -->
     <UiBreadcrumb :items="breadcrumbItems" />
 

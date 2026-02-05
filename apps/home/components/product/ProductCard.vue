@@ -1,20 +1,16 @@
 <template>
   <NuxtLink :to="`/productos/${product.slug}`" class="group block">
     <!-- Image -->
-    <div class="aspect-square overflow-hidden">
+    <div class="aspect-square overflow-hidden bg-brand-olive/5">
       <img
-        v-if="product.images && product.images.length"
+        v-if="product.images && product.images.length && !imgBroken"
         :src="product.images[0].url"
         :alt="product.name"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        @error="imgBroken = true"
       />
-      <div
-        v-else
-        class="w-full h-full bg-brand-olive/10 flex items-center justify-center"
-      >
-        <svg class="w-12 h-12 text-brand-olive/30" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
-          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
+      <div v-else class="w-full h-full flex items-center justify-center">
+        <img src="/images/icon.png" alt="" class="w-16 h-16 opacity-20" />
       </div>
     </div>
     <!-- Info -->
@@ -41,6 +37,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { formatPrice } from '~/utils/format'
 
 defineProps({
@@ -49,4 +46,6 @@ defineProps({
     required: true,
   },
 })
+
+const imgBroken = ref(false)
 </script>

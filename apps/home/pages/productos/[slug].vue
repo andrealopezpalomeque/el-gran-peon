@@ -1,13 +1,13 @@
 <template>
   <!-- Loading state -->
-  <div v-if="loading" class="container mx-auto px-4 md:px-6 py-10 md:py-16">
+  <div v-if="loading" class="container mx-auto px-4 md:px-6 pt-4 pb-10 md:pt-6 md:pb-16">
     <div class="animate-pulse">
       <div class="h-3 w-48 bg-brand-olive/5 mb-6" />
       <div class="md:flex gap-10">
-        <div class="md:w-3/5">
-          <div class="aspect-square bg-brand-olive/5" />
+        <div class="md:w-1/2">
+          <div class="aspect-[4/3] bg-brand-olive/5" />
         </div>
-        <div class="md:w-2/5 mt-6 md:mt-0 space-y-4">
+        <div class="md:w-1/2 mt-6 md:mt-0 space-y-4">
           <div class="h-3 w-20 bg-brand-olive/5" />
           <div class="h-8 w-3/4 bg-brand-olive/5" />
           <div class="h-6 w-28 bg-brand-olive/5" />
@@ -32,26 +32,52 @@
 
   <!-- Product detail -->
   <div v-else>
-    <div class="container mx-auto px-4 md:px-6 py-10 md:py-16">
+    <div class="container mx-auto px-4 md:px-6 pt-4 pb-10 md:pt-6 md:pb-16">
       <!-- Breadcrumb -->
       <UiBreadcrumb :items="breadcrumbItems" class="mb-6" />
 
       <div class="md:flex gap-10">
         <!-- Left: Image Gallery -->
-        <div class="md:w-3/5">
-          <!-- Main image -->
-          <div class="aspect-square overflow-hidden bg-brand-olive/5">
+        <div class="md:w-1/2">
+          <!-- Main image with carousel arrows -->
+          <div class="relative group aspect-[4/3] overflow-hidden bg-brand-olive/5">
             <img
-              v-if="mainImage"
+              v-if="mainImage && !mainImgBroken"
               :src="mainImage"
               :alt="product.name"
               class="w-full h-full object-cover"
+              @error="mainImgBroken = true"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <svg class="w-16 h-16 text-brand-olive/20" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
-                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <img src="/images/icon.png" alt="El Gran Peón" class="w-24 h-24 opacity-20" />
             </div>
+
+            <!-- Carousel arrows (only if multiple images) -->
+            <template v-if="product.images && product.images.length > 1">
+              <button
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-cream/80 text-brand-olive hover:bg-brand-cream transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                @click="prevImage"
+                aria-label="Imagen anterior"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-cream/80 text-brand-olive hover:bg-brand-cream transition-colors duration-200 opacity-0 group-hover:opacity-100"
+                @click="nextImage"
+                aria-label="Imagen siguiente"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              <!-- Image counter -->
+              <span class="absolute bottom-3 right-3 font-sans text-xs text-brand-cream bg-black/40 px-2 py-1">
+                {{ selectedImageIndex + 1 }} / {{ product.images.length }}
+              </span>
+            </template>
           </div>
           <!-- Thumbnails -->
           <div
@@ -61,17 +87,22 @@
             <button
               v-for="(img, index) in product.images"
               :key="index"
-              class="shrink-0 w-20 h-20 overflow-hidden border-2 transition-colors duration-200"
+              class="shrink-0 w-16 h-16 overflow-hidden border-2 transition-colors duration-200"
               :class="selectedImageIndex === index ? 'border-brand-primary' : 'border-transparent hover:border-brand-olive/20'"
               @click="selectedImageIndex = index"
             >
-              <img :src="img.url" :alt="`${product.name} - ${index + 1}`" class="w-full h-full object-cover" />
+              <img
+                :src="img.url"
+                :alt="`${product.name} - ${index + 1}`"
+                class="w-full h-full object-cover"
+                @error="onThumbError"
+              />
             </button>
           </div>
         </div>
 
         <!-- Right: Product Info -->
-        <div class="md:w-2/5 mt-8 md:mt-0">
+        <div class="md:w-1/2 mt-8 md:mt-0">
           <!-- Category -->
           <p v-if="product.categoryName" class="font-sans text-xs uppercase tracking-wide text-brand-olive/60">
             {{ product.categoryName }}
@@ -201,7 +232,14 @@ const relatedProducts = ref([])
 const categoryMap = ref({}) // Maps category ID → { slug, name, parentSlug, parentName }
 const loading = ref(true)
 const selectedImageIndex = ref(0)
+const mainImgBroken = ref(false)
 const quantity = ref(1)
+
+function onThumbError(e) {
+  e.target.src = '/images/icon.png'
+  e.target.classList.remove('object-cover')
+  e.target.classList.add('object-contain', 'p-2', 'opacity-20')
+}
 
 const mainImage = computed(() => {
   if (product.value?.images?.length) {
@@ -209,6 +247,22 @@ const mainImage = computed(() => {
   }
   return null
 })
+
+function prevImage() {
+  if (!product.value?.images?.length) return
+  mainImgBroken.value = false
+  selectedImageIndex.value = selectedImageIndex.value > 0
+    ? selectedImageIndex.value - 1
+    : product.value.images.length - 1
+}
+
+function nextImage() {
+  if (!product.value?.images?.length) return
+  mainImgBroken.value = false
+  selectedImageIndex.value = selectedImageIndex.value < product.value.images.length - 1
+    ? selectedImageIndex.value + 1
+    : 0
+}
 
 const breadcrumbItems = computed(() => {
   if (!product.value) return []

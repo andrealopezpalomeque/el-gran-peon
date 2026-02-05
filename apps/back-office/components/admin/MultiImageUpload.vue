@@ -11,6 +11,7 @@
           :src="img.url"
           :alt="`Imagen ${index + 1}`"
           class="w-full aspect-square object-cover"
+          @error="e => { e.target.src = '/images/icon.png'; e.target.classList.remove('object-cover'); e.target.classList.add('object-contain', 'p-6', 'opacity-20') }"
         />
 
         <!-- Principal badge -->

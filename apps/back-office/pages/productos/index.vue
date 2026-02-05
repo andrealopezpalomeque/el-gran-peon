@@ -84,8 +84,11 @@
                 :src="product.images[0].url"
                 :alt="product.name"
                 class="w-12 h-12 object-cover border border-brand-olive/10"
+                @error="e => { e.target.src = '/images/icon.png'; e.target.classList.remove('object-cover'); e.target.classList.add('object-contain', 'p-1', 'opacity-30') }"
               />
-              <div v-else class="w-12 h-12 bg-brand-olive/5 border border-brand-olive/10" />
+              <div v-else class="w-12 h-12 bg-brand-olive/5 border border-brand-olive/10 flex items-center justify-center">
+                <img src="/images/icon.png" alt="" class="w-8 h-8 opacity-20" />
+              </div>
             </td>
 
             <!-- Nombre -->
@@ -118,12 +121,15 @@
 
             <!-- Destacado -->
             <td class="py-3 pr-4 text-center">
-              <span
-                v-if="product.isFeatured"
-                class="inline-block text-amber-500 text-lg"
-                title="Destacado"
-              >&#9733;</span>
-              <span v-else class="text-brand-olive/20 text-lg">&#9734;</span>
+              <button
+                type="button"
+                @click="toggleFeatured(product)"
+                class="text-lg transition-colors hover:scale-110 transition-transform"
+                :title="product.isFeatured ? 'Quitar de destacados' : 'Marcar como destacado'"
+              >
+                <span v-if="product.isFeatured" class="text-amber-500">&#9733;</span>
+                <span v-else class="text-brand-olive/20 hover:text-amber-300">&#9734;</span>
+              </button>
             </td>
 
             <!-- Estado -->
@@ -167,7 +173,7 @@
 <script setup>
 import { formatPrice } from '~/utils/format'
 
-const { get, delete: apiDelete } = useApi()
+const { get, put, delete: apiDelete } = useApi()
 
 const products = ref([])
 const categories = ref([])
@@ -211,6 +217,17 @@ async function loadData() {
     console.error('Error loading data:', error)
   } finally {
     loading.value = false
+  }
+}
+
+async function toggleFeatured(product) {
+  try {
+    const updated = await put(`/api/products/${product.id}`, {
+      isFeatured: !product.isFeatured,
+    })
+    product.isFeatured = updated.isFeatured
+  } catch (error) {
+    console.error('Error toggling featured:', error)
   }
 }
 
