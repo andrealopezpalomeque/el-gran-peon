@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-16',
   devtools: { enabled: true },
+  ssr: false,
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -47,6 +48,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
+      accessCode: process.env.NUXT_PUBLIC_ACCESS_CODE || 'granpeon2026',
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001',
       firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
