@@ -1,16 +1,6 @@
 <template>
-  <div class="relative">
-    <!-- Full-bleed background that covers safe areas -->
-    <div class="fixed inset-0 -top-[100px] -bottom-[100px] -left-[50px] -right-[50px] z-0">
-      <div
-        class="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style="background-image: url('/images/hero.jpg');"
-      ></div>
-      <div class="absolute inset-0 bg-black/50"></div>
-    </div>
-
-    <LandingHeader />
-    <LandingHero />
-    <LandingFooter />
+  <div class="container mx-auto px-6 py-16">
+    <h1 class="font-display text-brand-primary text-3xl">EL GRAN PEÓN</h1>
+    <p class="font-serif text-brand-olive mt-4">Home — Próximamente.</p>
   </div>
 </template>

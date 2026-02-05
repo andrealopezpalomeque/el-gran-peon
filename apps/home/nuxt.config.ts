@@ -14,7 +14,7 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'es',
       },
-      title: 'El Gran Peón | Herencia Clásica',
+      title: 'El Gran Peón | Herencia Clásica — Hecho para durar. Como las cosas bien hechas',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
