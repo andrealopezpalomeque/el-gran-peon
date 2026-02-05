@@ -36,9 +36,10 @@
         </div>
         <button
           type="submit"
-          class="w-full px-6 py-3 bg-brand-primary text-brand-cream font-sans font-medium text-sm tracking-wide hover:bg-brand-primary/90 transition-colors"
+          :disabled="loading"
+          class="w-full px-6 py-3 bg-brand-primary text-brand-cream font-sans font-medium text-sm tracking-wide hover:bg-brand-primary/90 transition-colors disabled:opacity-50"
         >
-          Entrar
+          {{ loading ? 'Verificando...' : 'Entrar' }}
         </button>
         <p v-if="error" class="mt-4 font-sans text-red-600 text-sm text-center">{{ error }}</p>
       </form>
@@ -65,11 +66,16 @@ definePageMeta({
 const accessCode = ref('')
 const error = ref('')
 const showCode = ref(false)
+const loading = ref(false)
 const router = useRouter()
 const config = useRuntimeConfig()
 
-function checkAccess() {
+async function checkAccess() {
   error.value = ''
+  loading.value = true
+
+  // Brief delay for UX feedback
+  await new Promise(r => setTimeout(r, 400))
 
   if (accessCode.value === config.public.accessCode) {
     // Set access cookie (expires in 30 days)
@@ -83,6 +89,7 @@ function checkAccess() {
     router.push('/')
   } else {
     error.value = 'Código incorrecto'
+    loading.value = false
   }
 }
 </script>

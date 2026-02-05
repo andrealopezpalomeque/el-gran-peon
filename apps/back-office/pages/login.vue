@@ -28,9 +28,10 @@
         </div>
         <button
           type="submit"
-          class="w-full px-6 py-3 bg-brand-primary text-brand-cream font-sans font-medium text-sm tracking-wide hover:bg-brand-primary/90 transition-colors"
+          :disabled="loading"
+          class="w-full px-6 py-3 bg-brand-primary text-brand-cream font-sans font-medium text-sm tracking-wide hover:bg-brand-primary/90 transition-colors disabled:opacity-50"
         >
-          Entrar
+          {{ loading ? 'Verificando...' : 'Entrar' }}
         </button>
         <p v-if="error" class="mt-4 font-sans text-red-600 text-sm text-center">{{ error }}</p>
       </form>
@@ -44,16 +45,23 @@ definePageMeta({ layout: false })
 const apiKey = ref('')
 const error = ref('')
 const showKey = ref(false)
+const loading = ref(false)
 const { login } = useAuth()
 const router = useRouter()
 
-function handleLogin() {
+async function handleLogin() {
   error.value = ''
+  loading.value = true
+
+  // Brief delay for UX feedback
+  await new Promise(r => setTimeout(r, 400))
+
   const success = login(apiKey.value)
   if (success) {
     router.push('/')
   } else {
     error.value = 'Clave incorrecta'
+    loading.value = false
   }
 }
 </script>

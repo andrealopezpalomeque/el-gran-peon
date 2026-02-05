@@ -4,10 +4,18 @@
       <h2 class="font-sans text-brand-olive text-2xl font-semibold mb-6">Dashboard</h2>
 
       <!-- Loading -->
-      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div v-for="i in 4" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
-          <div class="h-3 w-20 bg-brand-olive/5 mb-3" />
-          <div class="h-8 w-12 bg-brand-olive/5" />
+      <div v-if="loading">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div v-for="i in 4" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
+            <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
+            <div class="h-8 w-12 bg-brand-olive/10" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div v-for="i in 3" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
+            <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
+            <div class="h-8 w-12 bg-brand-olive/10" />
+          </div>
         </div>
       </div>
 
