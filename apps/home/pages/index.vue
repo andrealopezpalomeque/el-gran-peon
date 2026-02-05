@@ -1,6 +1,16 @@
 <template>
-  <div class="container mx-auto px-6 py-16">
-    <h1 class="font-display text-brand-primary text-3xl">EL GRAN PEÓN</h1>
-    <p class="font-serif text-brand-olive mt-4">Home — Próximamente.</p>
+  <div>
+    <HomeHeroCarousel />
+    <section class="py-16 md:py-24">
+      <div class="container mx-auto px-6">
+        <HomeCategoryBanners />
+      </div>
+    </section>
+    <section class="py-16 md:py-24 bg-brand-cream">
+      <div class="container mx-auto px-6">
+        <HomeFeaturedProducts />
+      </div>
+    </section>
+    <HomeEmpresarialesPreview />
   </div>
 </template>
