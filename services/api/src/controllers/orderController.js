@@ -119,7 +119,7 @@ export async function updateOrder(req, res) {
   }
 }
 
-const VALID_STATUSES = ['nuevo', 'en_conversacion', 'confirmado', 'pagado', 'enviado', 'entregado', 'cancelado'];
+const VALID_STATUSES = ['nuevo', 'contactado', 'en_conversacion', 'confirmado', 'pagado', 'enviado', 'entregado', 'cancelado'];
 
 export async function updateOrderStatus(req, res) {
   try {

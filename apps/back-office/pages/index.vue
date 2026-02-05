@@ -11,62 +11,117 @@
         </div>
       </div>
 
-      <!-- Stats -->
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white border-2 border-brand-olive/10 p-6">
-          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Productos</p>
-          <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.products }}</p>
+      <template v-else>
+        <!-- Order Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <NuxtLink
+            to="/pedidos?status=nuevo"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Pedidos nuevos</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.newOrders }}</p>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/pedidos"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">En proceso</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.inProcess }}</p>
+          </NuxtLink>
+
+          <div class="bg-white border-2 border-brand-olive/10 p-6">
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Completados este mes</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.completedThisMonth }}</p>
+          </div>
+
+          <div class="bg-white border-2 border-brand-olive/10 p-6">
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Ingresos potenciales</p>
+            <p class="font-sans text-brand-primary text-2xl font-bold">{{ stats.potentialRevenue }}</p>
+          </div>
         </div>
 
-        <div class="bg-white border-2 border-brand-olive/10 p-6">
-          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Categorias</p>
-          <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.categories }}</p>
-        </div>
+        <!-- Catalog Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <NuxtLink
+            to="/productos"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Productos</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.products }}</p>
+          </NuxtLink>
 
-        <div class="bg-white border-2 border-brand-olive/10 p-6">
-          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Pedidos</p>
-          <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.orders }}</p>
-        </div>
+          <NuxtLink
+            to="/categorias"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Categorias</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.categories }}</p>
+          </NuxtLink>
 
-        <div class="bg-white border-2 border-brand-olive/10 p-6">
-          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Pedidos Nuevos</p>
-          <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.newOrders }}</p>
+          <NuxtLink
+            to="/pedidos"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Total pedidos</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.totalOrders }}</p>
+          </NuxtLink>
         </div>
-      </div>
+      </template>
     </NuxtLayout>
   </div>
 </template>
 
 <script setup>
+import { formatPrice } from '~/utils/format'
+
 const { get } = useApi()
 
 const loading = ref(true)
 const stats = ref({
   products: 0,
   categories: 0,
-  orders: 0,
+  totalOrders: 0,
   newOrders: 0,
+  inProcess: 0,
+  completedThisMonth: 0,
+  potentialRevenue: '$0',
 })
 
 onMounted(async () => {
   try {
-    const [products, categories] = await Promise.all([
+    const [products, categories, orders] = await Promise.all([
       get('/api/products/all'),
       get('/api/categories/all'),
+      get('/api/orders').catch(() => []),
     ])
 
-    let orders = []
-    try {
-      orders = await get('/api/orders')
-    } catch (e) {
-      // Orders endpoint may not be available yet
-    }
+    const inProcessStatuses = ['contactado', 'en_conversacion', 'confirmado']
+    const revenueStatuses = ['confirmado', 'pagado']
+
+    const now = new Date()
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+
+    const completedThisMonth = orders.filter(o => {
+      if (o.status !== 'entregado') return false
+      const ts = o.updatedAt?._seconds ? o.updatedAt._seconds * 1000
+        : o.updatedAt?.seconds ? o.updatedAt.seconds * 1000
+        : new Date(o.updatedAt).getTime()
+      return ts >= thisMonthStart.getTime()
+    }).length
+
+    const potentialSum = orders
+      .filter(o => revenueStatuses.includes(o.status))
+      .reduce((sum, o) => sum + (o.adjustedAmount || o.totalAmount || 0), 0)
 
     stats.value = {
       products: products.length || 0,
       categories: categories.length || 0,
-      orders: orders.length || 0,
-      newOrders: orders.filter?.(o => o.status === 'nuevo')?.length || 0,
+      totalOrders: orders.length || 0,
+      newOrders: orders.filter(o => o.status === 'nuevo').length,
+      inProcess: orders.filter(o => inProcessStatuses.includes(o.status)).length,
+      completedThisMonth,
+      potentialRevenue: formatPrice(potentialSum),
     }
   } catch (error) {
     console.error('Error loading stats:', error)
