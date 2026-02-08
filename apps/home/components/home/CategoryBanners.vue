@@ -8,7 +8,7 @@
         v-for="category in categories"
         :key="category.id"
         :to="`/productos?categoria=${category.slug}`"
-        class="group relative aspect-[4/3] overflow-hidden block"
+        class="group relative aspect-square overflow-hidden block"
       >
         <!-- Background image or fallback -->
         <div
