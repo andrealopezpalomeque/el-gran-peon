@@ -197,14 +197,14 @@
               <div class="border-t-2 border-brand-olive/10 pt-4 space-y-2">
                 <div class="flex justify-between">
                   <span class="font-sans text-sm text-brand-olive/60">Subtotal productos</span>
-                  <span class="font-sans text-sm text-brand-olive/60">{{ formatPrice(order.totalAmount) }}</span>
+                  <span class="font-sans text-sm text-brand-olive/60">{{ formatPrice(editableSubtotal) }}</span>
                 </div>
-                <div v-if="order.discountAmount > 0" class="flex justify-between">
+                <div v-if="editableDiscount > 0" class="flex justify-between">
                   <span class="font-sans text-sm text-brand-primary">10% descuento (transferencia/efectivo)</span>
-                  <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(order.discountAmount) }}</span>
+                  <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(editableDiscount) }}</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="font-sans text-sm font-semibold text-brand-olive">Total ajustado</span>
+                  <span class="font-sans text-sm font-semibold text-brand-olive">Total</span>
                   <span class="font-sans text-sm font-semibold text-brand-primary">{{ formatPrice(editableTotal) }}</span>
                 </div>
               </div>
@@ -327,8 +327,17 @@ const fullAddress = computed(() => {
   return parts.join(', ')
 })
 
-const editableTotal = computed(() => {
+const editableSubtotal = computed(() => {
   return editableItems.value.reduce((sum, item) => sum + (item.quantity * item.price), 0)
+})
+
+const editableDiscount = computed(() => {
+  if (!order.value?.discountAmount || order.value.discountAmount <= 0) return 0
+  return Math.round(editableSubtotal.value * 0.10)
+})
+
+const editableTotal = computed(() => {
+  return editableSubtotal.value - editableDiscount.value
 })
 
 const filteredProducts = computed(() => {
@@ -407,11 +416,15 @@ async function saveItemChanges() {
       subtotal: item.quantity * item.price,
     }))
     const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
-    const adjustedAmount = items.reduce((sum, i) => sum + i.subtotal, 0)
+    const totalAmount = items.reduce((sum, i) => sum + i.subtotal, 0)
+    const discount = editableDiscount.value
+    const adjustedAmount = totalAmount - discount
 
     const updated = await put(`/api/orders/${order.value.id}`, {
       items,
       totalItems,
+      totalAmount,
+      discountAmount: discount,
       adjustedAmount,
     })
     order.value = updated

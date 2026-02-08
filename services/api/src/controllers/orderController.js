@@ -17,7 +17,7 @@ async function getNextOrderNumber() {
 
 export async function createOrder(req, res) {
   try {
-    const { customer, items, source } = req.body;
+    const { customer, items, source, discountAmount, adjustedAmount, paymentMethod } = req.body;
 
     if (!customer || !customer.name || !customer.phone) {
       return res.status(400).json({ error: 'Nombre y teléfono del cliente son requeridos.' });
@@ -46,7 +46,9 @@ export async function createOrder(req, res) {
       items,
       totalItems,
       totalAmount,
-      adjustedAmount: totalAmount,
+      discountAmount: discountAmount || 0,
+      adjustedAmount: adjustedAmount || totalAmount,
+      paymentMethod: paymentMethod || '',
       status: 'nuevo',
       adminNotes: '',
       whatsappSent: false,
