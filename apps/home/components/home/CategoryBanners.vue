@@ -1,7 +1,7 @@
 <template>
   <div v-if="categories.length">
     <h2 class="font-display uppercase text-brand-primary text-2xl md:text-3xl text-center mb-10 md:mb-14">
-      NUESTROS PRODUCTOS
+      PIEZAS DE EL GRAN PEÓN
     </h2>
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       <NuxtLink

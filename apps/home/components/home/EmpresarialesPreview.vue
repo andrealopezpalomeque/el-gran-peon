@@ -3,21 +3,20 @@
     <div class="container mx-auto px-6">
       <div class="max-w-3xl mx-auto text-center md:text-left">
         <p class="font-sans text-xs uppercase tracking-widest text-brand-cream/60 mb-4">
-          REGALOS EMPRESARIALES
+          PARA EMPRESAS
         </p>
         <h2 class="font-display uppercase text-brand-cream text-3xl md:text-4xl mb-6">
-          TU MARCA CON IDENTIDAD DE CAMPO
+          PIEZAS QUE REPRESENTAN TU MARCA
         </h2>
         <p class="font-serif text-brand-cream/80 text-base md:text-lg leading-relaxed max-w-lg mx-auto md:mx-0 mb-10">
-          Creamos piezas únicas para empresas que quieren regalar algo con identidad.
-          Mates, cuchillos y artículos de cuero personalizados con tu marca.
+          Creamos productos pensados para empresas que valoran la identidad y el trabajo bien hecho. Desarrollamos indumentaria, productos térmicos, mates, bombillas, cuchillos, tablas etc. Cuidando los materiales, los procesos y el resultado final.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
           <NuxtLink
             to="/empresariales"
             class="inline-block border-2 border-brand-cream text-brand-cream font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-brand-cream hover:text-brand-olive transition-colors duration-200 text-center"
           >
-            VER MÁS
+            VER PRODUCTOS
           </NuxtLink>
           <a
             href="https://wa.me/543794007759?text=Hola!%20Quiero%20consultar%20sobre%20regalos%20empresariales%20de%20El%20Gran%20Pe%C3%B3n"
@@ -25,7 +24,7 @@
             rel="noopener noreferrer"
             class="inline-block bg-brand-cream text-brand-olive font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-brand-cream/90 transition-colors duration-200 text-center"
           >
-            CONTACTANOS
+            HABLAR CON UN REPRESENTANTE
           </a>
         </div>
       </div>
@@ -33,7 +32,7 @@
       <!-- Trust logos carousel -->
       <div class="mt-16 pt-10 border-t border-brand-cream/20">
         <p class="font-sans text-xs uppercase tracking-widest text-brand-cream/40 text-center mb-8">
-          MARCAS QUE CONFÍAN EN NOSOTROS
+          EMPRESAS QUE CONFÍAN EN NUESTRO TRABAJO
         </p>
         <div
           class="logos-carousel overflow-hidden"
