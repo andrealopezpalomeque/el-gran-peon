@@ -9,7 +9,7 @@
           PIEZAS QUE REPRESENTAN TU MARCA
         </h2>
         <p class="font-serif text-brand-cream/80 text-base md:text-lg leading-relaxed max-w-lg mx-auto md:mx-0 mb-10">
-          Creamos productos pensados para empresas que valoran la identidad y el trabajo bien hecho. Desarrollamos indumentaria, productos térmicos, mates, bombillas, cuchillos, tablas etc. Cuidando los materiales, los procesos y el resultado final.
+          Creamos productos pensados para empresas que valoran la identidad y el trabajo bien hecho. Desarrollamos indumentaria, productos térmicos, mates, bombillas, cuchillos, tablas, entre otros, cuidando los materiales, los procesos y el resultado final.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
           <NuxtLink
