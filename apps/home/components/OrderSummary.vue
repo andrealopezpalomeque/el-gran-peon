@@ -18,12 +18,23 @@
       </div>
     </div>
 
-    <div class="border-t border-brand-olive/20 mt-6 pt-4">
+    <div class="border-t border-brand-olive/20 mt-6 pt-4 space-y-3">
       <div class="flex items-center justify-between">
         <span class="font-sans text-sm text-brand-olive">Subtotal</span>
-        <span class="font-sans text-lg font-bold text-brand-primary">{{ formatPrice(subtotal) }}</span>
+        <span class="font-sans text-sm text-brand-olive">{{ formatPrice(subtotal) }}</span>
       </div>
-      <p class="font-sans text-xs text-brand-olive/50 mt-2">
+
+      <div v-if="discountAmount > 0" class="flex items-center justify-between">
+        <span class="font-sans text-sm text-brand-primary">10% descuento (transferencia/efectivo)</span>
+        <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(discountAmount) }}</span>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-brand-olive/10">
+        <span class="font-sans text-sm font-bold text-brand-olive">Total</span>
+        <span class="font-sans text-lg font-bold text-brand-primary">{{ formatPrice(total) }}</span>
+      </div>
+
+      <p class="font-sans text-xs text-brand-olive/50">
         Total a confirmar via WhatsApp
       </p>
     </div>
@@ -36,5 +47,7 @@ import { formatPrice } from '~/utils/format'
 defineProps({
   items: { type: Array, required: true },
   subtotal: { type: Number, required: true },
+  discountAmount: { type: Number, default: 0 },
+  total: { type: Number, required: true },
 })
 </script>

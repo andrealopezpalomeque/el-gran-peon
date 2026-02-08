@@ -67,6 +67,10 @@
                   <p class="font-sans text-sm text-brand-olive">{{ order.customer.notes }}</p>
                 </div>
               </div>
+              <div v-if="order.paymentMethod" class="mt-3 pt-3 border-t border-brand-olive/10">
+                <p class="font-sans text-xs text-brand-olive/50 mb-1">Metodo de pago:</p>
+                <p class="font-sans text-sm text-brand-olive">{{ order.paymentMethod }}</p>
+              </div>
               <div class="mt-4 pt-3 border-t border-brand-olive/10 flex items-center gap-4 text-xs text-brand-olive/50 font-sans">
                 <span>Pedido: {{ order.orderNumber }}</span>
                 <span>Fecha: {{ formatDate(order.createdAt) }}</span>
@@ -192,8 +196,12 @@
               <!-- Totals -->
               <div class="border-t-2 border-brand-olive/10 pt-4 space-y-2">
                 <div class="flex justify-between">
-                  <span class="font-sans text-sm text-brand-olive/60">Total original</span>
+                  <span class="font-sans text-sm text-brand-olive/60">Subtotal productos</span>
                   <span class="font-sans text-sm text-brand-olive/60">{{ formatPrice(order.totalAmount) }}</span>
+                </div>
+                <div v-if="order.discountAmount > 0" class="flex justify-between">
+                  <span class="font-sans text-sm text-brand-primary">10% descuento (transferencia/efectivo)</span>
+                  <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(order.discountAmount) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="font-sans text-sm font-semibold text-brand-olive">Total ajustado</span>

@@ -172,6 +172,7 @@
                   class="accent-brand-primary"
                 />
                 <span class="font-sans text-sm text-brand-olive">{{ method.label }}</span>
+                <span v-if="method.discount" class="ml-auto font-sans text-xs font-medium text-brand-primary">10% OFF</span>
               </label>
             </div>
             <p v-if="errors.paymentMethod" class="font-sans text-xs text-red-500 mt-2">{{ errors.paymentMethod }}</p>
@@ -179,7 +180,7 @@
 
           <!-- Submit -->
           <div class="lg:hidden mb-10">
-            <OrderSummary :items="cart.items" :subtotal="cart.subtotal" />
+            <OrderSummary :items="cart.items" :subtotal="cart.subtotal" :discount-amount="discountAmount" :total="orderTotal" />
           </div>
 
           <button
@@ -203,7 +204,7 @@
       <!-- Right: Order Summary (desktop) -->
       <div class="hidden lg:block lg:w-96">
         <div class="sticky top-44">
-          <OrderSummary :items="cart.items" :subtotal="cart.subtotal" />
+          <OrderSummary :items="cart.items" :subtotal="cart.subtotal" :discount-amount="discountAmount" :total="orderTotal" />
         </div>
       </div>
     </div>
@@ -211,7 +212,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { formatPrice } from '~/utils/format'
 
 const cart = useCartStore()
@@ -270,11 +271,26 @@ const provinces = [
   'Tucuman',
 ]
 
+const DISCOUNT_RATE = 0.10
+
 const paymentMethods = [
-  { value: 'transferencia', label: 'Transferencia bancaria' },
-  { value: 'efectivo', label: 'Efectivo contra entrega' },
-  { value: 'tarjeta', label: 'Tarjeta de credito (hasta 3 cuotas)' },
+  { value: 'transferencia', label: 'Transferencia bancaria', discount: true },
+  { value: 'efectivo', label: 'Efectivo contra entrega', discount: true },
+  { value: 'tarjeta', label: 'Tarjeta de credito (hasta 3 cuotas)', discount: false },
 ]
+
+const hasDiscount = computed(() => {
+  const method = paymentMethods.find(m => m.value === form.paymentMethod)
+  return method?.discount ?? false
+})
+
+const discountAmount = computed(() => {
+  return hasDiscount.value ? Math.round(cart.subtotal * DISCOUNT_RATE) : 0
+})
+
+const orderTotal = computed(() => {
+  return cart.subtotal - discountAmount.value
+})
 
 const paymentMethodLabels = {
   transferencia: 'Transferencia bancaria',
@@ -361,7 +377,8 @@ async function submitOrder() {
       })),
       totalItems: cart.itemCount,
       totalAmount: cart.subtotal,
-      adjustedAmount: cart.subtotal,
+      discountAmount: discountAmount.value,
+      adjustedAmount: orderTotal.value,
       paymentMethod: paymentMethodLabels[form.paymentMethod] || form.paymentMethod,
       source: 'storefront',
     }
@@ -371,6 +388,8 @@ async function submitOrder() {
     const whatsappUrl = cart.generateWhatsAppUrl({
       customer: orderData.customer,
       paymentMethod: orderData.paymentMethod,
+      discountAmount: discountAmount.value,
+      adjustedAmount: orderTotal.value,
     })
 
     cart.clearCart()

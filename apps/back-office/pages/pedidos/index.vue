@@ -110,6 +110,7 @@
               <!-- Total -->
               <td class="py-3 pr-4">
                 <span class="font-sans text-sm font-medium text-brand-olive">{{ formatPrice(order.adjustedAmount || order.totalAmount) }}</span>
+                <p v-if="order.paymentMethod" class="font-sans text-xs text-brand-olive/50">{{ order.paymentMethod }}</p>
               </td>
 
               <!-- Status -->
@@ -171,7 +172,10 @@
             <span class="font-sans text-xs text-brand-olive/50">
               {{ formatDate(order.createdAt) }} · {{ order.totalItems }} {{ order.totalItems === 1 ? 'producto' : 'productos' }}
             </span>
-            <span class="font-sans text-sm font-medium text-brand-olive">{{ formatPrice(order.adjustedAmount || order.totalAmount) }}</span>
+            <div class="text-right">
+              <span class="font-sans text-sm font-medium text-brand-olive">{{ formatPrice(order.adjustedAmount || order.totalAmount) }}</span>
+              <p v-if="order.paymentMethod" class="font-sans text-xs text-brand-olive/50">{{ order.paymentMethod }}</p>
+            </div>
           </div>
         </NuxtLink>
       </div>

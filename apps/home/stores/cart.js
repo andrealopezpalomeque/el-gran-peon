@@ -106,7 +106,14 @@ export const useCartStore = defineStore('cart', () => {
       message += `   Subtotal: ${formatPrice(item.unitPrice * item.quantity)}\n\n`
     })
 
-    message += `*Subtotal: ${formatPrice(subtotal.value)}*\n\n`
+    message += `*Subtotal: ${formatPrice(subtotal.value)}*\n`
+
+    if (orderData.discountAmount > 0) {
+      message += `*Descuento 10% (transferencia/efectivo): -${formatPrice(orderData.discountAmount)}*\n`
+      message += `*Total: ${formatPrice(orderData.adjustedAmount)}*\n\n`
+    } else {
+      message += `\n`
+    }
 
     message += `*Metodo de pago preferido:* ${orderData.paymentMethod}\n\n`
 
