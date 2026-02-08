@@ -30,21 +30,81 @@
         </div>
       </div>
 
-      <!-- Trust logos placeholder -->
+      <!-- Trust logos carousel -->
       <div class="mt-16 pt-10 border-t border-brand-cream/20">
-        <p class="font-sans text-xs uppercase tracking-widest text-brand-cream/40 text-center mb-6">
+        <p class="font-sans text-xs uppercase tracking-widest text-brand-cream/40 text-center mb-8">
           MARCAS QUE CONFÍAN EN NOSOTROS
         </p>
-        <div class="flex justify-center gap-8 md:gap-12">
+        <div
+          class="logos-carousel overflow-hidden"
+          @mouseenter="paused = true"
+          @mouseleave="paused = false"
+        >
           <div
-            v-for="n in 4"
-            :key="n"
-            class="w-16 h-16 md:w-20 md:h-20 border border-brand-cream/20 flex items-center justify-center"
+            class="logos-track flex items-center"
+            :class="{ 'logos-paused': paused }"
           >
-            <span class="font-sans text-xs text-brand-cream/30">LOGO</span>
+            <div
+              v-for="(logo, index) in [...logos, ...logos]"
+              :key="index"
+              class="logos-item flex-shrink-0 flex items-center justify-center px-6 md:px-10"
+            >
+              <img
+                :src="logo.src"
+                :alt="logo.alt"
+                class="logo-img h-10 md:h-14 w-auto max-w-[120px] md:max-w-[160px] object-contain transition-opacity duration-300"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+
+const paused = ref(false)
+
+const logos = ref([
+  { src: '/images/logos/bna.png', alt: 'Banco de la Nación Argentina' },
+  { src: '/images/logos/dorado.png', alt: 'Dorado Distribuidora' },
+  { src: '/images/logos/el_litoral.png', alt: 'El Litoral - Fábrica de Velas' },
+  { src: '/images/logos/enfoque.png', alt: 'Enfoque Display and Design' },
+  { src: '/images/logos/jovenes_brangus.png', alt: 'Jóvenes Brangus Argentina' },
+  { src: '/images/logos/nexo.png', alt: 'Nexo' },
+  { src: '/images/logos/safico.png', alt: 'Safico' },
+  { src: '/images/logos/solimano.png', alt: 'Solimano & Asociados' },
+])
+</script>
+
+<style scoped>
+.logo-img {
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+}
+
+.logo-img:hover {
+  opacity: 0.85;
+}
+
+.logos-track {
+  animation: scroll-logos 30s linear infinite;
+  width: max-content;
+}
+
+.logos-paused {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-logos {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+</style>
