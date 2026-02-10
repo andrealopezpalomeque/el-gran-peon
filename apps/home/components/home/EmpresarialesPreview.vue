@@ -51,7 +51,7 @@
               <img
                 :src="logo.src"
                 :alt="logo.alt"
-                class="logo-img h-10 md:h-14 w-auto max-w-[120px] md:max-w-[160px] object-contain transition-opacity duration-300"
+                class="logo-img h-16 md:h-24 w-auto max-w-[180px] md:max-w-[260px] object-contain transition-opacity duration-300"
                 loading="lazy"
               />
             </div>
