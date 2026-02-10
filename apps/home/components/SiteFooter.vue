@@ -5,7 +5,7 @@
         <!-- Column 1: Brand -->
         <div>
           <img
-            src="/images/logo.png"
+            :src="logoUrl"
             alt="El Gran Peón"
             class="h-32 brightness-0 invert mb-4"
           />
@@ -143,6 +143,8 @@
 </template>
 
 <script setup>
+import logoUrl from '~/assets/images/logo.png'
+
 const navLinks = [
   { to: '/productos', label: 'Productos' },
   { to: '/nosotros', label: 'Nosotros' },

@@ -3,7 +3,7 @@
     <div class="w-full max-w-sm">
       <div class="text-center mb-8">
         <img
-          src="/images/logo.png"
+          :src="logoUrl"
           alt="El Gran Peón"
           class="h-56 md:h-64 mx-auto mb-4"
         />
@@ -58,6 +58,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import logoUrl from '~/assets/images/logo.png'
 
 definePageMeta({
   layout: false

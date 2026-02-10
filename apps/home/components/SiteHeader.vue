@@ -24,7 +24,7 @@
         <!-- Center: Logo -->
         <NuxtLink to="/" class="absolute left-1/2 -translate-x-1/2">
           <img
-            src="/images/logo.png"
+            :src="logoUrl"
             alt="El Gran Peón"
             class="h-32"
           />
@@ -74,7 +74,7 @@
         <!-- Center: Logo -->
         <NuxtLink to="/" class="absolute left-1/2 -translate-x-1/2">
           <img
-            src="/images/logo.png"
+            :src="logoUrl"
             alt="El Gran Peón"
             class="h-16"
           />
@@ -116,7 +116,7 @@
       >
         <div class="flex items-center justify-between px-6 h-20 border-b border-brand-olive/10">
           <img
-            src="/images/logo.png"
+            :src="logoUrl"
             alt="El Gran Peón"
             class="h-16"
           />
@@ -164,6 +164,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import logoUrl from '~/assets/images/logo.png'
 
 const cart = useCartStore()
 const whatsappUrl = 'https://wa.me/543794007759?text=Hola!%20Quiero%20consultar%20sobre%20los%20productos%20de%20El%20Gran%20Pe%C3%B3n'
