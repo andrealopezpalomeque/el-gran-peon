@@ -16,6 +16,14 @@
         @add-to-cart="handleAddToCart"
       />
     </div>
+    <div class="text-center mt-10 md:mt-14">
+      <NuxtLink
+        to="/productos"
+        class="inline-block border-2 border-brand-primary text-brand-primary font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-brand-primary hover:text-brand-cream transition-colors duration-200"
+      >
+        VER TODOS LOS PRODUCTOS
+      </NuxtLink>
+    </div>
     <!-- Toast notification -->
     <Transition name="toast">
       <div
