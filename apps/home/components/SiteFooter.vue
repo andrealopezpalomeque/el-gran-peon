@@ -7,7 +7,7 @@
           <img
             :src="logoUrl"
             alt="El Gran Peón"
-            class="h-32 brightness-0 invert mb-4"
+            class="h-44 md:h-44 brightness-0 invert mb-1"
           />
           <p class="font-serif text-brand-cream/70 text-sm mt-2">
             Hecho para durar. Como las cosas bien hechas.

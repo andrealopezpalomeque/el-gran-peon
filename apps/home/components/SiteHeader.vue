@@ -1,13 +1,13 @@
 <template>
   <header
     :class="[
-      'bg-brand-cream border-b border-brand-olive/10 transition-shadow duration-200',
+      'bg-brand-cream border-b border-brand-olive/10 transition-shadow duration-200 relative z-20 overflow-visible',
       scrolled ? 'shadow-sm' : '',
     ]"
   >
     <div class="container mx-auto px-6">
       <!-- Desktop Header -->
-      <div class="hidden lg:flex items-center justify-between h-28">
+      <div class="hidden lg:flex items-center justify-between h-28 relative overflow-visible">
         <!-- Left: Navigation -->
         <nav class="flex items-center gap-8">
           <NuxtLink
@@ -26,7 +26,7 @@
           <img
             :src="logoUrl"
             alt="El Gran Peón"
-            class="h-32"
+            class="h-56"
           />
         </NuxtLink>
 
@@ -59,7 +59,7 @@
       </div>
 
       <!-- Mobile Header -->
-      <div class="flex lg:hidden items-center justify-between h-20">
+      <div class="flex lg:hidden items-center justify-between h-20 relative overflow-visible">
         <!-- Left: Hamburger -->
         <button
           @click="mobileMenuOpen = true"
@@ -76,7 +76,7 @@
           <img
             :src="logoUrl"
             alt="El Gran Peón"
-            class="h-16"
+            class="h-36"
           />
         </NuxtLink>
 
@@ -114,11 +114,11 @@
         v-if="mobileMenuOpen"
         class="fixed inset-0 z-50 bg-brand-cream"
       >
-        <div class="flex items-center justify-between px-6 h-20 border-b border-brand-olive/10">
+        <div class="flex items-center justify-between px-6 h-20 border-b border-brand-olive/10 overflow-visible">
           <img
             :src="logoUrl"
             alt="El Gran Peón"
-            class="h-16"
+            class="h-36"
           />
           <button
             @click="mobileMenuOpen = false"
