@@ -1,7 +1,7 @@
 <template>
   <header
     :class="[
-      'bg-brand-cream border-b border-brand-olive/10 transition-shadow duration-200 relative z-20 overflow-visible',
+      'bg-brand-cream border-b border-brand-olive/10 transition-shadow duration-200 relative overflow-visible',
       scrolled ? 'shadow-sm' : '',
     ]"
   >
@@ -115,11 +115,13 @@
         class="fixed inset-0 z-50 bg-brand-cream"
       >
         <div class="flex items-center justify-between px-6 h-20 border-b border-brand-olive/10 overflow-visible">
-          <img
-            :src="logoUrl"
-            alt="El Gran Peón"
-            class="h-36"
-          />
+          <NuxtLink to="/" @click="mobileMenuOpen = false">
+            <img
+              :src="logoUrl"
+              alt="El Gran Peón"
+              class="h-36"
+            />
+          </NuxtLink>
           <button
             @click="mobileMenuOpen = false"
             class="text-brand-olive p-2 -mr-2"

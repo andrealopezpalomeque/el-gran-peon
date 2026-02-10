@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-brand-primary text-brand-cream py-2 relative z-50">
+  <div class="w-full bg-brand-primary text-brand-cream py-2 relative z-10">
     <div class="container mx-auto px-6 flex items-center justify-center">
       <Transition name="fade" mode="out-in">
         <p
