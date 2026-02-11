@@ -263,7 +263,7 @@
 
           <!-- Image container -->
           <div
-            class="w-full h-full flex items-center justify-center select-none"
+            class="relative w-full h-full select-none overflow-hidden"
             :class="zoomLevel > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'"
             @touchstart="onLightboxTouchStart"
             @touchmove.prevent="onLightboxTouchMove"
@@ -271,15 +271,22 @@
             @mousedown="onLightboxMouseDown"
             @dblclick="onLightboxDblClick"
           >
-            <img
-              v-if="mainImage"
-              :src="mainImage"
-              :alt="product.name"
-              class="max-w-full max-h-full object-contain select-none"
-              :class="{ 'transition-transform duration-150 ease-out': !isInteracting }"
-              :style="{ transform: `scale(${zoomLevel}) translate(${panX}px, ${panY}px)` }"
-              draggable="false"
-            />
+            <Transition :name="`slide-${slideDirection}`">
+              <div
+                :key="selectedImageIndex"
+                class="absolute inset-0 flex items-center justify-center"
+              >
+                <img
+                  v-if="mainImage"
+                  :src="mainImage"
+                  :alt="product.name"
+                  class="max-w-full max-h-full object-contain select-none"
+                  :class="{ 'transition-transform duration-150 ease-out': !isInteracting }"
+                  :style="{ transform: `scale(${zoomLevel}) translate(${panX}px, ${panY}px)` }"
+                  draggable="false"
+                />
+              </div>
+            </Transition>
           </div>
 
           <!-- Navigation arrows -->
@@ -478,6 +485,8 @@ function lightboxNext() {
 }
 
 function lightboxGoTo(index) {
+  if (index === selectedImageIndex.value) return
+  slideDirection.value = index > selectedImageIndex.value ? 'left' : 'right'
   mainImgBroken.value = false
   selectedImageIndex.value = index
   resetZoom()
