@@ -6,16 +6,54 @@
     <p class="font-serif text-brand-olive/70 text-center mb-10 md:mb-14">
       Hechas para durar, como las cosas bien hechas.
     </p>
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-      <ProductCard
-        v-for="product in products"
-        :key="product.id"
-        :product="product"
-        :show-actions="true"
-        @quick-buy="handleQuickBuy"
-        @add-to-cart="handleAddToCart"
-      />
+
+    <!-- Carousel -->
+    <div class="relative">
+      <!-- Left arrow -->
+      <button
+        v-show="canScrollLeft"
+        class="hidden md:flex absolute left-0 top-[35%] -translate-y-1/2 z-10 w-10 h-10 items-center justify-center bg-brand-cream border border-brand-primary/30 text-brand-primary hover:bg-brand-primary hover:text-brand-cream transition-colors"
+        aria-label="Anterior"
+        @click="scrollPrev"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="square" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Scrollable track -->
+      <div
+        ref="trackEl"
+        class="flex gap-4 md:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide"
+        @scroll="onScroll"
+      >
+        <div
+          v-for="product in products"
+          :key="product.id"
+          class="snap-start shrink-0 w-[68vw] sm:w-[44vw] md:w-[calc(25%-18px)]"
+        >
+          <ProductCard
+            :product="product"
+            :show-actions="true"
+            :compact-actions="true"
+            @add-to-cart="handleAddToCart"
+          />
+        </div>
+      </div>
+
+      <!-- Right arrow -->
+      <button
+        v-show="canScrollRight"
+        class="hidden md:flex absolute right-0 top-[35%] -translate-y-1/2 z-10 w-10 h-10 items-center justify-center bg-brand-cream border border-brand-primary/30 text-brand-primary hover:bg-brand-primary hover:text-brand-cream transition-colors"
+        aria-label="Siguiente"
+        @click="scrollNext"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="square" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
     </div>
+
     <div class="text-center mt-10 md:mt-14">
       <NuxtLink
         to="/productos"
@@ -24,6 +62,7 @@
         VER TODOS LOS PRODUCTOS
       </NuxtLink>
     </div>
+
     <!-- Toast notification -->
     <Transition name="toast">
       <div
@@ -41,28 +80,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useCartStore } from '~/stores/cart'
 
 const { get } = useApi()
 const cart = useCartStore()
-const router = useRouter()
 
 const products = ref([])
 const loaded = ref(false)
 const toastMessage = ref('')
+const trackEl = ref(null)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(false)
 
 onMounted(async () => {
-  const data = await get('/api/products?featured=true&limit=6')
+  const data = await get('/api/products?featured=true&limit=10')
   if (data && data.length) {
     products.value = data
   }
   loaded.value = true
+  await nextTick()
+  updateScrollState()
 })
 
-const handleQuickBuy = (product) => {
-  cart.addProduct(product, 1)
-  router.push('/checkout')
+const updateScrollState = () => {
+  if (!trackEl.value) return
+  const { scrollLeft, scrollWidth, clientWidth } = trackEl.value
+  canScrollLeft.value = scrollLeft > 2
+  canScrollRight.value = scrollLeft + clientWidth < scrollWidth - 2
+}
+
+const onScroll = () => {
+  updateScrollState()
+}
+
+const scrollPrev = () => {
+  if (!trackEl.value) return
+  trackEl.value.scrollBy({ left: -trackEl.value.clientWidth * 0.75, behavior: 'smooth' })
+}
+
+const scrollNext = () => {
+  if (!trackEl.value) return
+  trackEl.value.scrollBy({ left: trackEl.value.clientWidth * 0.75, behavior: 'smooth' })
 }
 
 let toastTimeout = null
@@ -77,6 +136,13 @@ const handleAddToCart = (product) => {
 </script>
 
 <style scoped>
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 .toast-enter-active,
 .toast-leave-active {
   transition: opacity 0.3s, transform 0.3s;
