@@ -127,10 +127,13 @@
               <button
                 type="button"
                 @click="toggleFeatured(product)"
-                class="text-lg transition-colors hover:scale-110 transition-transform"
+                class="text-lg hover:scale-110 transition-transform"
+                :class="togglingFeatured[product.id] ? 'pointer-events-none opacity-50' : ''"
                 :title="product.isFeatured ? 'Quitar de destacados' : 'Marcar como destacado'"
+                :disabled="togglingFeatured[product.id]"
               >
-                <span v-if="product.isFeatured" class="text-amber-500">&#9733;</span>
+                <span v-if="togglingFeatured[product.id]" class="inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                <span v-else-if="product.isFeatured" class="text-amber-500">&#9733;</span>
                 <span v-else class="text-brand-olive/20 hover:text-amber-300">&#9734;</span>
               </button>
             </td>
@@ -183,6 +186,7 @@ const categories = ref([])
 const loading = ref(true)
 const showDeleteModal = ref(false)
 const productToDelete = ref(null)
+const togglingFeatured = ref({})
 
 // Filters
 const filterCategory = ref('')
@@ -240,6 +244,7 @@ async function loadData() {
 }
 
 async function toggleFeatured(product) {
+  togglingFeatured.value[product.id] = true
   try {
     const updated = await put(`/api/products/${product.id}`, {
       isFeatured: !product.isFeatured,
@@ -247,6 +252,8 @@ async function toggleFeatured(product) {
     product.isFeatured = updated.isFeatured
   } catch (error) {
     console.error('Error toggling featured:', error)
+  } finally {
+    delete togglingFeatured.value[product.id]
   }
 }
 
