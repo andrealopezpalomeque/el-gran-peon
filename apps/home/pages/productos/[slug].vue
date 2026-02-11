@@ -503,11 +503,12 @@ function onLightboxTouchStart(e) {
       return
     }
     lastTap = now
+    // Always track start position for swipe detection
+    panStartX = e.touches[0].clientX
+    panStartY = e.touches[0].clientY
     // Pan start (when zoomed)
     if (zoomLevel.value > 1) {
       isInteracting.value = true
-      panStartX = e.touches[0].clientX
-      panStartY = e.touches[0].clientY
       panStartPanX = panX.value
       panStartPanY = panY.value
     }
@@ -531,7 +532,16 @@ function onLightboxTouchMove(e) {
   }
 }
 
-function onLightboxTouchEnd() {
+function onLightboxTouchEnd(e) {
+  // Swipe navigation when at 1x zoom
+  if (zoomLevel.value <= 1 && activeTouches === 1 && e.changedTouches.length) {
+    const dx = e.changedTouches[0].clientX - panStartX
+    const dy = e.changedTouches[0].clientY - panStartY
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx > 0) lightboxPrev()
+      else lightboxNext()
+    }
+  }
   activeTouches = 0
   isInteracting.value = false
 }
