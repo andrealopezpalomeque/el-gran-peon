@@ -11,26 +11,22 @@
         v-for="category in categories"
         :key="category.id"
         :to="`/productos?categoria=${category.slug}`"
-        class="group relative aspect-square overflow-hidden block"
+        class="group flex flex-col items-center"
       >
-        <!-- Background image or fallback -->
-        <div
-          v-if="category.image"
-          class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
-          :style="{ backgroundImage: `url(${category.image})` }"
-        />
-        <div
-          v-else
-          class="absolute inset-0 bg-brand-primary"
-        />
-        <!-- Overlay -->
-        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-300" />
-        <!-- Category name -->
-        <div class="relative z-10 h-full flex items-center justify-center">
-          <span class="font-display uppercase text-brand-cream text-xl md:text-2xl">
-            {{ category.name.toUpperCase() }}
-          </span>
+        <!-- Product image (transparent bg) -->
+        <div class="aspect-square w-full flex items-center justify-center overflow-hidden bg-brand-cream p-4">
+          <img
+            v-if="category.image"
+            :src="category.image"
+            :alt="category.name"
+            class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+          <div v-else class="w-16 h-16 bg-brand-primary/10" />
         </div>
+        <!-- Category label -->
+        <span class="block w-full bg-brand-primary py-2 font-display uppercase text-brand-cream text-sm md:text-base text-center tracking-wide transition-colors duration-300 group-hover:bg-brand-primary/90">
+          {{ category.name.toUpperCase() }}
+        </span>
       </NuxtLink>
     </div>
   </div>
