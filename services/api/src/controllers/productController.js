@@ -55,9 +55,14 @@ export async function listActiveProducts(req, res) {
     // Sort: featured products by featuredOrder ASC then createdAt DESC, others by createdAt DESC
     if (req.query.featured === 'true') {
       products.sort((a, b) => {
-        const orderA = a.featuredOrder ?? 0;
-        const orderB = b.featuredOrder ?? 0;
-        if (orderA !== orderB) return orderA - orderB;
+        const orderA = a.featuredOrder || 0;
+        const orderB = b.featuredOrder || 0;
+        // 0 means unset — push to end
+        if (orderA !== orderB) {
+          if (orderA === 0) return 1;
+          if (orderB === 0) return -1;
+          return orderA - orderB;
+        }
         const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
         const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
         return dateB - dateA;

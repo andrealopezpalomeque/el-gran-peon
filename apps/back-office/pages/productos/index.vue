@@ -234,7 +234,14 @@ const filteredProducts = computed(() => {
   }
 
   if (filterFeatured.value) {
-    result = [...result].sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0))
+    result = [...result].sort((a, b) => {
+      const oa = a.featuredOrder || 0
+      const ob = b.featuredOrder || 0
+      if (oa === 0 && ob === 0) return 0
+      if (oa === 0) return 1
+      if (ob === 0) return -1
+      return oa - ob
+    })
   }
 
   return result
