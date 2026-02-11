@@ -40,7 +40,12 @@
         <!-- Left: Image Gallery -->
         <div class="md:w-1/2">
           <!-- Main image with carousel arrows -->
-          <div class="relative group aspect-[4/3] overflow-hidden bg-brand-cream">
+          <div
+            class="relative group aspect-[4/3] overflow-hidden bg-brand-cream cursor-zoom-in"
+            @touchstart="onGalleryTouchStart"
+            @touchend="onGalleryTouchEnd"
+            @click="onGalleryClick"
+          >
             <img
               v-if="mainImage && !mainImgBroken"
               :src="mainImage"
@@ -55,8 +60,8 @@
             <!-- Carousel arrows (only if multiple images) -->
             <template v-if="product.images && product.images.length > 1">
               <button
-                class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                @click="prevImage"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 md:opacity-0 md:group-hover:opacity-100"
+                @click.stop="prevImage"
                 aria-label="Imagen anterior"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -64,8 +69,8 @@
                 </svg>
               </button>
               <button
-                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 opacity-0 group-hover:opacity-100"
-                @click="nextImage"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 md:opacity-0 md:group-hover:opacity-100"
+                @click.stop="nextImage"
                 aria-label="Imagen siguiente"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -78,6 +83,13 @@
                 {{ selectedImageIndex + 1 }} / {{ product.images.length }}
               </span>
             </template>
+
+            <!-- Zoom hint icon -->
+            <div v-if="mainImage && !mainImgBroken" class="absolute bottom-3 left-3 text-brand-olive/30 pointer-events-none">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35M11 8v6M8 11h6" />
+              </svg>
+            </div>
           </div>
           <!-- Thumbnails -->
           <div
@@ -223,11 +235,96 @@
         </div>
       </div>
     </div>
+
+    <!-- Lightbox / Zoom overlay -->
+    <Teleport to="body">
+      <Transition name="lightbox">
+        <div
+          v-if="lightboxOpen"
+          class="fixed inset-0 z-50 bg-black/95"
+          @wheel.prevent="onLightboxWheel"
+          @mouseup="onLightboxMouseUp"
+          @mousemove="onLightboxMouseMove"
+          @mouseleave="onLightboxMouseUp"
+        >
+          <!-- Close button -->
+          <button
+            class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            @click="closeLightbox"
+            aria-label="Cerrar"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <!-- Image container -->
+          <div
+            class="w-full h-full flex items-center justify-center select-none"
+            :class="zoomLevel > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'"
+            @touchstart="onLightboxTouchStart"
+            @touchmove.prevent="onLightboxTouchMove"
+            @touchend="onLightboxTouchEnd"
+            @mousedown="onLightboxMouseDown"
+            @dblclick="onLightboxDblClick"
+          >
+            <img
+              v-if="mainImage"
+              :src="mainImage"
+              :alt="product.name"
+              class="max-w-full max-h-full object-contain select-none"
+              :class="{ 'transition-transform duration-150 ease-out': !isInteracting }"
+              :style="{ transform: `scale(${zoomLevel}) translate(${panX}px, ${panY}px)` }"
+              draggable="false"
+            />
+          </div>
+
+          <!-- Navigation arrows -->
+          <template v-if="product.images && product.images.length > 1">
+            <button
+              class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+              @click="lightboxPrev"
+              aria-label="Imagen anterior"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+              @click="lightboxNext"
+              aria-label="Imagen siguiente"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </template>
+
+          <!-- Thumbnail gallery -->
+          <div v-if="product.images && product.images.length > 1" class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 max-w-[80vw] overflow-x-auto scrollbar-hide px-2">
+            <button
+              v-for="(img, index) in product.images"
+              :key="index"
+              class="shrink-0 w-14 h-14 overflow-hidden border-2 transition-colors duration-200"
+              :class="selectedImageIndex === index ? 'border-white' : 'border-transparent hover:border-white/40 opacity-50 hover:opacity-80'"
+              @click="lightboxGoTo(index)"
+            >
+              <img
+                :src="img.url"
+                :alt="`${product.name} - ${index + 1}`"
+                class="w-full h-full object-cover"
+              />
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { formatPrice } from '~/utils/format'
 
 const route = useRoute()
@@ -278,6 +375,196 @@ function nextImage() {
   selectedImageIndex.value = selectedImageIndex.value < product.value.images.length - 1
     ? selectedImageIndex.value + 1
     : 0
+}
+
+// ─── Gallery touch swipe ───
+const galleryTouchStartX = ref(0)
+const galleryTouchStartY = ref(0)
+const wasSwiped = ref(false)
+
+function onGalleryTouchStart(e) {
+  if (e.touches.length !== 1) return
+  galleryTouchStartX.value = e.touches[0].clientX
+  galleryTouchStartY.value = e.touches[0].clientY
+  wasSwiped.value = false
+}
+
+function onGalleryTouchEnd(e) {
+  const dx = e.changedTouches[0].clientX - galleryTouchStartX.value
+  const dy = e.changedTouches[0].clientY - galleryTouchStartY.value
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    wasSwiped.value = true
+    mainImgBroken.value = false
+    if (dx > 0) prevImage()
+    else nextImage()
+  }
+}
+
+function onGalleryClick() {
+  if (!wasSwiped.value && mainImage.value && !mainImgBroken.value) {
+    openLightbox()
+  }
+}
+
+// ─── Lightbox / Zoom ───
+const lightboxOpen = ref(false)
+const zoomLevel = ref(1)
+const panX = ref(0)
+const panY = ref(0)
+const isInteracting = ref(false)
+
+let pinchStartDist = 0
+let pinchStartZoom = 1
+let lastTap = 0
+let activeTouches = 0
+let panStartX = 0
+let panStartY = 0
+let panStartPanX = 0
+let panStartPanY = 0
+let isMousePanning = false
+let mouseStartX = 0
+let mouseStartY = 0
+let mousePanStartX = 0
+let mousePanStartY = 0
+
+function openLightbox() {
+  lightboxOpen.value = true
+  zoomLevel.value = 1
+  panX.value = 0
+  panY.value = 0
+  document.body.style.overflow = 'hidden'
+}
+
+function closeLightbox() {
+  lightboxOpen.value = false
+  zoomLevel.value = 1
+  panX.value = 0
+  panY.value = 0
+  isInteracting.value = false
+  document.body.style.overflow = ''
+}
+
+function resetZoom() {
+  isInteracting.value = false
+  zoomLevel.value = 1
+  panX.value = 0
+  panY.value = 0
+}
+
+function lightboxPrev() {
+  mainImgBroken.value = false
+  prevImage()
+  resetZoom()
+}
+
+function lightboxNext() {
+  mainImgBroken.value = false
+  nextImage()
+  resetZoom()
+}
+
+function lightboxGoTo(index) {
+  mainImgBroken.value = false
+  selectedImageIndex.value = index
+  resetZoom()
+}
+
+// Mouse wheel zoom
+function onLightboxWheel(e) {
+  const delta = e.deltaY > 0 ? -0.3 : 0.3
+  const newZoom = Math.max(1, Math.min(4, zoomLevel.value + delta))
+  zoomLevel.value = newZoom
+  if (newZoom === 1) { panX.value = 0; panY.value = 0 }
+}
+
+// Double-click zoom (desktop)
+function onLightboxDblClick() {
+  if (zoomLevel.value > 1) resetZoom()
+  else { zoomLevel.value = 2.5; panX.value = 0; panY.value = 0 }
+}
+
+// Touch handlers for lightbox
+function onLightboxTouchStart(e) {
+  activeTouches = e.touches.length
+  if (e.touches.length === 2) {
+    isInteracting.value = true
+    pinchStartDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    )
+    pinchStartZoom = zoomLevel.value
+  } else if (e.touches.length === 1) {
+    // Double-tap detection
+    const now = Date.now()
+    if (now - lastTap < 300) {
+      if (zoomLevel.value > 1) resetZoom()
+      else { zoomLevel.value = 2.5; panX.value = 0; panY.value = 0 }
+      lastTap = 0
+      return
+    }
+    lastTap = now
+    // Pan start (when zoomed)
+    if (zoomLevel.value > 1) {
+      isInteracting.value = true
+      panStartX = e.touches[0].clientX
+      panStartY = e.touches[0].clientY
+      panStartPanX = panX.value
+      panStartPanY = panY.value
+    }
+  }
+}
+
+function onLightboxTouchMove(e) {
+  if (e.touches.length === 2) {
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    )
+    const newZoom = Math.max(1, Math.min(4, pinchStartZoom * (dist / pinchStartDist)))
+    zoomLevel.value = newZoom
+    if (newZoom === 1) { panX.value = 0; panY.value = 0 }
+  } else if (e.touches.length === 1 && zoomLevel.value > 1 && activeTouches === 1) {
+    const dx = e.touches[0].clientX - panStartX
+    const dy = e.touches[0].clientY - panStartY
+    panX.value = panStartPanX + dx / zoomLevel.value
+    panY.value = panStartPanY + dy / zoomLevel.value
+  }
+}
+
+function onLightboxTouchEnd() {
+  activeTouches = 0
+  isInteracting.value = false
+}
+
+// Mouse pan in lightbox
+function onLightboxMouseDown(e) {
+  if (zoomLevel.value <= 1) return
+  isMousePanning = true
+  isInteracting.value = true
+  mouseStartX = e.clientX
+  mouseStartY = e.clientY
+  mousePanStartX = panX.value
+  mousePanStartY = panY.value
+  e.preventDefault()
+}
+
+function onLightboxMouseMove(e) {
+  if (!isMousePanning) return
+  panX.value = mousePanStartX + (e.clientX - mouseStartX) / zoomLevel.value
+  panY.value = mousePanStartY + (e.clientY - mouseStartY) / zoomLevel.value
+}
+
+function onLightboxMouseUp() {
+  isMousePanning = false
+  isInteracting.value = false
+}
+
+// Keyboard navigation in lightbox
+function onKeyDown(e) {
+  if (!lightboxOpen.value) return
+  if (e.key === 'Escape') closeLightbox()
+  if (e.key === 'ArrowLeft') lightboxPrev()
+  if (e.key === 'ArrowRight') lightboxNext()
 }
 
 const breadcrumbItems = computed(() => {
@@ -360,11 +647,17 @@ async function fetchRelatedProducts() {
 }
 
 onMounted(async () => {
+  document.addEventListener('keydown', onKeyDown)
   // Fetch categories and product in parallel
   const [_, __] = await Promise.all([fetchCategories(), fetchProduct()])
   if (product.value) {
     await fetchRelatedProducts()
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKeyDown)
+  document.body.style.overflow = ''
 })
 
 useHead({
@@ -390,5 +683,13 @@ useHead({
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+.lightbox-enter-active,
+.lightbox-leave-active {
+  transition: opacity 0.2s ease;
+}
+.lightbox-enter-from,
+.lightbox-leave-to {
+  opacity: 0;
 }
 </style>
