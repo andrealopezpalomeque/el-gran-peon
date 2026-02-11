@@ -46,14 +46,17 @@
             @touchend="onGalleryTouchEnd"
             @click="onGalleryClick"
           >
-            <img
-              v-if="mainImage && !mainImgBroken"
-              :src="mainImage"
-              :alt="product.name"
-              class="w-full h-full object-contain"
-              @error="mainImgBroken = true"
-            />
-            <div v-else class="w-full h-full flex items-center justify-center">
+            <Transition :name="`slide-${slideDirection}`">
+              <img
+                v-if="mainImage && !mainImgBroken"
+                :key="selectedImageIndex"
+                :src="mainImage"
+                :alt="product.name"
+                class="absolute inset-0 w-full h-full object-contain"
+                @error="mainImgBroken = true"
+              />
+            </Transition>
+            <div v-if="!mainImage || mainImgBroken" class="absolute inset-0 flex items-center justify-center">
               <img src="/images/icon.png" alt="El Gran Peón" class="w-24 h-24 opacity-20" />
             </div>
 
@@ -101,7 +104,7 @@
               :key="index"
               class="shrink-0 w-16 h-16 overflow-hidden border-2 transition-colors duration-200"
               :class="selectedImageIndex === index ? 'border-brand-primary' : 'border-transparent hover:border-brand-olive/20'"
-              @click="selectedImageIndex = index"
+              @click="goToImage(index)"
             >
               <img
                 :src="img.url"
@@ -354,6 +357,8 @@ function onThumbError(e) {
   e.target.classList.add('object-contain', 'p-2', 'opacity-20')
 }
 
+const slideDirection = ref('left')
+
 const mainImage = computed(() => {
   if (product.value?.images?.length) {
     return product.value.images[selectedImageIndex.value]?.url || product.value.images[0].url
@@ -364,6 +369,7 @@ const mainImage = computed(() => {
 function prevImage() {
   if (!product.value?.images?.length) return
   mainImgBroken.value = false
+  slideDirection.value = 'right'
   selectedImageIndex.value = selectedImageIndex.value > 0
     ? selectedImageIndex.value - 1
     : product.value.images.length - 1
@@ -372,9 +378,17 @@ function prevImage() {
 function nextImage() {
   if (!product.value?.images?.length) return
   mainImgBroken.value = false
+  slideDirection.value = 'left'
   selectedImageIndex.value = selectedImageIndex.value < product.value.images.length - 1
     ? selectedImageIndex.value + 1
     : 0
+}
+
+function goToImage(index) {
+  if (index === selectedImageIndex.value) return
+  slideDirection.value = index > selectedImageIndex.value ? 'left' : 'right'
+  mainImgBroken.value = false
+  selectedImageIndex.value = index
 }
 
 // ─── Gallery touch swipe ───
@@ -693,6 +707,29 @@ useHead({
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+/* Gallery slide transitions */
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: transform 0.35s ease-out, opacity 0.35s ease-out;
+}
+.slide-left-enter-from {
+  transform: translateX(30%);
+  opacity: 0;
+}
+.slide-left-leave-to {
+  transform: translateX(-30%);
+  opacity: 0;
+}
+.slide-right-enter-from {
+  transform: translateX(-30%);
+  opacity: 0;
+}
+.slide-right-leave-to {
+  transform: translateX(30%);
+  opacity: 0;
 }
 .lightbox-enter-active,
 .lightbox-leave-active {
