@@ -132,9 +132,12 @@
                 type="button"
                 @click="toggleFeatured(product)"
                 class="text-lg hover:scale-110 transition-transform"
-                :class="togglingFeatured[product.id] ? 'pointer-events-none opacity-50' : ''"
-                :title="product.isFeatured ? 'Quitar de destacados' : 'Marcar como destacado'"
-                :disabled="togglingFeatured[product.id]"
+                :class="[
+                  togglingFeatured[product.id] ? 'pointer-events-none opacity-50' : '',
+                  !product.isFeatured && featuredCount >= 10 ? 'opacity-30 cursor-not-allowed' : '',
+                ]"
+                :title="!product.isFeatured && featuredCount >= 10 ? 'Máximo 10 destacados' : product.isFeatured ? 'Quitar de destacados' : 'Marcar como destacado'"
+                :disabled="togglingFeatured[product.id] || (!product.isFeatured && featuredCount >= 10)"
               >
                 <span v-if="togglingFeatured[product.id]" class="inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                 <template v-else-if="product.isFeatured">
@@ -269,12 +272,13 @@ async function toggleFeatured(product) {
     const newFeatured = !product.isFeatured
     const updated = await put(`/api/products/${product.id}`, {
       isFeatured: newFeatured,
-      featuredOrder: newFeatured ? (product.featuredOrder || 0) : 0,
+      featuredOrder: 0,
     })
     product.isFeatured = updated.isFeatured
     product.featuredOrder = updated.featuredOrder
   } catch (error) {
     console.error('Error toggling featured:', error)
+    alert(error.message || 'Error al cambiar destacado')
   } finally {
     delete togglingFeatured.value[product.id]
   }
