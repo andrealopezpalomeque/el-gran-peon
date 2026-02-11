@@ -170,6 +170,18 @@
           <span class="font-sans text-sm text-brand-olive">Destacado</span>
         </label>
 
+        <div v-if="form.isFeatured" class="ml-7">
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">
+            Orden en carrusel <span class="text-brand-olive/40">(menor = primero)</span>
+          </label>
+          <input
+            v-model.number="form.featuredOrder"
+            type="number"
+            min="1"
+            class="w-20 px-3 py-1.5 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          />
+        </div>
+
         <label class="flex items-center gap-3 cursor-pointer">
           <input
             v-model="form.isActive"
@@ -259,6 +271,7 @@ const form = ref({
   stock: 0,
   isActive: true,
   isFeatured: false,
+  featuredOrder: 0,
   bulkAvailable: false,
   bulkMinQuantity: null,
   tags: [],
@@ -343,6 +356,7 @@ watch(() => props.product, (product) => {
       stock: product.stock === -1 ? 0 : (product.stock ?? 0),
       isActive: product.isActive ?? true,
       isFeatured: product.isFeatured ?? false,
+      featuredOrder: product.featuredOrder ?? 0,
       bulkAvailable: product.bulkAvailable ?? false,
       bulkMinQuantity: product.bulkMinQuantity ?? null,
       tags: product.tags || [],

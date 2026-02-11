@@ -52,12 +52,23 @@ export async function listActiveProducts(req, res) {
       products = products.filter(p => p.isFeatured === true);
     }
 
-    // Sort by createdAt descending
-    products.sort((a, b) => {
-      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
-      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
-      return dateB - dateA;
-    });
+    // Sort: featured products by featuredOrder ASC then createdAt DESC, others by createdAt DESC
+    if (req.query.featured === 'true') {
+      products.sort((a, b) => {
+        const orderA = a.featuredOrder ?? 0;
+        const orderB = b.featuredOrder ?? 0;
+        if (orderA !== orderB) return orderA - orderB;
+        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+        return dateB - dateA;
+      });
+    } else {
+      products.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+        return dateB - dateA;
+      });
+    }
 
     // Apply limit
     if (req.query.limit) {
@@ -115,7 +126,7 @@ export async function createProduct(req, res) {
     const {
       name, description, shortDescription, price, compareAtPrice,
       categoryId, categoryName, parentCategoryId, parentCategoryName,
-      images, stock, isActive, isFeatured,
+      images, stock, isActive, isFeatured, featuredOrder,
       tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
     } = req.body;
 
@@ -143,6 +154,7 @@ export async function createProduct(req, res) {
       stock: stock ?? 0,
       isActive: isActive ?? true,
       isFeatured: isFeatured ?? false,
+      featuredOrder: featuredOrder ?? 0,
       tags: tags || [],
       bulkAvailable: bulkAvailable ?? false,
       bulkMinQuantity: bulkMinQuantity || null,

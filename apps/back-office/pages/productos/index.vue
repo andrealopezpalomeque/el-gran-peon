@@ -29,6 +29,10 @@
         <span class="font-sans text-sm text-brand-olive">Solo destacados</span>
       </label>
 
+      <span class="font-sans text-xs text-brand-olive/50">
+        Destacados: {{ featuredCount }}/10
+      </span>
+
       <label class="flex items-center gap-2 cursor-pointer">
         <input v-model="filterInactive" type="checkbox" class="w-4 h-4 accent-brand-primary" />
         <span class="font-sans text-sm text-brand-olive">Solo inactivos</span>
@@ -133,7 +137,10 @@
                 :disabled="togglingFeatured[product.id]"
               >
                 <span v-if="togglingFeatured[product.id]" class="inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                <span v-else-if="product.isFeatured" class="text-amber-500">&#9733;</span>
+                <template v-else-if="product.isFeatured">
+                  <span class="text-amber-500">&#9733;</span>
+                  <span v-if="product.featuredOrder" class="text-xs text-brand-olive/40 ml-1">{{ product.featuredOrder }}</span>
+                </template>
                 <span v-else class="text-brand-olive/20 hover:text-amber-300">&#9734;</span>
               </button>
             </td>
@@ -207,6 +214,8 @@ const flatCategories = computed(() => {
   return flat
 })
 
+const featuredCount = computed(() => products.value.filter(p => p.isFeatured).length)
+
 const filteredProducts = computed(() => {
   let result = products.value
 
@@ -222,6 +231,10 @@ const filteredProducts = computed(() => {
 
   if (filterInactive.value) {
     result = result.filter(p => p.isActive === false)
+  }
+
+  if (filterFeatured.value) {
+    result = [...result].sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0))
   }
 
   return result
@@ -246,10 +259,13 @@ async function loadData() {
 async function toggleFeatured(product) {
   togglingFeatured.value[product.id] = true
   try {
+    const newFeatured = !product.isFeatured
     const updated = await put(`/api/products/${product.id}`, {
-      isFeatured: !product.isFeatured,
+      isFeatured: newFeatured,
+      featuredOrder: newFeatured ? (product.featuredOrder || 0) : 0,
     })
     product.isFeatured = updated.isFeatured
+    product.featuredOrder = updated.featuredOrder
   } catch (error) {
     console.error('Error toggling featured:', error)
   } finally {
