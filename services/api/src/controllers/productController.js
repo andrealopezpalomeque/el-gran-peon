@@ -195,6 +195,26 @@ export async function updateProduct(req, res) {
     delete updates.id;
     delete updates.cloudinaryFolder;
 
+    // Auto-swap featuredOrder if another featured product holds this position
+    if (updates.featuredOrder && updates.featuredOrder > 0 && updates.isFeatured !== false) {
+      const oldData = doc.data();
+      const oldOrder = oldData.featuredOrder || 0;
+
+      const conflictSnapshot = await productsRef
+        .where('isFeatured', '==', true)
+        .where('featuredOrder', '==', updates.featuredOrder)
+        .get();
+
+      for (const conflictDoc of conflictSnapshot.docs) {
+        if (conflictDoc.id !== req.params.id) {
+          await productsRef.doc(conflictDoc.id).update({
+            featuredOrder: oldOrder,
+            updatedAt: new Date(),
+          });
+        }
+      }
+    }
+
     await productsRef.doc(req.params.id).update(updates);
     const updated = await productsRef.doc(req.params.id).get();
     res.json({ id: updated.id, ...updated.data() });
