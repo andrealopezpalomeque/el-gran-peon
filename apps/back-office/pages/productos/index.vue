@@ -60,7 +60,75 @@
       <p class="font-sans text-brand-olive/60 text-sm">No hay productos que coincidan con los filtros.</p>
     </div>
 
-    <!-- Table -->
+    <!-- Drag-and-drop reorder view (when filtering featured) -->
+    <div v-else-if="filterFeatured">
+      <div
+        ref="dragListRef"
+        class="space-y-1"
+      >
+        <div
+          v-for="(product, index) in dragList"
+          :key="product.id"
+          class="flex items-center gap-4 px-4 py-3 bg-white border-2 border-brand-olive/10 hover:border-brand-olive/20 transition-colors"
+        >
+          <!-- Drag handle -->
+          <button type="button" class="cursor-grab active:cursor-grabbing text-brand-olive/30 hover:text-brand-olive/60 flex-shrink-0" data-drag-handle>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="5" cy="2" r="1.5" /><circle cx="11" cy="2" r="1.5" />
+              <circle cx="5" cy="8" r="1.5" /><circle cx="11" cy="8" r="1.5" />
+              <circle cx="5" cy="14" r="1.5" /><circle cx="11" cy="14" r="1.5" />
+            </svg>
+          </button>
+
+          <!-- Order number -->
+          <span class="font-sans text-sm text-brand-olive/40 w-6 text-center flex-shrink-0">{{ index + 1 }}</span>
+
+          <!-- Thumbnail -->
+          <img
+            v-if="product.images && product.images.length > 0"
+            :src="product.images[0].url"
+            :alt="product.name"
+            class="w-10 h-10 object-cover border border-brand-olive/10 flex-shrink-0"
+            @error="e => { e.target.src = '/images/icon.png'; e.target.classList.remove('object-cover'); e.target.classList.add('object-contain', 'p-1', 'opacity-30') }"
+          />
+          <div v-else class="w-10 h-10 bg-brand-olive/5 border border-brand-olive/10 flex items-center justify-center flex-shrink-0">
+            <img src="/images/icon.png" alt="" class="w-6 h-6 opacity-20" />
+          </div>
+
+          <!-- Product name -->
+          <span class="font-sans text-sm text-brand-olive font-medium flex-1 min-w-0 truncate">{{ product.name }}</span>
+
+          <!-- Edit link -->
+          <NuxtLink
+            :to="`/productos/${product.id}`"
+            class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary hover:text-brand-cream transition-colors flex-shrink-0"
+          >
+            Editar
+          </NuxtLink>
+        </div>
+      </div>
+
+      <!-- Save order button -->
+      <div v-if="hasOrderChanged" class="mt-4 flex items-center gap-3">
+        <button
+          type="button"
+          @click="saveOrder"
+          :disabled="savingOrder"
+          class="px-5 py-2 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors disabled:opacity-50"
+        >
+          {{ savingOrder ? 'Guardando...' : 'Guardar orden' }}
+        </button>
+        <button
+          type="button"
+          @click="resetOrder"
+          class="px-5 py-2 font-sans text-sm text-brand-olive border-2 border-brand-olive/20 hover:border-brand-olive/40 transition-colors"
+        >
+          Descartar
+        </button>
+      </div>
+    </div>
+
+    <!-- Table (default view) -->
     <div v-else class="overflow-x-auto">
       <table class="w-full">
         <thead>
@@ -140,10 +208,7 @@
                 :disabled="togglingFeatured[product.id] || (!product.isFeatured && featuredCount >= 10)"
               >
                 <span v-if="togglingFeatured[product.id]" class="inline-block w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                <template v-else-if="product.isFeatured">
-                  <span class="text-amber-500">&#9733;</span>
-                  <span v-if="product.featuredOrder" class="text-xs text-brand-olive/40 ml-1">{{ product.featuredOrder }}</span>
-                </template>
+                <span v-else-if="product.isFeatured" class="text-amber-500">&#9733;</span>
                 <span v-else class="text-brand-olive/20 hover:text-amber-300">&#9734;</span>
               </button>
             </td>
@@ -188,8 +253,9 @@
 
 <script setup>
 import { formatPrice } from '~/utils/format'
+import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 
-const { get, put, delete: apiDelete } = useApi()
+const { get, put, patch, delete: apiDelete } = useApi()
 
 const products = ref([])
 const categories = ref([])
@@ -197,6 +263,7 @@ const loading = ref(true)
 const showDeleteModal = ref(false)
 const productToDelete = ref(null)
 const togglingFeatured = ref({})
+const savingOrder = ref(false)
 
 // Filters
 const filterCategory = ref('')
@@ -250,6 +317,66 @@ const filteredProducts = computed(() => {
   return result
 })
 
+// Drag-and-drop for featured reorder
+const [dragListRef, dragList] = useDragAndDrop([], {
+  dragHandle: '[data-drag-handle]',
+})
+
+// Snapshot of original order IDs to detect changes
+const originalOrderIds = ref([])
+
+// Sync filteredProducts into dragList when entering featured mode
+watch(filterFeatured, (val) => {
+  if (val) {
+    const sorted = filteredProducts.value
+    dragList.value = [...sorted]
+    originalOrderIds.value = sorted.map(p => p.id)
+  }
+}, { immediate: true })
+
+// Also resync when products change while in featured mode
+watch(filteredProducts, (newList) => {
+  if (filterFeatured.value && !hasOrderChanged.value) {
+    dragList.value = [...newList]
+    originalOrderIds.value = newList.map(p => p.id)
+  }
+})
+
+const hasOrderChanged = computed(() => {
+  if (!filterFeatured.value) return false
+  if (dragList.value.length !== originalOrderIds.value.length) return false
+  return dragList.value.some((p, i) => p.id !== originalOrderIds.value[i])
+})
+
+async function saveOrder() {
+  savingOrder.value = true
+  try {
+    const order = dragList.value.map((p, i) => ({
+      id: p.id,
+      featuredOrder: i + 1,
+    }))
+    await patch('/api/products/reorder-featured', { order })
+
+    // Update local products data to reflect new order
+    for (const item of order) {
+      const prod = products.value.find(p => p.id === item.id)
+      if (prod) prod.featuredOrder = item.featuredOrder
+    }
+    originalOrderIds.value = dragList.value.map(p => p.id)
+  } catch (error) {
+    console.error('Error saving order:', error)
+    alert(error.message || 'Error al guardar el orden')
+  } finally {
+    savingOrder.value = false
+  }
+}
+
+function resetOrder() {
+  const sorted = filteredProducts.value
+  dragList.value = [...sorted]
+  originalOrderIds.value = sorted.map(p => p.id)
+}
+
 async function loadData() {
   loading.value = true
   try {
@@ -272,7 +399,6 @@ async function toggleFeatured(product) {
     const newFeatured = !product.isFeatured
     const updated = await put(`/api/products/${product.id}`, {
       isFeatured: newFeatured,
-      featuredOrder: 0,
     })
     product.isFeatured = updated.isFeatured
     product.featuredOrder = updated.featuredOrder

@@ -131,7 +131,7 @@ export async function createProduct(req, res) {
     const {
       name, description, shortDescription, price, compareAtPrice,
       categoryId, categoryName, parentCategoryId, parentCategoryName,
-      images, stock, isActive, isFeatured, featuredOrder,
+      images, stock, isActive, isFeatured,
       tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
     } = req.body;
 
@@ -143,7 +143,7 @@ export async function createProduct(req, res) {
     const cloudinaryFolder = req.body.cloudinaryFolder || slug;
     const now = new Date();
 
-    let resolvedFeaturedOrder = featuredOrder ?? 0;
+    let resolvedFeaturedOrder = 0;
 
     if (isFeatured) {
       const featuredSnapshot = await productsRef.where('isFeatured', '==', true).get();
@@ -152,19 +152,8 @@ export async function createProduct(req, res) {
       }
 
       const takenOrders = featuredSnapshot.docs.map(d => d.data().featuredOrder || 0);
-
-      if (!resolvedFeaturedOrder || resolvedFeaturedOrder === 0) {
-        // Auto-assign next available
-        const maxOrder = takenOrders.length > 0 ? Math.max(...takenOrders) : 0;
-        resolvedFeaturedOrder = maxOrder + 1;
-      } else {
-        // Auto-swap if order is taken
-        for (const fDoc of featuredSnapshot.docs) {
-          if (fDoc.data().featuredOrder === resolvedFeaturedOrder) {
-            await productsRef.doc(fDoc.id).update({ featuredOrder: 0, updatedAt: new Date() });
-          }
-        }
-      }
+      const maxOrder = takenOrders.length > 0 ? Math.max(...takenOrders) : 0;
+      resolvedFeaturedOrder = maxOrder + 1;
     }
 
     const data = {
@@ -219,8 +208,12 @@ export async function updateProduct(req, res) {
     delete updates.id;
     delete updates.cloudinaryFolder;
 
-    // Featured logic: enforce max 10, auto-assign order, auto-swap conflicts
-    if (updates.isFeatured === true) {
+    // Featured logic
+    const oldData = doc.data();
+    const wasFeatured = oldData.isFeatured ?? false;
+
+    if (updates.isFeatured === true && !wasFeatured) {
+      // Toggling ON: enforce max 10, auto-assign to end
       const featuredSnapshot = await productsRef.where('isFeatured', '==', true).get();
       const othersCount = featuredSnapshot.docs.filter(d => d.id !== req.params.id).length;
 
@@ -231,30 +224,15 @@ export async function updateProduct(req, res) {
       const otherOrders = featuredSnapshot.docs
         .filter(d => d.id !== req.params.id)
         .map(d => d.data().featuredOrder || 0);
-
-      if (!updates.featuredOrder || updates.featuredOrder === 0) {
-        // Auto-assign next available
-        const maxOrder = otherOrders.length > 0 ? Math.max(...otherOrders) : 0;
-        updates.featuredOrder = maxOrder + 1;
-      } else {
-        // Auto-swap if order is taken by another product
-        const oldData = doc.data();
-        const oldOrder = oldData.featuredOrder || 0;
-
-        for (const fDoc of featuredSnapshot.docs) {
-          if (fDoc.id !== req.params.id && fDoc.data().featuredOrder === updates.featuredOrder) {
-            await productsRef.doc(fDoc.id).update({
-              featuredOrder: oldOrder,
-              updatedAt: new Date(),
-            });
-          }
-        }
-      }
-    }
-
-    // Reset order when unfeaturing
-    if (updates.isFeatured === false) {
+      const maxOrder = otherOrders.length > 0 ? Math.max(...otherOrders) : 0;
+      updates.featuredOrder = maxOrder + 1;
+    } else if (updates.isFeatured === false) {
+      // Toggling OFF: reset order
       updates.featuredOrder = 0;
+    }
+    // If already featured and staying featured, don't touch featuredOrder (managed by reorder endpoint)
+    if (updates.isFeatured === undefined || (updates.isFeatured === true && wasFeatured)) {
+      delete updates.featuredOrder;
     }
 
     await productsRef.doc(req.params.id).update(updates);
@@ -262,6 +240,35 @@ export async function updateProduct(req, res) {
     res.json({ id: updated.id, ...updated.data() });
   } catch (error) {
     console.error('Error updating product:', error);
+    res.status(500).json({ error: 'Error del servidor.' });
+  }
+}
+
+export async function reorderFeatured(req, res) {
+  try {
+    const { order } = req.body;
+
+    if (!Array.isArray(order) || order.length === 0 || order.length > 10) {
+      return res.status(400).json({ error: 'Se requiere un array de 1-10 productos.' });
+    }
+
+    const batch = db.batch();
+    const now = new Date();
+
+    for (const item of order) {
+      if (!item.id || typeof item.featuredOrder !== 'number') {
+        return res.status(400).json({ error: 'Cada item necesita id y featuredOrder.' });
+      }
+      batch.update(productsRef.doc(item.id), {
+        featuredOrder: item.featuredOrder,
+        updatedAt: now,
+      });
+    }
+
+    await batch.commit();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error reordering featured:', error);
     res.status(500).json({ error: 'Error del servidor.' });
   }
 }

@@ -11,7 +11,6 @@
     <AdminProductForm
       v-else
       :categories="categories"
-      :featured-products="featuredProducts"
       :is-loading="saving"
       :error="error"
       @save="handleSave"
@@ -25,19 +24,14 @@ const { get, post, put } = useApi()
 const router = useRouter()
 
 const categories = ref([])
-const featuredProducts = ref([])
 const loadingCategories = ref(true)
 const saving = ref(false)
 const error = ref('')
 
 onMounted(async () => {
   try {
-    const [categoriesData, productsData] = await Promise.all([
-      get('/api/categories/all'),
-      get('/api/products/all'),
-    ])
+    const categoriesData = await get('/api/categories/all')
     categories.value = categoriesData
-    featuredProducts.value = productsData.filter(p => p.isFeatured)
   } catch (err) {
     console.error('Error loading data:', err)
   } finally {

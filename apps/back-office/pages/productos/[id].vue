@@ -24,7 +24,6 @@
       <AdminProductForm
         :product="product"
         :categories="categories"
-        :featured-products="featuredProducts"
         :is-loading="saving"
         :error="error"
         @save="handleSave"
@@ -64,7 +63,6 @@ const { get, put, delete: apiDelete } = useApi()
 
 const product = ref(null)
 const categories = ref([])
-const featuredProducts = ref([])
 const loading = ref(true)
 const saving = ref(false)
 const error = ref('')
@@ -74,14 +72,12 @@ const isDirty = ref(false)
 
 onMounted(async () => {
   try {
-    const [productData, categoriesData, productsData] = await Promise.all([
+    const [productData, categoriesData] = await Promise.all([
       get(`/api/products/${route.params.id}`),
       get('/api/categories/all'),
-      get('/api/products/all'),
     ])
     product.value = productData
     categories.value = categoriesData
-    featuredProducts.value = productsData.filter(p => p.isFeatured)
 
     // Track dirty state after initial load
     nextTick(() => {

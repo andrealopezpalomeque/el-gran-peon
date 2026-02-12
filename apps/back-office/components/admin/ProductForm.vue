@@ -166,27 +166,9 @@
             v-model="form.isFeatured"
             type="checkbox"
             class="w-4 h-4 accent-brand-primary"
-            :disabled="!form.isFeatured && isFeaturedFull"
           />
           <span class="font-sans text-sm text-brand-olive">Destacado</span>
-          <span v-if="!form.isFeatured && isFeaturedFull" class="font-sans text-xs text-red-600">(máximo 10 alcanzado)</span>
         </label>
-
-        <div v-if="form.isFeatured" class="ml-7">
-          <label class="block font-sans text-sm text-brand-olive/70 mb-1">
-            Orden en carrusel <span class="text-brand-olive/40">(menor = primero)</span>
-          </label>
-          <input
-            v-model.number="form.featuredOrder"
-            type="number"
-            min="1"
-            max="10"
-            class="w-20 px-3 py-1.5 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
-          />
-          <p v-if="takenFeaturedOrders.length > 0" class="font-sans text-xs text-brand-olive/40 mt-1">
-            En uso: {{ takenFeaturedOrders.join(', ') }}
-          </p>
-        </div>
 
         <label class="flex items-center gap-3 cursor-pointer">
           <input
@@ -254,7 +236,6 @@
 const props = defineProps({
   product: { type: Object, default: null },
   categories: { type: Array, default: () => [] },
-  featuredProducts: { type: Array, default: () => [] },
   isLoading: { type: Boolean, default: false },
   error: { type: String, default: '' },
 })
@@ -278,7 +259,6 @@ const form = ref({
   stock: 0,
   isActive: true,
   isFeatured: false,
-  featuredOrder: 0,
   bulkAvailable: false,
   bulkMinQuantity: null,
   tags: [],
@@ -363,7 +343,6 @@ watch(() => props.product, (product) => {
       stock: product.stock === -1 ? 0 : (product.stock ?? 0),
       isActive: product.isActive ?? true,
       isFeatured: product.isFeatured ?? false,
-      featuredOrder: product.featuredOrder ?? 0,
       bulkAvailable: product.bulkAvailable ?? false,
       bulkMinQuantity: product.bulkMinQuantity ?? null,
       tags: product.tags || [],
@@ -382,35 +361,6 @@ watch(() => props.product, (product) => {
     }
   }
 }, { immediate: true })
-
-// Featured order helpers
-const takenFeaturedOrders = computed(() => {
-  return props.featuredProducts
-    .filter(p => p.id !== props.product?.id)
-    .map(p => p.featuredOrder || 0)
-    .filter(o => o > 0)
-    .sort((a, b) => a - b)
-})
-
-const nextAvailableOrder = computed(() => {
-  const taken = takenFeaturedOrders.value
-  return taken.length > 0 ? Math.max(...taken) + 1 : 1
-})
-
-const isFeaturedFull = computed(() => {
-  const othersCount = props.featuredProducts.filter(p => p.id !== props.product?.id).length
-  return othersCount >= 10
-})
-
-// Auto-assign order when featured is toggled on
-watch(() => form.value.isFeatured, (val, oldVal) => {
-  if (val && !oldVal) {
-    form.value.featuredOrder = nextAvailableOrder.value
-  }
-  if (!val && oldVal) {
-    form.value.featuredOrder = 0
-  }
-})
 
 // Sync stock with unlimited checkbox
 watch(unlimitedStock, (val) => {
