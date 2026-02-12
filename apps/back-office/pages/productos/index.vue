@@ -69,21 +69,21 @@
         <div
           v-for="(product, index) in dragList"
           :key="product.id"
-          class="flex items-center gap-4 px-4 py-3 bg-white border-2 transition-colors duration-300"
+          class="flex items-center gap-4 px-4 py-3 bg-white border-2 transition-colors duration-300 cursor-grab active:cursor-grabbing"
           :class="[
             justDroppedId === product.id
               ? 'border-amber-400 bg-amber-50/50'
               : 'border-brand-olive/10 hover:border-brand-olive/20',
           ]"
         >
-          <!-- Drag handle -->
-          <button type="button" class="cursor-grab active:cursor-grabbing text-brand-olive/30 hover:text-brand-olive/60 flex-shrink-0" data-drag-handle>
+          <!-- Drag indicator -->
+          <span class="text-brand-olive/30 flex-shrink-0">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <circle cx="5" cy="2" r="1.5" /><circle cx="11" cy="2" r="1.5" />
               <circle cx="5" cy="8" r="1.5" /><circle cx="11" cy="8" r="1.5" />
               <circle cx="5" cy="14" r="1.5" /><circle cx="11" cy="14" r="1.5" />
             </svg>
-          </button>
+          </span>
 
           <!-- Order number -->
           <span class="font-sans text-sm text-brand-olive/40 w-6 text-center flex-shrink-0">{{ index + 1 }}</span>
@@ -326,7 +326,6 @@ const filteredProducts = computed(() => {
 
 // Drag-and-drop for featured reorder
 const [dragListRef, dragList] = useDragAndDrop([], {
-  dragHandle: '[data-drag-handle]',
   draggingClass: 'drag-active',
   dragPlaceholderClass: 'drag-active',
   synthDragPlaceholderClass: 'drag-active',
