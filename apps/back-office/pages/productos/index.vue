@@ -69,7 +69,12 @@
         <div
           v-for="(product, index) in dragList"
           :key="product.id"
-          class="flex items-center gap-4 px-4 py-3 bg-white border-2 border-brand-olive/10 hover:border-brand-olive/20 transition-colors"
+          class="flex items-center gap-4 px-4 py-3 bg-white border-2 transition-colors duration-300"
+          :class="[
+            justDroppedId === product.id
+              ? 'border-amber-400 bg-amber-50/50'
+              : 'border-brand-olive/10 hover:border-brand-olive/20',
+          ]"
         >
           <!-- Drag handle -->
           <button type="button" class="cursor-grab active:cursor-grabbing text-brand-olive/30 hover:text-brand-olive/60 flex-shrink-0" data-drag-handle>
@@ -264,6 +269,8 @@ const showDeleteModal = ref(false)
 const productToDelete = ref(null)
 const togglingFeatured = ref({})
 const savingOrder = ref(false)
+const justDroppedId = ref(null)
+let dropTimeoutId = null
 
 // Filters
 const filterCategory = ref('')
@@ -320,6 +327,19 @@ const filteredProducts = computed(() => {
 // Drag-and-drop for featured reorder
 const [dragListRef, dragList] = useDragAndDrop([], {
   dragHandle: '[data-drag-handle]',
+  draggingClass: 'drag-active',
+  dragPlaceholderClass: 'drag-active',
+  synthDragPlaceholderClass: 'drag-active',
+  onDragend: (data) => {
+    const id = data.draggedNode?.data?.value?.id
+    if (id) {
+      if (dropTimeoutId) clearTimeout(dropTimeoutId)
+      justDroppedId.value = id
+      dropTimeoutId = setTimeout(() => {
+        justDroppedId.value = null
+      }, 1500)
+    }
+  },
 })
 
 // Snapshot of original order IDs to detect changes
@@ -375,6 +395,7 @@ function resetOrder() {
   const sorted = filteredProducts.value
   dragList.value = [...sorted]
   originalOrderIds.value = sorted.map(p => p.id)
+  justDroppedId.value = null
 }
 
 async function loadData() {
@@ -432,3 +453,10 @@ async function deleteProduct() {
 
 onMounted(loadData)
 </script>
+
+<style>
+.drag-active {
+  border-color: #741617 !important;
+  background-color: rgba(116, 22, 23, 0.05) !important;
+}
+</style>

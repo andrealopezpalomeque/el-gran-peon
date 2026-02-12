@@ -161,13 +161,16 @@
       <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">OPCIONES</h3>
 
       <div class="space-y-3 mb-5">
-        <label class="flex items-center gap-3 cursor-pointer">
+        <label class="flex items-center gap-3" :class="canToggleFeatured ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'">
           <input
             v-model="form.isFeatured"
             type="checkbox"
             class="w-4 h-4 accent-brand-primary"
+            :disabled="!canToggleFeatured"
           />
           <span class="font-sans text-sm text-brand-olive">Destacado</span>
+          <span v-if="!canToggleFeatured" class="font-sans text-xs text-brand-olive/50">(máximo 10)</span>
+          <span v-else class="font-sans text-xs text-brand-olive/40">{{ featuredCount }}/10</span>
         </label>
 
         <label class="flex items-center gap-3 cursor-pointer">
@@ -268,6 +271,27 @@ const unlimitedStock = ref(false)
 const tagsInput = ref('')
 const selectedParentId = ref('')
 const selectedChildId = ref('')
+
+// Featured limit check
+const { get: apiFetch } = useApi()
+const featuredCount = ref(0)
+
+onMounted(async () => {
+  try {
+    const all = await apiFetch('/api/products/all')
+    featuredCount.value = all.filter(p => p.isFeatured).length
+  } catch (e) {
+    // API will still enforce the limit on save
+  }
+})
+
+const canToggleFeatured = computed(() => {
+  if (form.value.isFeatured) return true
+  const effectiveCount = props.product?.isFeatured
+    ? featuredCount.value - 1
+    : featuredCount.value
+  return effectiveCount < 10
+})
 
 // Slug generation
 const generatedSlug = computed(() => {
