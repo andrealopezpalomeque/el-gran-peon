@@ -32,17 +32,26 @@
 
         <!-- Right: Cart + WhatsApp CTA -->
         <div class="flex items-center gap-4">
-          <NuxtLink to="/carrito" class="relative text-brand-olive hover:text-brand-primary transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span
-              v-if="cart.itemCount > 0"
-              class="absolute -top-2 -right-2 bg-brand-primary text-brand-cream text-xs w-5 h-5 flex items-center justify-center font-sans font-medium"
-            >
-              {{ cart.itemCount }}
-            </span>
-          </NuxtLink>
+          <div
+            class="relative"
+            @mouseenter="showCartPreview = true"
+            @mouseleave="showCartPreview = false"
+          >
+            <NuxtLink to="/carrito" class="relative block text-brand-olive hover:text-brand-primary transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span
+                v-if="cart.itemCount > 0"
+                class="absolute -top-2 -right-2 bg-brand-primary text-brand-cream text-xs w-5 h-5 flex items-center justify-center font-sans font-medium"
+              >
+                {{ cart.itemCount }}
+              </span>
+            </NuxtLink>
+            <Transition name="cart-preview">
+              <CartPreview v-if="showCartPreview" />
+            </Transition>
+          </div>
 
           <a
             :href="whatsappUrl"
@@ -187,6 +196,7 @@ const mobileNavLinks = [
 ]
 
 const mobileMenuOpen = ref(false)
+const showCartPreview = ref(false)
 const scrolled = ref(false)
 
 function handleScroll() {
@@ -214,5 +224,20 @@ onUnmounted(() => {
 }
 .slide-leave-to {
   transform: translateX(-100%);
+}
+
+.cart-preview-enter-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.cart-preview-leave-active {
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+.cart-preview-enter-from {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.cart-preview-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 </style>
