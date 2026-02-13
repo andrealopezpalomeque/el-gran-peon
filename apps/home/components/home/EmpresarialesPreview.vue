@@ -30,7 +30,7 @@
       </div>
 
       <!-- Trust logos carousel -->
-      <div class="mt-16 pt-10 border-t border-brand-cream/20">
+      <div class="mt-16 pt-10 border-t border-brand-cream/20 transition-opacity duration-500" :class="ready ? 'opacity-100' : 'opacity-0'">
         <p class="font-sans text-xs uppercase tracking-widest text-brand-cream/40 text-center mb-8">
           EMPRESAS QUE CONFÍAN EN NUESTRO TRABAJO
         </p>
@@ -41,18 +41,17 @@
         >
           <div
             class="logos-track flex items-center"
-            :class="{ 'logos-paused': paused }"
+            :class="{ 'logos-paused': paused, 'logos-ready': ready }"
           >
             <div
               v-for="(logo, index) in [...logos, ...logos]"
               :key="index"
-              class="logos-item flex-shrink-0 flex items-center justify-center px-6 md:px-10"
+              class="logos-item flex-shrink-0 flex items-center justify-center px-6 md:px-10 min-w-[180px] md:min-w-[260px]"
             >
               <img
                 :src="logo.src"
                 :alt="logo.alt"
                 class="logo-img h-16 md:h-24 w-auto max-w-[180px] md:max-w-[260px] object-contain transition-opacity duration-300"
-                loading="lazy"
               />
             </div>
           </div>
@@ -63,9 +62,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const paused = ref(false)
+const ready = ref(false)
 
 const logos = ref([
   { src: '/images/logos/bna.png', alt: 'Banco de la Nación Argentina' },
@@ -77,6 +77,20 @@ const logos = ref([
   { src: '/images/logos/safico.png', alt: 'Safico' },
   { src: '/images/logos/solimano.png', alt: 'Solimano & Asociados' },
 ])
+
+onMounted(() => {
+  const promises = logos.value.map((logo) => {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = resolve
+      img.onerror = resolve
+      img.src = logo.src
+    })
+  })
+  Promise.all(promises).then(() => {
+    ready.value = true
+  })
+})
 </script>
 
 <style scoped>
@@ -90,8 +104,11 @@ const logos = ref([
 }
 
 .logos-track {
-  animation: scroll-logos 30s linear infinite;
   width: max-content;
+}
+
+.logos-ready {
+  animation: scroll-logos 30s linear infinite;
 }
 
 .logos-paused {
