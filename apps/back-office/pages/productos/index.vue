@@ -64,12 +64,12 @@
     <div v-else-if="filterFeatured">
       <div
         ref="dragListRef"
-        class="space-y-1"
+        class="space-y-1 drag-list"
       >
         <div
           v-for="(product, index) in dragList"
           :key="product.id"
-          class="flex items-center gap-4 px-4 py-3 bg-white border-2 transition-colors duration-300 cursor-grab active:cursor-grabbing"
+          class="flex items-center gap-4 px-4 py-3 bg-white border-2 transition-colors duration-300 cursor-grab active:cursor-grabbing select-none"
           :class="[
             justDroppedId === product.id
               ? 'border-amber-400 bg-amber-50/50'
@@ -457,5 +457,10 @@ onMounted(loadData)
 .drag-active {
   border-color: #741617 !important;
   background-color: rgba(116, 22, 23, 0.05) !important;
+}
+
+.drag-list img {
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 </style>
