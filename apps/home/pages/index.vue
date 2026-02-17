@@ -11,6 +11,11 @@
         <HomeFeaturedProducts />
       </div>
     </section>
+    <section class="py-16 md:py-24 bg-white">
+      <div class="container mx-auto px-6">
+        <HomeTestimonials />
+      </div>
+    </section>
     <HomeEmpresarialesPreview />
   </div>
 </template>
