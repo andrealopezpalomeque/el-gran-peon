@@ -207,11 +207,11 @@
           </div>
 
           <!-- Description -->
-          <div v-if="product.description" class="border-t border-brand-olive/10 mt-6 pt-6">
-            <p class="font-serif text-brand-olive leading-relaxed">
-              {{ product.description }}
-            </p>
-          </div>
+          <div
+            v-if="product.description"
+            class="border-t border-brand-olive/10 mt-6 pt-6 font-serif text-brand-olive leading-relaxed prose-product"
+            v-html="product.description"
+          />
         </div>
       </div>
     </div>
@@ -740,5 +740,18 @@ useHead({
 .lightbox-enter-from,
 .lightbox-leave-to {
   opacity: 0;
+}
+/* Product description rich text */
+.prose-product p {
+  margin-bottom: 0.75em;
+}
+.prose-product p:last-child {
+  margin-bottom: 0;
+}
+.prose-product strong {
+  font-weight: 700;
+}
+.prose-product em {
+  font-style: italic;
 }
 </style>

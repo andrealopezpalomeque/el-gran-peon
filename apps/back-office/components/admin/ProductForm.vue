@@ -17,12 +17,7 @@
 
       <div class="mb-5">
         <label class="block font-sans text-sm text-brand-olive/70 mb-1">Descripcion *</label>
-        <textarea
-          v-model="form.description"
-          rows="4"
-          required
-          class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors resize-vertical"
-        />
+        <AdminRichTextEditor v-model="form.description" />
       </div>
 
       <div class="mb-5">
