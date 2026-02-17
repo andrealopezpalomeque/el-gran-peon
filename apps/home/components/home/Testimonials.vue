@@ -57,12 +57,16 @@
           </p>
 
           <!-- Author -->
-          <div class="mt-4 pt-4 border-t border-brand-olive/10">
+          <div class="mt-4 pt-4 border-t border-brand-olive/10 flex items-center gap-2.5">
+            <!-- Google "G" icon -->
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A11.96 11.96 0 0 0 0 12c0 1.94.46 3.77 1.28 5.4l3.56-2.77.01-.54z" fill="#FBBC05" />
+              <path d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.09 14.97 0 12 0 7.7 0 3.99 2.47 2.18 6.07l3.66 2.84c.87-2.6 3.3-4.16 6.16-4.16z" fill="#EA4335" />
+            </svg>
             <p class="font-sans font-medium text-brand-olive text-sm">
               {{ review.customerName }}
-            </p>
-            <p class="font-sans text-xs text-brand-olive/40 mt-1">
-              {{ review.source }}
             </p>
           </div>
         </article>
@@ -104,35 +108,30 @@ const reviews = ref([
     customerName: 'María González',
     rating: 5,
     text: 'Increíble calidad de los productos. El mate que compré es hermoso y se nota el trabajo artesanal. Lo recomiendo 100%.',
-    source: 'Google Maps',
   },
   {
     id: 2,
     customerName: 'Carlos Fernández',
     rating: 5,
     text: 'Excelente atención y productos de primera calidad. El cuchillo que pedí superó mis expectativas.',
-    source: 'Google Maps',
   },
   {
     id: 3,
     customerName: 'Luciana Romero',
     rating: 5,
     text: 'Compré una bombilla y un mate para regalo. La presentación impecable y la calidad se nota al instante. Ya estoy por hacer otro pedido.',
-    source: 'Google Maps',
   },
   {
     id: 4,
     customerName: 'Martín Acosta',
     rating: 5,
     text: 'Productos con identidad, hechos como se hacían antes. El cuero de la vaina del cuchillo es de primera. Muy recomendable.',
-    source: 'Google Maps',
   },
   {
     id: 5,
     customerName: 'Florencia Díaz',
     rating: 5,
     text: 'Pedí un kit empresarial para mi equipo de trabajo y fue un éxito. Todos quedaron encantados con la calidad y el detalle de cada pieza.',
-    source: 'Google Maps',
   },
 ])
 
@@ -143,17 +142,12 @@ const canScrollRight = ref(false)
 const paused = ref(false)
 let interval = null
 
-const updateScrollState = () => {
-  if (!trackEl.value) return
-  const { scrollLeft, scrollWidth, clientWidth } = trackEl.value
-  canScrollLeft.value = scrollLeft > 2
-  canScrollRight.value = scrollLeft + clientWidth < scrollWidth - 2
-}
-
-const getActiveIndex = () => {
+const updateState = () => {
   if (!trackEl.value) return
   const cards = trackEl.value.children
-  const scrollLeft = trackEl.value.scrollLeft
+  const { scrollLeft, scrollWidth, clientWidth } = trackEl.value
+
+  // Determine which card is closest to the scroll position
   let closest = 0
   let minDist = Infinity
   for (let i = 0; i < cards.length; i++) {
@@ -164,11 +158,14 @@ const getActiveIndex = () => {
     }
   }
   activeIndex.value = closest
+
+  // Hide left arrow at first card, right arrow at last visible position
+  canScrollLeft.value = closest > 0
+  canScrollRight.value = scrollLeft + clientWidth < scrollWidth - 2
 }
 
 const onScroll = () => {
-  updateScrollState()
-  getActiveIndex()
+  updateState()
 }
 
 const scrollToIndex = (index) => {
@@ -209,7 +206,7 @@ const resetTimer = () => {
 }
 
 onMounted(() => {
-  updateScrollState()
+  updateState()
   resetTimer()
 })
 
