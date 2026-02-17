@@ -155,7 +155,7 @@
 
           <!-- Quantity selector + Add to cart -->
           <div class="mt-6 flex items-center gap-4">
-            <div class="flex items-center border border-brand-olive/20">
+            <div v-if="product.stock !== 0" class="flex items-center border border-brand-olive/20">
               <button
                 class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
                 :disabled="quantity <= 1"
