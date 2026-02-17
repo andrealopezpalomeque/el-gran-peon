@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001',
       apiKey: process.env.NUXT_PUBLIC_API_KEY || '',
+      accessCode: process.env.NUXT_PUBLIC_ACCESS_CODE || '',
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '',
     },
   },

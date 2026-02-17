@@ -8,7 +8,7 @@ export const useAuth = () => {
   const config = useRuntimeConfig()
 
   const login = (key) => {
-    if (key === config.public.apiKey) {
+    if (key === config.public.accessCode) {
       isAuthenticated.value = true
       if (import.meta.client) sessionStorage.setItem('auth', 'true')
       return true
