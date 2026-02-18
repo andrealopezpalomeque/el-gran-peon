@@ -30,17 +30,21 @@ export const useCartStore = defineStore('cart', () => {
   const addProduct = (product, quantity = 1) => {
     const existingItem = items.value.find(item => item.productId === product.id)
 
+    const stock = product.stock ?? Infinity
+
     if (existingItem) {
-      existingItem.quantity += quantity
+      existingItem.quantity = Math.min(existingItem.quantity + quantity, stock)
+      existingItem.stock = stock
     } else {
       items.value.push({
         productId: product.id,
         productName: product.name,
         productSlug: product.slug,
         unitPrice: product.price,
-        quantity: quantity,
+        quantity: Math.min(quantity, stock),
         image: product.images?.[0]?.url || null,
         categoryName: product.categoryName,
+        stock: stock,
       })
     }
 
@@ -54,7 +58,8 @@ export const useCartStore = defineStore('cart', () => {
       if (quantity <= 0) {
         removeProduct(productId)
       } else {
-        item.quantity = quantity
+        const max = item.stock ?? Infinity
+        item.quantity = Math.min(quantity, max)
         saveCart()
       }
     }

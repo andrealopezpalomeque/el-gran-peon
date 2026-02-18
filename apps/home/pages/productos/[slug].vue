@@ -147,15 +147,15 @@
               Sin stock
             </span>
           </div>
-          <div v-else-if="product.stock > 0 && product.stock <= 5" class="mt-3">
+          <div v-else-if="product.stock > 0 && product.stock <= 5 && canAddToCart" class="mt-3">
             <span class="font-sans text-xs text-brand-primary">
-              Últimas {{ product.stock }} unidades
+              {{ product.stock === 1 ? 'Última unidad' : `Últimas ${product.stock} unidades` }}
             </span>
           </div>
 
           <!-- Quantity selector + Add to cart -->
           <div class="mt-6 flex items-center gap-4">
-            <div v-if="product.stock !== 0" class="flex items-center border border-brand-olive/20">
+            <div v-if="canAddToCart" class="flex items-center border border-brand-olive/20">
               <button
                 class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
                 :disabled="quantity <= 1"
@@ -167,21 +167,22 @@
                 {{ quantity }}
               </span>
               <button
-                class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200"
-                @click="quantity++"
+                class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
+                :disabled="quantity >= maxQuantity"
+                @click="quantity < maxQuantity && quantity++"
               >
                 +
               </button>
             </div>
             <button
               class="flex-1 py-3 font-sans font-medium tracking-wide text-sm transition-colors duration-200"
-              :class="product.stock === 0
+              :class="!canAddToCart
                 ? 'bg-brand-olive/10 text-brand-olive/40 cursor-not-allowed'
                 : 'bg-brand-primary text-brand-cream hover:bg-brand-primary/90'"
-              :disabled="product.stock === 0"
+              :disabled="!canAddToCart"
               @click="addToCart"
             >
-              {{ product.stock === 0 ? 'SIN STOCK' : 'AGREGAR AL CARRITO' }}
+              {{ product.stock === 0 ? 'SIN STOCK' : !canAddToCart ? 'STOCK EN EL CARRITO' : 'AGREGAR AL CARRITO' }}
             </button>
           </div>
 
@@ -343,9 +344,21 @@ const quantity = ref(1)
 const added = ref(false)
 const cart = useCartStore()
 
+// Max quantity the user can select, accounting for items already in cart
+const maxQuantity = computed(() => {
+  if (!product.value || !product.value.stock) return 0
+  const inCart = cart.items.find(item => item.productId === product.value.id)
+  const alreadyInCart = inCart ? inCart.quantity : 0
+  return product.value.stock - alreadyInCart
+})
+
+const canAddToCart = computed(() => maxQuantity.value > 0)
+
 const addToCart = () => {
-  if (product.value) {
-    cart.addProduct(product.value, quantity.value)
+  if (product.value && canAddToCart.value) {
+    const cappedQty = Math.min(quantity.value, maxQuantity.value)
+    cart.addProduct(product.value, cappedQty)
+    quantity.value = 1
     added.value = true
     setTimeout(() => { added.value = false }, 2000)
   }

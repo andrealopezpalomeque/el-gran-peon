@@ -85,7 +85,8 @@
                       {{ item.quantity }}
                     </span>
                     <button
-                      class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200"
+                      class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
+                      :disabled="item.stock && item.quantity >= item.stock"
                       @click="cart.updateQuantity(item.productId, item.quantity + 1)"
                     >
                       +
@@ -173,7 +174,8 @@
                     {{ item.quantity }}
                   </span>
                   <button
-                    class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200"
+                    class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
+                    :disabled="item.stock && item.quantity >= item.stock"
                     @click="cart.updateQuantity(item.productId, item.quantity + 1)"
                   >
                     +
