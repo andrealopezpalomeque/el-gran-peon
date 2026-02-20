@@ -1,62 +1,109 @@
 <template>
   <div>
-    <!-- Section 1: Hero Philosophy -->
-    <section class="bg-brand-cream py-20 md:py-32">
-      <div class="container mx-auto px-6">
-        <div class="max-w-3xl mx-auto text-center">
-          <h1 class="font-display uppercase text-brand-primary text-3xl md:text-hero-mobile lg:text-hero mb-8">
-            QUIÉNES SOMOS
+    <!-- Section 1: Hero -->
+    <section class="relative h-[85vh] min-h-[500px] w-full overflow-hidden bg-brand-olive">
+      <img
+        src="/images/hero.jpg"
+        alt="Taller de marroquinería artesanal de El Gran Peón"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 bg-black/30" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+      <div class="relative h-full flex items-end justify-end px-8 md:px-16 pb-14 md:pb-20">
+        <div class="text-right max-w-lg">
+          <div class="h-px w-12 bg-brand-cream/50 ml-auto mb-6" />
+          <h1 class="font-serif text-brand-cream text-4xl md:text-5xl lg:text-6xl font-light leading-tight">
+            HACEMOS PIEZAS QUE DURAN.
           </h1>
-          <div class="space-y-6 font-serif text-brand-olive leading-relaxed text-base md:text-lg">
-            <p>
-              Creemos en el valor de las cosas bien hechas. En un mundo que cambia constantemente, nosotros elegimos la permanencia. Cada pieza que creamos responde a una lógica simple: hacer objetos que acompañen el tiempo, que se usen con orgullo y que mantengan su sentido más allá de las modas.
-            </p>
-            <p>
-              El Gran Peón nace del respeto por la tradición y el oficio. Trabajamos con materiales nobles, atendemos cada detalle y buscamos la durabilidad en todo lo que hacemos. No seguimos tendencias. Creamos herencia.
-            </p>
+          <p class="font-sans text-xs md:text-sm uppercase tracking-[0.25em] text-brand-cream/60 mt-5">
+            No seguimos tendencias. Creamos herencia.
+          </p>
+        </div>
+      </div>s
+    </section>
+
+    <!-- Section 2: Nuestro Origen -->
+    <section class="bg-brand-cream py-20 md:py-28">
+      <div class="container mx-auto px-6">
+        <div class="mx-auto max-w-6xl">
+          <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+            <!-- Left: Text -->
+            <div>
+              <span class="font-sans text-xs font-medium uppercase tracking-[0.25em] text-brand-primary">
+                NUESTRO ORIGEN
+              </span>
+              <h2 class="font-serif text-brand-olive text-3xl md:text-4xl font-light leading-tight mt-4">
+                NACIMOS DEL RESPETO POR EL OFICIO
+              </h2>
+              <div class="mt-5 h-px w-12 bg-brand-primary" />
+              <div class="mt-6 space-y-4 font-serif text-brand-olive/80 leading-relaxed">
+                <p>
+                  El Gran Peón nace de una convicción simple: las cosas bien hechas tienen un valor que va más allá de lo material. Cada pieza que hacemos lleva tiempo, atención y un compromiso con la calidad que no se negocia.
+                </p>
+                <p>
+                  Trabajamos con materiales nobles porque sabemos que lo bueno se siente distinto. No buscamos lo rápido ni lo descartable. Buscamos lo que dura, lo que se usa con orgullo, lo que se hereda.
+                </p>
+                <p>
+                  Somos artesanos. Y eso se nota.
+                </p>
+              </div>
+            </div>
+
+            <!-- Right: Image -->
+            <div class="relative aspect-[4/5] overflow-hidden">
+              <img
+                src="/images/workshop.jpg"
+                alt="Artesano trabajando cuero en el taller de El Gran Peón"
+                class="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Section 2: Cápsula Raíz -->
+    <!-- Section 3: Cápsula Raíz -->
     <section class="bg-white py-20 md:py-28">
       <div class="container mx-auto px-6">
-        <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
-          <!-- Left: Text -->
-          <div>
-            <span class="font-sans text-xs uppercase tracking-widest text-brand-olive/60">
-              LANZAMIENTO
-            </span>
-            <h2 class="font-display uppercase text-brand-primary text-3xl mt-3 mb-2">
-              CÁPSULA RAÍZ
-            </h2>
-            <p class="font-serif text-brand-olive/70 mb-6">
-              Nuestra primera colección
-            </p>
-            <div class="space-y-4 font-serif text-brand-olive leading-relaxed">
-              <p>
-                Antes del nombre, antes del oficio, antes incluso de la forma, está la raíz. Es lo que sostiene cuando el tiempo empuja, cuando las modas pasan.
+        <div class="mx-auto max-w-6xl">
+          <div class="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
+            <!-- Left: Text -->
+            <div>
+              <span class="font-sans text-xs uppercase tracking-[0.25em] text-brand-olive/60">
+                LANZAMIENTO
+              </span>
+              <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl mt-3 mb-2">
+                CÁPSULA RAÍZ
+              </h2>
+              <div class="mt-3 h-px w-12 bg-brand-primary" />
+              <p class="font-serif text-brand-olive/70 mt-6 mb-6">
+                Nuestra primera colección
               </p>
-              <p>
-                Cápsula Raíz presenta quince piezas que definen nuestra identidad. Cada producto responde a una lógica simple: hacer cosas hechas para durar, como las cosas bien hechas.
-              </p>
+              <div class="space-y-4 font-serif text-brand-olive leading-relaxed">
+                <p>
+                  Antes del nombre, antes del oficio, antes incluso de la forma, está la raíz. Es lo que sostiene cuando el tiempo empuja, cuando las modas pasan.
+                </p>
+                <p>
+                  Cápsula Raíz presenta quince piezas que definen nuestra identidad. Cada producto responde a una lógica simple: hacer cosas hechas para durar, como las cosas bien hechas.
+                </p>
+              </div>
+              <NuxtLink
+                to="/productos?coleccion=capsula-raiz"
+                class="btn-primary mt-8 inline-flex"
+              >
+                VER CÁPSULA RAÍZ
+              </NuxtLink>
             </div>
-            <NuxtLink
-              to="/productos?coleccion=capsula-raiz"
-              class="btn-primary mt-8 inline-flex"
-            >
-              VER CÁPSULA RAÍZ
-            </NuxtLink>
-          </div>
 
-          <!-- Right: Image placeholder -->
-          <div class="aspect-[4/5] bg-brand-cream flex items-center justify-center border border-brand-olive/10">
-            <div class="text-center px-8">
-              <svg class="w-12 h-12 mx-auto text-brand-olive/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
-              </svg>
-              <p class="font-sans text-sm text-brand-olive/30">Fotografía de producto</p>
+            <!-- Right: Image -->
+            <div class="relative aspect-[4/5] overflow-hidden">
+              <img
+                src="/images/capsula-raiz-hero.jpg"
+                alt="Cápsula Raíz - Primera colección de El Gran Peón"
+                class="absolute inset-0 w-full h-full object-cover object-[30%_center]"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
@@ -66,10 +113,15 @@
     <!-- Section 3: Nuestro Oficio -->
     <section class="bg-brand-olive py-20 md:py-28">
       <div class="container mx-auto px-6">
-        <h2 class="font-display uppercase text-brand-cream text-3xl text-center mb-16">
+        <p class="mb-3 text-center font-sans text-xs uppercase tracking-[0.25em] text-brand-cream/50">
+          Lo que nos define
+        </p>
+        <h2 class="font-display uppercase text-brand-cream text-3xl md:text-4xl text-center">
           NUESTRO OFICIO
         </h2>
-        <div class="grid md:grid-cols-3 gap-12 md:gap-8 lg:gap-12">
+        <div class="mx-auto mt-4 h-px w-12 bg-brand-cream/30" />
+
+        <div class="mt-16 grid md:grid-cols-3 gap-12 md:gap-8 lg:gap-12">
           <!-- Materiales -->
           <div class="text-center">
             <div class="w-12 h-12 mx-auto mb-6 flex items-center justify-center">
@@ -113,39 +165,68 @@
       </div>
     </section>
 
-    <!-- Section 4: La Herencia -->
+    <!-- Section 4: La Herencia (Image background) -->
+<!--     <section class="relative w-full overflow-hidden bg-brand-olive py-20 md:py-28">
+      <img
+        src="/images/heritage.jpg"
+        alt="Paisaje de la pampa argentina al atardecer"
+        class="absolute inset-0 w-full h-full object-cover"
+        loading="lazy"
+      />
+      <div class="absolute inset-0 bg-brand-olive/60" />
+      <div class="relative flex flex-col items-center px-6 text-center">
+        <h2 class="font-display uppercase text-brand-cream text-3xl md:text-4xl mb-6">
+          LA HERENCIA
+        </h2>
+        <div class="h-px w-16 bg-brand-cream/40" />
+        <div class="mt-6 max-w-2xl space-y-5 font-serif text-brand-cream/90 leading-relaxed text-base md:text-lg">
+          <p>
+            El Gran Peón es más que una marca. Es la continuación de una tradición que valoriza el trabajo bien hecho y la permanencia por sobre la novedad.
+          </p>
+          <p>
+            Creamos para quienes entienden que las cosas buenas se compran una sola vez. Para quienes buscan objetos que cuenten historias, que acompañen momentos y que se transmitan con orgullo.
+          </p>
+        </div>
+        <div class="mt-8 h-px w-16 bg-brand-cream/40" />
+        <p class="mt-6 font-serif text-brand-cream italic text-xl md:text-2xl">
+          Hacemos piezas para durar. Como las cosas bien hechas.
+        </p>
+      </div>
+    </section> -->
+
+    <!-- Section 5: Noticias y Historias -->
     <section class="bg-brand-cream py-20 md:py-28">
       <div class="container mx-auto px-6">
-        <div class="max-w-3xl mx-auto text-center">
-          <h2 class="font-display uppercase text-brand-primary text-3xl mb-8">
-            LA HERENCIA
-          </h2>
-          <div class="space-y-6 font-serif text-brand-olive leading-relaxed text-base md:text-lg">
-            <p>
-              El Gran Peón es más que una marca. Es la continuación de una tradición que valoriza el trabajo bien hecho y la permanencia por sobre la novedad.
-            </p>
-            <p>
-              Creamos para quienes entienden que las cosas buenas se compran una sola vez. Para quienes buscan objetos que cuenten historias, que acompañen momentos y que se transmitan con orgullo.
-            </p>
-            <p>
-              Hacemos piezas para durar. Como las cosas bien hechas.
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-12">
+            <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl">
+              NOTICIAS E HISTORIAS
+            </h2>
+            <div class="mx-auto mt-4 h-px w-12 bg-brand-primary/30" />
+            <p class="font-serif text-brand-olive/70 mt-6">Próximamente</p>
+          </div>
+
+          <!-- 3-column placeholder grid -->
+          <div class="grid md:grid-cols-3 gap-6">
+            <div v-for="n in 3" :key="n" class="group">
+              <div class="aspect-square bg-white border border-brand-olive/10 flex items-center justify-center">
+                <svg class="w-10 h-10 text-brand-olive/15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                </svg>
+              </div>
+              <div class="mt-4">
+                <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
+                <div class="h-5 w-full bg-brand-olive/10 mb-2" />
+                <div class="h-5 w-3/4 bg-brand-olive/10" />
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-12">
+            <p class="font-serif text-brand-olive/60 text-sm">
+              Aquí compartiremos historias sobre el oficio, los materiales y las personas que hacen posible cada pieza de El Gran Peón.
             </p>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 5: Blog Preview -->
-    <section class="bg-white py-20 md:py-28">
-      <div class="container mx-auto px-6">
-        <div class="max-w-2xl mx-auto text-center">
-          <h2 class="font-display uppercase text-brand-primary text-3xl mb-3">
-            NOTICIAS Y HISTORIAS
-          </h2>
-          <p class="font-serif text-brand-olive/70 mb-8">Próximamente</p>
-          <p class="font-serif text-brand-olive leading-relaxed">
-            Aquí compartiremos historias sobre el oficio, los materiales y las personas que hacen posible cada pieza de El Gran Peón.
-          </p>
         </div>
       </div>
     </section>
@@ -155,8 +236,9 @@
 <script setup>
 useSeoMeta({
   title: 'Nosotros | El Gran Peón - Herencia Clásica',
-  description: 'Creemos en el valor de las cosas bien hechas. Conocé la historia de El Gran Peón y nuestra Cápsula Raíz, quince piezas que definen nuestra identidad.',
+  description: 'Creemos en el valor de las cosas bien hechas. Conocé la historia de El Gran Peón, nuestro oficio artesanal y la Cápsula Raíz: quince piezas que definen nuestra identidad.',
   ogTitle: 'Nosotros | El Gran Peón - Herencia Clásica',
-  ogDescription: 'Creemos en el valor de las cosas bien hechas. Conocé la historia de El Gran Peón y nuestra Cápsula Raíz, quince piezas que definen nuestra identidad.',
+  ogDescription: 'Creemos en el valor de las cosas bien hechas. Conocé la historia de El Gran Peón, nuestro oficio artesanal y la Cápsula Raíz: quince piezas que definen nuestra identidad.',
+  ogImage: 'https://elgranpeon.com/images/hero.jpg',
 })
 </script>
