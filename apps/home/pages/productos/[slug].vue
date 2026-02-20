@@ -755,16 +755,20 @@ useHead({
   opacity: 0;
 }
 /* Product description rich text */
-.prose-product p {
+.prose-product :deep(p) {
   margin-bottom: 0.75em;
 }
-.prose-product p:last-child {
+.prose-product :deep(p:last-child) {
   margin-bottom: 0;
 }
-.prose-product strong {
+.prose-product :deep(p:empty) {
+  margin-bottom: 0.5em;
+  min-height: 0.75em;
+}
+.prose-product :deep(strong) {
   font-weight: 700;
 }
-.prose-product em {
+.prose-product :deep(em) {
   font-style: italic;
 }
 </style>
