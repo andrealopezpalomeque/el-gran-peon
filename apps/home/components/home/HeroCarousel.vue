@@ -97,7 +97,7 @@ const slides = ref([
     image: '/images/hero.jpg',
     tagline: 'REGALOS EMPRESARIALES',
     headline: 'TU MARCA CON IDENTIDAD DE CAMPO',
-    cta: 'CONSULTAR',
+    cta: 'TRABAJEMOS JUNTOS',
     ctaLink: '/empresariales',
   },
 ])
