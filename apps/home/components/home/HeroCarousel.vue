@@ -14,7 +14,7 @@
     >
       <!-- Background image -->
       <div
-        class="absolute inset-0 bg-cover bg-center"
+        class="absolute inset-0 bg-cover bg-[30%_30%] md:bg-center"
         :style="{ backgroundImage: `url(${slide.image})` }"
       />
       <!-- Overlay -->
@@ -29,8 +29,16 @@
             <h2 class="font-display uppercase text-brand-cream text-hero-mobile md:text-hero mb-8">
               {{ slide.headline }}
             </h2>
+            <a
+              v-if="slide.cta && slide.ctaLink.startsWith('#')"
+              :href="slide.ctaLink"
+              class="inline-block border-2 border-brand-cream text-brand-cream font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-brand-cream hover:text-brand-olive transition-colors duration-200"
+              @click.prevent="scrollToSection(slide.ctaLink)"
+            >
+              {{ slide.cta }}
+            </a>
             <NuxtLink
-              v-if="slide.cta"
+              v-else-if="slide.cta"
               :to="slide.ctaLink"
               class="inline-block border-2 border-brand-cream text-brand-cream font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-brand-cream hover:text-brand-olive transition-colors duration-200"
             >
@@ -80,11 +88,11 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const slides = ref([
   {
-    image: '/images/hero.jpg',
-    tagline: 'HERENCIA CLÁSICA',
-    headline: 'HECHO PARA DURAR. COMO LAS COSAS BIEN HECHAS.',
-    cta: 'VER PRODUCTOS',
-    ctaLink: '/productos',
+    image: '/images/capsula-raiz-hero.jpg',
+    tagline: 'CÁPSULA RAÍZ',
+    headline: 'EL COMIENZO DE TODO',
+    cta: 'VER COLECCIÓN',
+    ctaLink: '#capsula-raiz',
   },
   {
     image: '/images/hero.jpg',
@@ -123,6 +131,11 @@ const onTouchEnd = (e) => {
     else prev()
     resetTimer()
   }
+}
+
+const scrollToSection = (hash) => {
+  const el = document.querySelector(hash)
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
 
 const next = () => {
