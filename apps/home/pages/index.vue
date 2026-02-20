@@ -1,7 +1,7 @@
 <template>
   <div>
     <HomeHeroCarousel />
-    <section class="py-16 md:py-24">
+    <section class="pt-16 md:pt-24">
       <div class="container mx-auto px-6">
         <HomeCategoryBanners />
       </div>

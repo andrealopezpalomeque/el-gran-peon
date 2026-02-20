@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="font-display uppercase text-brand-primary text-2xl md:text-3xl text-center mb-2">
+    <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl text-center mb-2">
       LO QUE DICEN NUESTROS CLIENTES
     </h2>
     <p class="font-serif text-brand-olive/70 text-center mb-10 md:mb-14">
