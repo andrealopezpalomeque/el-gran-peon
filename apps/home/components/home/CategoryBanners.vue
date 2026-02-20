@@ -6,12 +6,12 @@
     <p class="font-serif text-brand-olive/70 text-center mb-10 md:mb-14">
       Tradición, oficio y materiales nobles en cada detalle.
     </p>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div class="flex flex-wrap justify-center gap-4 md:gap-6">
       <NuxtLink
         v-for="category in categories"
         :key="category.id"
         :to="`/productos?categoria=${category.slug}`"
-        class="group flex flex-col items-center"
+        class="group flex flex-col items-center w-[calc(50%-0.5rem)] md:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)]"
       >
         <!-- Product image (transparent bg) -->
         <div class="aspect-square w-full flex items-center justify-center overflow-hidden bg-brand-cream p-4">
