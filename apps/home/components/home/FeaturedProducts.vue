@@ -1,5 +1,5 @@
 <template>
-  <div v-if="products.length" id="capsula-raiz">
+  <div v-if="products.length">
     <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl text-center mb-6">
       CÁPSULA RAÍZ
     </h2>

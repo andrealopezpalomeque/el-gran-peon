@@ -6,7 +6,7 @@
         <HomeCategoryBanners />
       </div>
     </section>
-    <section class="pb-16 md:pb-24 bg-brand-cream">
+    <section id="capsula-raiz" class="py-16 md:py-24 bg-brand-cream scroll-mt-24">
       <div class="container mx-auto px-6">
         <HomeFeaturedProducts />
       </div>
