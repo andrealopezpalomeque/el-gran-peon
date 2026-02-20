@@ -1,20 +1,11 @@
 <template>
   <div v-if="products.length">
-    <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl text-center mb-6">
-      CÁPSULA RAÍZ
+    <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl text-center mb-2">
+      CÁPSULA RAÍZ · DESTACADOS
     </h2>
-    <div class="max-w-2xl mx-auto text-center mb-12 md:mb-16 space-y-3">
-      <p class="font-serif text-brand-olive/80 text-base md:text-lg leading-relaxed">
-        Antes del nombre, antes del oficio, antes incluso de la forma, está la raíz.
-      </p>
-      <p class="font-serif text-brand-olive/80 text-base md:text-lg leading-relaxed">
-        Es lo que sostiene cuando el tiempo empuja, cuando las modas pasan.
-      </p>
-      <p class="font-serif text-brand-olive text-base md:text-lg leading-relaxed">
-        Cada producto de <strong>Raíz</strong> responde a una lógica simple:
-        <strong>hacer cosas hechas para durar, como las cosas bien hechas.</strong>
-      </p>
-    </div>
+    <p class="font-serif text-brand-olive/70 text-center mb-10 md:mb-14">
+      El comienzo de todo. Estas son las piezas que elegimos para empezar.
+    </p>
 
     <!-- Carousel -->
     <div class="relative">
