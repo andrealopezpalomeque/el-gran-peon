@@ -1,10 +1,10 @@
 <template>
   <div v-if="products.length">
     <h2 class="font-display uppercase text-brand-primary text-2xl md:text-3xl text-center mb-2">
-      PIEZAS ELEGIDAS PARA VOS
+      CÁPSULA RAÍZ · DESTACADOS
     </h2>
     <p class="font-serif text-brand-olive/70 text-center mb-10 md:mb-14">
-      Hechas para durar, como las cosas bien hechas.
+      El comienzo de todo. Estas son las piezas que elegimos para empezar.
     </p>
 
     <!-- Carousel -->
@@ -74,7 +74,7 @@
     </Transition>
   </div>
   <div v-else-if="loaded" class="text-center py-12">
-    <p class="font-display uppercase text-brand-primary text-2xl mb-4">PIEZAS ELEGIDAS PARA VOS</p>
+    <p class="font-display uppercase text-brand-primary text-2xl mb-4">CÁPSULA RAÍZ · DESTACADOS</p>
     <p class="font-serif text-brand-olive/60">Próximamente</p>
   </div>
 </template>

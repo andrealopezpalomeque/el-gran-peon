@@ -1,5 +1,10 @@
 <template>
-  <div class="relative w-full h-[50vh] md:h-[70vh] overflow-hidden">
+  <div
+    ref="carouselRef"
+    class="relative w-full h-[50vh] md:h-[70vh] overflow-hidden touch-pan-y"
+    @touchstart="onTouchStart"
+    @touchend="onTouchEnd"
+  >
     <!-- Slides -->
     <div
       v-for="(slide, index) in slides"
@@ -97,8 +102,28 @@ const slides = ref([
   },
 ])
 
+const carouselRef = ref(null)
 const current = ref(0)
 let interval = null
+let touchStartX = 0
+let touchStartY = 0
+
+const onTouchStart = (e) => {
+  touchStartX = e.touches[0].clientX
+  touchStartY = e.touches[0].clientY
+}
+
+const onTouchEnd = (e) => {
+  const deltaX = e.changedTouches[0].clientX - touchStartX
+  const deltaY = e.changedTouches[0].clientY - touchStartY
+
+  // Only trigger if horizontal swipe is dominant and exceeds threshold
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (deltaX < 0) next()
+    else prev()
+    resetTimer()
+  }
+}
 
 const next = () => {
   current.value = (current.value + 1) % slides.value.length
