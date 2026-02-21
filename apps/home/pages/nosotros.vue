@@ -1,25 +1,28 @@
 <template>
   <div>
-    <!-- Section 1: Hero -->
-    <section class="relative h-[85vh] min-h-[500px] w-full overflow-hidden bg-brand-olive">
-      <img
-        src="/images/hero.jpg"
-        alt="Taller de marroquinería artesanal de El Gran Peón"
-        class="absolute inset-0 w-full h-full object-cover"
-      />
-      <div class="absolute inset-0 bg-black/30" />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-      <div class="relative h-full flex items-end justify-end px-8 md:px-16 pb-14 md:pb-20">
-        <div class="text-right max-w-lg">
-          <div class="h-px w-12 bg-brand-cream/50 ml-auto mb-6" />
-          <h1 class="font-serif text-brand-cream text-4xl md:text-5xl lg:text-6xl font-light leading-tight">
-            HACEMOS PIEZAS QUE DURAN.
+    <!-- Section 1: Philosophy Hero -->
+    <section class="bg-brand-cream py-20 md:py-32">
+      <div class="container mx-auto px-6">
+        <div class="max-w-4xl mx-auto text-center">
+          <h1 class="font-display uppercase text-brand-primary text-4xl md:text-5xl mb-8">
+            QUIÉNES SOMOS
           </h1>
-          <p class="font-sans text-xs md:text-sm uppercase tracking-[0.25em] text-brand-cream/60 mt-5">
-            No seguimos tendencias. Creamos herencia.
-          </p>
+          <div class="mx-auto h-px w-16 bg-brand-primary/30 mb-8" />
+          <div class="font-serif text-brand-olive text-lg md:text-xl leading-relaxed space-y-6">
+            <p>
+              Creemos en el valor de las cosas bien hechas. En un mundo que cambia constantemente,
+              nosotros elegimos la permanencia. Cada pieza que creamos responde a una lógica simple:
+              hacer objetos que acompañen el tiempo, que se usen con orgullo y que mantengan su sentido
+              más allá de las modas.
+            </p>
+            <p>
+              El Gran Peón nace del respeto por la tradición y el oficio. Trabajamos con materiales nobles,
+              atendemos cada detalle y buscamos la durabilidad en todo lo que hacemos. No seguimos tendencias.
+              <em>Creamos herencia.</em>
+            </p>
+          </div>
         </div>
-      </div>s
+      </div>
     </section>
 
     <!-- Section 2: Nuestro Origen -->
@@ -49,7 +52,7 @@
               </div>
             </div>
 
-            <!-- Right: Image -->
+            <!-- Right: Enhanced Workshop Image -->
             <div class="relative aspect-[4/5] overflow-hidden">
               <img
                 src="/images/workshop.jpg"
@@ -57,6 +60,7 @@
                 class="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" />
             </div>
           </div>
         </div>
@@ -110,7 +114,7 @@
       </div>
     </section>
 
-    <!-- Section 3: Nuestro Oficio -->
+    <!-- Section 4: Nuestro Oficio -->
     <section class="bg-brand-olive py-20 md:py-28">
       <div class="container mx-auto px-6">
         <p class="mb-3 text-center font-sans text-xs uppercase tracking-[0.25em] text-brand-cream/50">
@@ -165,36 +169,35 @@
       </div>
     </section>
 
-    <!-- Section 4: La Herencia (Image background) -->
-<!--     <section class="relative w-full overflow-hidden bg-brand-olive py-20 md:py-28">
-      <img
-        src="/images/heritage.jpg"
-        alt="Paisaje de la pampa argentina al atardecer"
-        class="absolute inset-0 w-full h-full object-cover"
-        loading="lazy"
-      />
-      <div class="absolute inset-0 bg-brand-olive/60" />
-      <div class="relative flex flex-col items-center px-6 text-center">
-        <h2 class="font-display uppercase text-brand-cream text-3xl md:text-4xl mb-6">
-          LA HERENCIA
-        </h2>
-        <div class="h-px w-16 bg-brand-cream/40" />
-        <div class="mt-6 max-w-2xl space-y-5 font-serif text-brand-cream/90 leading-relaxed text-base md:text-lg">
-          <p>
-            El Gran Peón es más que una marca. Es la continuación de una tradición que valoriza el trabajo bien hecho y la permanencia por sobre la novedad.
-          </p>
-          <p>
-            Creamos para quienes entienden que las cosas buenas se compran una sola vez. Para quienes buscan objetos que cuenten historias, que acompañen momentos y que se transmitan con orgullo.
-          </p>
+    <!-- Section 5: La Herencia -->
+    <section class="bg-white py-20 md:py-28">
+      <div class="container mx-auto px-6">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 class="font-display uppercase text-brand-primary text-3xl md:text-4xl mb-6">
+            LA HERENCIA
+          </h2>
+          <div class="mx-auto h-px w-16 bg-brand-primary/30 mb-8" />
+          <div class="font-serif text-brand-olive text-lg leading-relaxed space-y-6">
+            <p>
+              El Gran Peón es más que una marca. Es la continuación de una tradición que valoriza
+              el trabajo bien hecho y la permanencia por sobre la novedad.
+            </p>
+            <p>
+              Creamos para quienes entienden que las cosas buenas se compran una sola vez.
+              Para quienes buscan objetos que cuenten historias, que acompañen momentos y que
+              se transmitan con orgullo.
+            </p>
+          </div>
+          <div class="mt-12 pt-8 border-t border-brand-primary/10">
+            <p class="font-serif text-brand-primary text-xl md:text-2xl italic">
+              "Hecho para durar. Como las cosas bien hechas."
+            </p>
+          </div>
         </div>
-        <div class="mt-8 h-px w-16 bg-brand-cream/40" />
-        <p class="mt-6 font-serif text-brand-cream italic text-xl md:text-2xl">
-          Hacemos piezas para durar. Como las cosas bien hechas.
-        </p>
       </div>
-    </section> -->
+    </section>
 
-    <!-- Section 5: Noticias y Historias -->
+    <!-- Section 6: Noticias y Historias -->
     <section class="bg-brand-cream py-20 md:py-28">
       <div class="container mx-auto px-6">
         <div class="max-w-6xl mx-auto">
