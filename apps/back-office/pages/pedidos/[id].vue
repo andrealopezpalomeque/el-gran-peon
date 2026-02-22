@@ -108,6 +108,21 @@
                     <td class="py-2 pr-3">
                       <p class="font-sans text-sm text-brand-olive">{{ item.name || item.productName }}</p>
                       <p v-if="item.category" class="font-sans text-xs text-brand-olive/40">{{ item.category }}</p>
+                      <template v-if="item.customizations">
+                        <p v-for="(c, key) in item.customizations" :key="key" class="font-sans text-xs text-brand-olive/60">
+                          {{ c.label }}: {{ c.value }}
+                          <template v-if="c.text"> — "{{ c.text }}"</template>
+                          <span v-if="c.extraPrice > 0" class="text-brand-olive/40">(+{{ formatPrice(c.extraPrice) }})</span>
+                        </p>
+                        <a
+                          v-if="item.customizations.grabado?.logoUrl"
+                          :href="item.customizations.grabado.logoUrl"
+                          target="_blank"
+                          class="inline-block mt-1"
+                        >
+                          <img :src="item.customizations.grabado.logoUrl" alt="Logo del cliente" class="w-12 h-12 object-contain border border-brand-olive/10" />
+                        </a>
+                      </template>
                       <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80">Envío gratis</p>
                     </td>
                     <td class="py-2 px-2 text-center">

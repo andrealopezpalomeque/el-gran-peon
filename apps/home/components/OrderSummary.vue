@@ -4,12 +4,20 @@
 
     <div class="space-y-4">
       <div
-        v-for="item in items"
-        :key="item.productId"
+        v-for="(item, idx) in items"
+        :key="(item.productId || '') + (item.customizationKey || '') + idx"
         class="flex items-start justify-between gap-3"
       >
         <div class="flex-1 min-w-0">
           <p class="font-sans text-sm text-brand-olive">{{ item.productName }}</p>
+          <template v-if="item.customizations">
+            <p v-for="(c, key) in item.customizations" :key="key" class="font-sans text-xs text-brand-olive/60">
+              {{ c.label }}: {{ c.value }}
+              <template v-if="c.text"> — "{{ c.text }}"</template>
+              <template v-if="c.logoUrl"> (logo adjunto)</template>
+              <span v-if="c.extraPrice > 0" class="text-brand-olive/40">(+{{ formatPrice(c.extraPrice) }})</span>
+            </p>
+          </template>
           <p class="font-sans text-xs text-brand-olive/50">x{{ item.quantity }}</p>
           <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80">Envío gratis</p>
         </div>

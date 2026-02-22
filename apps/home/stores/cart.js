@@ -11,7 +11,15 @@ export const useCartStore = defineStore('cart', () => {
       const saved = localStorage.getItem('elgranpeon-cart')
       if (saved) {
         try {
-          items.value = JSON.parse(saved)
+          const parsed = JSON.parse(saved)
+          // Backward compat: ensure all items have customizationKey
+          items.value = parsed.map(item => ({
+            ...item,
+            customizationKey: item.customizationKey || '',
+            customizations: item.customizations || null,
+            customizationsExtra: item.customizationsExtra || 0,
+            basePrice: item.basePrice || item.unitPrice,
+          }))
         } catch {
           items.value = []
         }
@@ -26,9 +34,34 @@ export const useCartStore = defineStore('cart', () => {
     }
   }
 
+  // Build a customizationKey from selected customizations for uniqueness
+  const buildCustomizationKey = (selectedCustomizations) => {
+    if (!selectedCustomizations || Object.keys(selectedCustomizations).length === 0) return ''
+    // Sort keys for consistent hashing, include text/logoUrl for grabado uniqueness
+    const sorted = Object.keys(selectedCustomizations).sort().reduce((acc, key) => {
+      const c = selectedCustomizations[key]
+      acc[key] = c.value + (c.text || '') + (c.logoUrl || '')
+      return acc
+    }, {})
+    return JSON.stringify(sorted)
+  }
+
+  // Calculate extra price from selected customizations
+  const calcCustomizationsExtra = (selectedCustomizations) => {
+    if (!selectedCustomizations) return 0
+    return Object.values(selectedCustomizations).reduce((sum, c) => sum + (c.extraPrice || 0), 0)
+  }
+
   // Add product to cart
-  const addProduct = (product, quantity = 1) => {
-    const existingItem = items.value.find(item => item.productId === product.id)
+  const addProduct = (product, quantity = 1, selectedCustomizations = null) => {
+    const customizationKey = buildCustomizationKey(selectedCustomizations)
+    const customizationsExtra = calcCustomizationsExtra(selectedCustomizations)
+    const basePrice = product.price
+    const unitPrice = basePrice + customizationsExtra
+
+    const existingItem = items.value.find(
+      item => item.productId === product.id && item.customizationKey === customizationKey
+    )
 
     const stock = product.stock ?? Infinity
 
@@ -40,12 +73,16 @@ export const useCartStore = defineStore('cart', () => {
         productId: product.id,
         productName: product.name,
         productSlug: product.slug,
-        unitPrice: product.price,
+        basePrice,
+        unitPrice,
         quantity: Math.min(quantity, stock),
         image: product.images?.[0]?.url || null,
         categoryName: product.categoryName,
         freeShipping: product.freeShipping || false,
         stock: stock,
+        customizations: selectedCustomizations || null,
+        customizationsExtra,
+        customizationKey,
       })
     }
 
@@ -53,11 +90,13 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   // Update quantity
-  const updateQuantity = (productId, quantity) => {
-    const item = items.value.find(item => item.productId === productId)
+  const updateQuantity = (productId, quantity, customizationKey = '') => {
+    const item = items.value.find(
+      item => item.productId === productId && (item.customizationKey || '') === customizationKey
+    )
     if (item) {
       if (quantity <= 0) {
-        removeProduct(productId)
+        removeProduct(productId, customizationKey)
       } else {
         const max = item.stock ?? Infinity
         item.quantity = Math.min(quantity, max)
@@ -67,9 +106,18 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   // Remove product
-  const removeProduct = (productId) => {
-    items.value = items.value.filter(item => item.productId !== productId)
+  const removeProduct = (productId, customizationKey = '') => {
+    items.value = items.value.filter(
+      item => !(item.productId === productId && (item.customizationKey || '') === customizationKey)
+    )
     saveCart()
+  }
+
+  // Get total quantity in cart for a given productId (across all customization variants)
+  const getProductTotalQuantity = (productId) => {
+    return items.value
+      .filter(item => item.productId === productId)
+      .reduce((sum, item) => sum + item.quantity, 0)
   }
 
   // Clear cart
@@ -107,6 +155,15 @@ export const useCartStore = defineStore('cart', () => {
     message += `*Productos:*\n`
     items.value.forEach((item, index) => {
       message += `${index + 1}. ${item.productName}\n`
+      if (item.customizations) {
+        Object.values(item.customizations).forEach(c => {
+          message += `   ${c.label}: ${c.value}`
+          if (c.text) message += ` — "${c.text}"`
+          if (c.logoUrl) message += ` (logo adjunto)`
+          if (c.extraPrice > 0) message += ` (+${formatPrice(c.extraPrice)})`
+          message += `\n`
+        })
+      }
       message += `   Cantidad: ${item.quantity}\n`
       message += `   Precio unitario: ${formatPrice(item.unitPrice)}\n`
       message += `   Subtotal: ${formatPrice(item.unitPrice * item.quantity)}\n`
@@ -150,6 +207,7 @@ export const useCartStore = defineStore('cart', () => {
     addProduct,
     updateQuantity,
     removeProduct,
+    getProductTotalQuantity,
     clearCart,
     generateWhatsAppUrl,
   }

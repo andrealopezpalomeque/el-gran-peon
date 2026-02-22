@@ -151,7 +151,61 @@
       />
     </div>
 
-    <!-- Section 5: Opciones -->
+    <!-- Section 5: Personalizacion (solo para categoria Mate) -->
+    <div v-if="isMateCategory" class="mb-8">
+      <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">PERSONALIZACION</h3>
+      <p class="font-sans text-xs text-brand-olive/50 mb-4">Habilitar opciones de personalizacion para este producto</p>
+
+      <div class="space-y-4">
+        <div
+          v-for="(cat, catId) in CUSTOMIZATION_CATALOG"
+          :key="catId"
+          class="border-2 p-4 transition-colors"
+          :class="custSettings[catId].enabled ? 'border-brand-primary/30 bg-brand-primary/[0.02]' : 'border-brand-olive/10'"
+        >
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                v-model="custSettings[catId].enabled"
+                type="checkbox"
+                class="w-4 h-4 accent-brand-primary"
+              />
+              <span class="font-sans text-sm font-medium text-brand-olive">{{ cat.label }}</span>
+            </label>
+            <label v-if="custSettings[catId].enabled" class="flex items-center gap-2 cursor-pointer">
+              <input
+                v-model="custSettings[catId].required"
+                type="checkbox"
+                class="w-4 h-4 accent-brand-primary"
+              />
+              <span class="font-sans text-xs text-brand-olive/70">Obligatorio</span>
+            </label>
+          </div>
+
+          <div v-if="custSettings[catId].enabled" class="mt-3 space-y-2">
+            <div
+              v-for="(opt, oIdx) in custSettings[catId].options"
+              :key="oIdx"
+              class="flex items-center gap-3"
+            >
+              <span class="font-sans text-sm text-brand-olive flex-1">{{ opt.value }}</span>
+              <label class="flex items-center gap-1">
+                <span class="font-sans text-xs text-brand-olive/50">Extra $</span>
+                <input
+                  v-model.number="opt.extraPrice"
+                  type="number"
+                  min="0"
+                  step="1"
+                  class="w-24 px-2 py-1 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive text-right focus:outline-none focus:border-brand-primary transition-colors"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 6: Opciones -->
     <div class="mb-8">
       <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">OPCIONES</h3>
 
@@ -272,6 +326,35 @@ const form = ref({
   tags: [],
 })
 
+// Predefined customization catalog — static options, admin only toggles enabled/required and sets extra prices
+const CUSTOMIZATION_CATALOG = {
+  grabado: { label: 'Grabado', options: ['Iniciales', 'Logo'] },
+  tamano: { label: 'Tamaño', options: ['Chico', 'Mediano', 'Grande'] },
+  virola: { label: 'Virola', options: ['Cordón galloneado', 'Galloneado ancho'] },
+  color: { label: 'Color', options: ['Claro', 'Oscuro'] },
+}
+
+function createDefaultCustSettings() {
+  const settings = {}
+  for (const [id, cat] of Object.entries(CUSTOMIZATION_CATALOG)) {
+    settings[id] = {
+      enabled: false,
+      required: false,
+      options: cat.options.map(v => ({ value: v, extraPrice: 0 })),
+    }
+  }
+  return settings
+}
+
+const custSettings = ref(createDefaultCustSettings())
+
+// Show PERSONALIZACION only for Mate category
+const isMateCategory = computed(() => {
+  if (!selectedParentId.value) return false
+  const parent = props.categories.find(c => c.id === selectedParentId.value)
+  return parent?.name?.toLowerCase() === 'mate'
+})
+
 const unlimitedStock = ref(false)
 const tagsInput = ref('')
 const selectedParentId = ref('')
@@ -325,7 +408,11 @@ const selectedParentChildren = computed(() => {
 // When parent changes
 function onParentChange() {
   selectedChildId.value = ''
+  // Reset customizations when switching away from Mate
   const parent = props.categories.find(c => c.id === selectedParentId.value)
+  if (parent?.name?.toLowerCase() !== 'mate') {
+    custSettings.value = createDefaultCustSettings()
+  }
   if (!parent) return
 
   // If parent has no children, assign directly to parent
@@ -380,6 +467,22 @@ watch(() => props.product, (product) => {
     unlimitedStock.value = product.stock === -1
     tagsInput.value = (product.tags || []).join(', ')
 
+    // Populate customization settings from saved product data
+    const freshSettings = createDefaultCustSettings()
+    if (product.customizations?.length) {
+      for (const cust of product.customizations) {
+        if (freshSettings[cust.id]) {
+          freshSettings[cust.id].enabled = true
+          freshSettings[cust.id].required = cust.required || false
+          for (const opt of cust.options || []) {
+            const s = freshSettings[cust.id].options.find(o => o.value === opt.value)
+            if (s) s.extraPrice = opt.extraPrice || 0
+          }
+        }
+      }
+    }
+    custSettings.value = freshSettings
+
     // Set cascading dropdown state from existing product data
     if (product.parentCategoryId) {
       selectedParentId.value = product.parentCategoryId
@@ -404,10 +507,22 @@ function handleSubmit() {
     ? tagsInput.value.split(',').map(t => t.trim()).filter(Boolean)
     : []
 
+  // Build customizations from enabled catalog entries
+  const customizations = Object.entries(custSettings.value)
+    .filter(([_, s]) => s.enabled)
+    .map(([id, s]) => ({
+      id,
+      label: CUSTOMIZATION_CATALOG[id].label,
+      type: 'select',
+      required: s.required,
+      options: s.options.map(o => ({ value: o.value, extraPrice: o.extraPrice || 0 })),
+    }))
+
   const data = {
     ...form.value,
     stock: unlimitedStock.value ? -1 : form.value.stock,
     tags,
+    customizations,
     compareAtPrice: form.value.compareAtPrice || null,
     bulkMinQuantity: form.value.bulkAvailable ? form.value.bulkMinQuantity : null,
     cloudinaryFolder: imageFolder.value,

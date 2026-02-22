@@ -129,7 +129,7 @@
           </h1>
 
           <!-- Price -->
-          <div class="mt-4 flex items-center gap-3">
+          <div class="mt-4 flex items-baseline gap-3">
             <span
               v-if="product.compareAtPrice"
               class="font-sans line-through text-brand-olive/40"
@@ -137,7 +137,10 @@
               {{ formatPrice(product.compareAtPrice) }}
             </span>
             <span class="font-sans font-bold text-brand-primary text-2xl">
-              {{ formatPrice(product.price) }}
+              {{ formatPrice(hasCustomizations ? effectivePrice : product.price) }}
+            </span>
+            <span v-if="customizationsExtra > 0" class="font-sans text-xs text-brand-olive/40">
+              +{{ formatPrice(customizationsExtra) }} personalización
             </span>
           </div>
 
@@ -160,8 +163,91 @@
             </span>
           </div>
 
+          <!-- Customization options -->
+          <div v-if="hasCustomizations" class="mt-5 space-y-3">
+            <div
+              v-for="cust in product.customizations"
+              :key="cust.id"
+              :ref="el => { if (el) custFieldRefs[cust.id] = el }"
+            >
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="font-sans text-xs uppercase tracking-wide text-brand-olive/60">
+                  {{ cust.label }}
+                </span>
+                <span v-if="cust.required" class="text-brand-primary text-xs">*</span>
+                <span v-if="custErrors[cust.id]" class="font-sans text-xs text-red-500 ml-auto">Selecciona una opcion</span>
+              </div>
+
+              <div
+                class="flex flex-wrap gap-1.5"
+                :class="{ 'shake': custErrors[cust.id] }"
+              >
+                <button
+                  v-for="opt in cust.options"
+                  :key="opt.value"
+                  type="button"
+                  @click="onSelectChange(cust, opt.value)"
+                  class="px-3 py-1.5 border font-sans text-sm transition-colors duration-150"
+                  :class="selectedCustomizations[cust.id]?.value === opt.value
+                    ? 'border-brand-primary bg-brand-primary text-brand-cream'
+                    : 'border-brand-olive/20 text-brand-olive hover:border-brand-olive/40'"
+                >
+                  {{ opt.value }}
+                  <span v-if="opt.extraPrice > 0" class="text-xs" :class="selectedCustomizations[cust.id]?.value === opt.value ? 'text-brand-cream/70' : 'text-brand-olive/40'">
+                    +{{ formatPrice(opt.extraPrice) }}
+                  </span>
+                </button>
+              </div>
+
+              <!-- Grabado sub-fields (inline) -->
+              <template v-if="cust.id === 'grabado'">
+                <div v-if="selectedCustomizations.grabado?.value === 'Iniciales'" class="mt-2 flex items-center gap-2" :class="{ 'shake': custErrors.grabado_text }">
+                  <input
+                    :value="grabadoText"
+                    @input="onGrabadoTextInput($event)"
+                    type="text"
+                    maxlength="3"
+                    placeholder="ABC"
+                    class="w-24 px-3 py-1.5 border bg-white font-sans text-sm text-brand-olive uppercase tracking-widest text-center focus:outline-none focus:border-brand-primary transition-colors"
+                    :class="custErrors.grabado_text ? 'border-red-500' : 'border-brand-olive/20'"
+                  />
+                  <span class="font-sans text-xs text-brand-olive/40">Hasta 3 letras</span>
+                </div>
+
+                <div v-if="selectedCustomizations.grabado?.value === 'Logo'" class="mt-2" :class="{ 'shake': custErrors.grabado_logo }">
+                  <div v-if="!grabadoLogoUrl">
+                    <label
+                      class="inline-flex items-center gap-2 px-3 py-1.5 border font-sans text-xs text-brand-olive cursor-pointer hover:border-brand-primary transition-colors"
+                      :class="[
+                        uploadingLogo ? 'opacity-50 pointer-events-none' : '',
+                        custErrors.grabado_logo ? 'border-red-500' : 'border-brand-olive/20',
+                      ]"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                      </svg>
+                      {{ uploadingLogo ? 'Subiendo...' : 'Subir logo (PNG, JPG)' }}
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        class="hidden"
+                        @change="onLogoFileChange"
+                        :disabled="uploadingLogo"
+                      />
+                    </label>
+                  </div>
+                  <div v-else class="flex items-center gap-2">
+                    <img :src="grabadoLogoUrl" alt="Logo" class="w-10 h-10 object-contain border border-brand-olive/10" />
+                    <button type="button" @click="removeGrabadoLogo" class="font-sans text-xs text-brand-primary hover:underline">Cambiar</button>
+                  </div>
+                  <p v-if="logoUploadError" class="font-sans text-xs text-red-500 mt-1">{{ logoUploadError }}</p>
+                </div>
+              </template>
+            </div>
+          </div>
+
           <!-- Quantity selector + Add to cart -->
-          <div class="mt-6 flex items-center gap-4">
+          <div class="mt-5 flex items-center gap-4">
             <div v-if="canAddToCart" class="flex items-center border border-brand-olive/20">
               <button
                 class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
@@ -335,7 +421,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
 import { formatPrice } from '~/utils/format'
 
 const route = useRoute()
@@ -351,26 +437,198 @@ const quantity = ref(1)
 const added = ref(false)
 const cart = useCartStore()
 
-// Max quantity the user can select, accounting for items already in cart
+// ─── Customizations ───
+const selectedCustomizations = ref({})
+
+// Initialize customization defaults when product loads
+function initCustomizationDefaults() {
+  if (!product.value?.customizations?.length) {
+    selectedCustomizations.value = {}
+    return
+  }
+  const defaults = {}
+  for (const cust of product.value.customizations) {
+    if (cust.options?.length) {
+      defaults[cust.id] = {
+        label: cust.label,
+        value: cust.options[0].value,
+        extraPrice: cust.options[0].extraPrice || 0,
+      }
+    }
+  }
+  selectedCustomizations.value = defaults
+}
+
+const customizationsExtra = computed(() => {
+  return Object.values(selectedCustomizations.value).reduce((sum, c) => sum + (c.extraPrice || 0), 0)
+})
+
+const effectivePrice = computed(() => {
+  if (!product.value) return 0
+  return product.value.price + customizationsExtra.value
+})
+
+const hasCustomizations = computed(() => {
+  return product.value?.customizations?.length > 0
+})
+
+function onSelectChange(cust, value) {
+  const opt = cust.options.find(o => o.value === value)
+  selectedCustomizations.value[cust.id] = {
+    label: cust.label,
+    value: value,
+    extraPrice: opt?.extraPrice || 0,
+  }
+  // Clear error for this field
+  delete custErrors.value[cust.id]
+  // Reset grabado sub-fields when switching option
+  if (cust.id === 'grabado') {
+    grabadoText.value = ''
+    grabadoLogoUrl.value = ''
+    logoUploadError.value = ''
+    delete custErrors.value.grabado_text
+    delete custErrors.value.grabado_logo
+  }
+}
+
+// ─── Grabado sub-fields ───
+const grabadoText = ref('')
+const grabadoLogoUrl = ref('')
+const uploadingLogo = ref(false)
+const logoUploadError = ref('')
+
+function onGrabadoTextInput(event) {
+  const cleaned = event.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3)
+  grabadoText.value = cleaned
+  event.target.value = cleaned
+  if (selectedCustomizations.value.grabado) {
+    selectedCustomizations.value.grabado.text = grabadoText.value
+  }
+  if (grabadoText.value) delete custErrors.value.grabado_text
+}
+
+async function onLogoFileChange(event) {
+  const file = event.target.files?.[0]
+  if (!file) return
+
+  const maxSize = 5 * 1024 * 1024 // 5MB
+  if (file.size > maxSize) {
+    logoUploadError.value = 'El archivo es muy grande (max 5MB)'
+    return
+  }
+
+  uploadingLogo.value = true
+  logoUploadError.value = ''
+
+  try {
+    const config = useRuntimeConfig()
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await fetch(`${config.public.apiBase}/api/upload/customer-logo`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) throw new Error('Error al subir imagen')
+
+    const data = await response.json()
+    grabadoLogoUrl.value = data.url
+
+    if (selectedCustomizations.value.grabado) {
+      selectedCustomizations.value.grabado.logoUrl = data.url
+    }
+    delete custErrors.value.grabado_logo
+  } catch (err) {
+    logoUploadError.value = 'Error al subir la imagen. Intenta de nuevo.'
+    console.error('Logo upload error:', err)
+  } finally {
+    uploadingLogo.value = false
+    event.target.value = ''
+  }
+}
+
+function removeGrabadoLogo() {
+  grabadoLogoUrl.value = ''
+  if (selectedCustomizations.value.grabado) {
+    delete selectedCustomizations.value.grabado.logoUrl
+  }
+}
+
+// Max quantity the user can select, accounting for ALL cart items for same productId
 const maxQuantity = computed(() => {
   if (!product.value) return 0
   if (product.value.stock === -1) return 99
   if (product.value.stock === 0) return 0
-  const inCart = cart.items.find(item => item.productId === product.value.id)
-  const alreadyInCart = inCart ? inCart.quantity : 0
+  const alreadyInCart = cart.getProductTotalQuantity(product.value.id)
   return product.value.stock - alreadyInCart
 })
 
 const canAddToCart = computed(() => maxQuantity.value > 0)
 
-const addToCart = () => {
-  if (product.value && canAddToCart.value) {
-    const cappedQty = Math.min(quantity.value, maxQuantity.value)
-    cart.addProduct(product.value, cappedQty)
-    quantity.value = 1
-    added.value = true
-    setTimeout(() => { added.value = false }, 2000)
+// Customization validation errors (shown on submit attempt, not by disabling button)
+const custErrors = ref({})
+const custFieldRefs = {}
+
+function validateCustomizations() {
+  const errors = {}
+  if (!hasCustomizations.value) return errors
+
+  for (const cust of product.value.customizations) {
+    if (!cust.required) continue
+    const sel = selectedCustomizations.value[cust.id]
+    if (!sel || !sel.value) {
+      errors[cust.id] = true
+    }
   }
+
+  // Validate grabado sub-fields
+  const grabado = selectedCustomizations.value.grabado
+  if (grabado) {
+    if (grabado.value === 'Iniciales' && !grabadoText.value) {
+      errors.grabado_text = true
+    }
+    if (grabado.value === 'Logo' && !grabadoLogoUrl.value) {
+      errors.grabado_logo = true
+    }
+  }
+
+  return errors
+}
+
+function scrollToFirstCustError(errors) {
+  // Find the first customization with an error and scroll to it
+  const errorKeys = Object.keys(errors)
+  for (const key of errorKeys) {
+    // For grabado sub-fields, scroll to the grabado field
+    const fieldKey = key.startsWith('grabado') ? 'grabado' : key
+    const el = custFieldRefs[fieldKey]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+  }
+}
+
+const addToCart = () => {
+  if (!product.value || !canAddToCart.value) return
+
+  // Validate customizations
+  const errors = validateCustomizations()
+  if (Object.keys(errors).length > 0) {
+    custErrors.value = errors
+    nextTick(() => scrollToFirstCustError(errors))
+    // Auto-clear errors after animation
+    setTimeout(() => { custErrors.value = {} }, 2000)
+    return
+  }
+
+  const cappedQty = Math.min(quantity.value, maxQuantity.value)
+  const custs = hasCustomizations.value ? { ...selectedCustomizations.value } : null
+  cart.addProduct(product.value, cappedQty, custs)
+  quantity.value = 1
+  added.value = true
+  setTimeout(() => { added.value = false }, 2000)
 }
 
 function onThumbError(e) {
@@ -699,6 +957,7 @@ onMounted(async () => {
   // Fetch categories and product in parallel
   const [_, __] = await Promise.all([fetchCategories(), fetchProduct()])
   if (product.value) {
+    initCustomizationDefaults()
     await fetchRelatedProducts()
   }
 })
@@ -762,6 +1021,17 @@ useHead({
 .lightbox-enter-from,
 .lightbox-leave-to {
   opacity: 0;
+}
+/* Shake animation for validation errors */
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 /* Product description rich text */
 .prose-product :deep(p) {

@@ -133,6 +133,7 @@ export async function createProduct(req, res) {
       categoryId, categoryName, parentCategoryId, parentCategoryName,
       images, stock, isActive, isFeatured, freeShipping,
       tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
+      customizations,
     } = req.body;
 
     if (!name || !price || !categoryId) {
@@ -178,6 +179,7 @@ export async function createProduct(req, res) {
       bulkAvailable: bulkAvailable ?? false,
       bulkMinQuantity: bulkMinQuantity || null,
       bulkWhatsappMessage: bulkWhatsappMessage || '',
+      customizations: customizations || [],
       createdAt: now,
       updatedAt: now,
     };

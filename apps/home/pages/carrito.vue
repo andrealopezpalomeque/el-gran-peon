@@ -36,7 +36,7 @@
           <tbody>
             <tr
               v-for="item in cart.items"
-              :key="item.productId"
+              :key="item.productId + (item.customizationKey || '')"
               class="border-b border-brand-olive/10"
             >
               <!-- Product -->
@@ -62,6 +62,14 @@
                       {{ item.productName }}
                     </NuxtLink>
                     <p v-if="item.categoryName" class="font-sans text-xs text-brand-olive/50 mt-1">{{ item.categoryName }}</p>
+                    <template v-if="item.customizations">
+                      <p v-for="(c, key) in item.customizations" :key="key" class="font-sans text-xs text-brand-olive/60 mt-0.5">
+                        {{ c.label }}: {{ c.value }}
+                        <template v-if="c.text"> — "{{ c.text }}"</template>
+                        <template v-if="c.logoUrl"> (logo adjunto)</template>
+                        <span v-if="c.extraPrice > 0" class="text-brand-olive/40">(+{{ formatPrice(c.extraPrice) }})</span>
+                      </p>
+                    </template>
                     <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80 mt-1">Envío gratis</p>
                   </div>
                 </div>
@@ -78,7 +86,7 @@
                   <div class="flex items-center border border-brand-olive/20">
                     <button
                       class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200"
-                      @click="cart.updateQuantity(item.productId, item.quantity - 1)"
+                      @click="cart.updateQuantity(item.productId, item.quantity - 1, item.customizationKey)"
                     >
                       −
                     </button>
@@ -88,7 +96,7 @@
                     <button
                       class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
                       :disabled="item.stock && item.quantity >= item.stock"
-                      @click="cart.updateQuantity(item.productId, item.quantity + 1)"
+                      @click="cart.updateQuantity(item.productId, item.quantity + 1, item.customizationKey)"
                     >
                       +
                     </button>
@@ -104,7 +112,7 @@
               <!-- Remove -->
               <td class="py-6 text-right">
                 <button
-                  @click="cart.removeProduct(item.productId)"
+                  @click="cart.removeProduct(item.productId, item.customizationKey)"
                   class="text-brand-olive/40 hover:text-brand-primary transition-colors"
                   aria-label="Eliminar producto"
                 >
@@ -122,7 +130,7 @@
       <div class="md:hidden space-y-6">
         <div
           v-for="item in cart.items"
-          :key="item.productId"
+          :key="item.productId + (item.customizationKey || '')"
           class="border-b border-brand-olive/10 pb-6"
         >
           <div class="flex gap-4">
@@ -149,10 +157,16 @@
                     {{ item.productName }}
                   </NuxtLink>
                   <p v-if="item.categoryName" class="font-sans text-xs text-brand-olive/50 mt-0.5">{{ item.categoryName }}</p>
+                  <template v-if="item.customizations">
+                    <p v-for="(c, key) in item.customizations" :key="key" class="font-sans text-xs text-brand-olive/60 mt-0.5">
+                      {{ c.label }}: {{ c.value }}
+                      <span v-if="c.extraPrice > 0" class="text-brand-olive/40">(+{{ formatPrice(c.extraPrice) }})</span>
+                    </p>
+                  </template>
                   <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80 mt-0.5">Envío gratis</p>
                 </div>
                 <button
-                  @click="cart.removeProduct(item.productId)"
+                  @click="cart.removeProduct(item.productId, item.customizationKey)"
                   class="shrink-0 text-brand-olive/40 hover:text-brand-primary transition-colors"
                   aria-label="Eliminar producto"
                 >
@@ -168,7 +182,7 @@
                 <div class="flex items-center border border-brand-olive/20">
                   <button
                     class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200"
-                    @click="cart.updateQuantity(item.productId, item.quantity - 1)"
+                    @click="cart.updateQuantity(item.productId, item.quantity - 1, item.customizationKey)"
                   >
                     −
                   </button>
@@ -178,7 +192,7 @@
                   <button
                     class="w-8 h-8 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
                     :disabled="item.stock && item.quantity >= item.stock"
-                    @click="cart.updateQuantity(item.productId, item.quantity + 1)"
+                    @click="cart.updateQuantity(item.productId, item.quantity + 1, item.customizationKey)"
                   >
                     +
                   </button>

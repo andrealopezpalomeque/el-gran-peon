@@ -22,6 +22,8 @@ const productImageUploader = createUploader((req) => {
 
 const categoryImageUploader = createUploader(() => 'el-gran-peon/categories');
 
+const customerLogoUploader = createUploader(() => 'el-gran-peon/customer-logos');
+
 export const uploadProductImage = [
   productImageUploader.single('image'),
   (req, res) => {
@@ -38,6 +40,20 @@ export const uploadProductImage = [
 
 export const uploadCategoryImage = [
   categoryImageUploader.single('image'),
+  (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se envió ninguna imagen.' });
+    }
+
+    res.json({
+      url: req.file.path,
+      publicId: req.file.filename,
+    });
+  },
+];
+
+export const uploadCustomerLogo = [
+  customerLogoUploader.single('image'),
   (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: 'No se envió ninguna imagen.' });
