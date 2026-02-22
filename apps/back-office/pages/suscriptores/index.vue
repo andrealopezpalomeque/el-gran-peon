@@ -12,6 +12,22 @@
         </button>
       </div>
 
+      <!-- Metrics -->
+      <div v-if="!loading && subscribers.length > 0" class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white border-2 border-brand-olive/10 p-4">
+          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-1">Total suscriptores</p>
+          <p class="font-sans text-brand-primary text-2xl font-bold">{{ subscribers.length }}</p>
+        </div>
+        <div class="bg-white border-2 border-brand-olive/10 p-4">
+          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-1">Contactados</p>
+          <p class="font-sans text-brand-primary text-2xl font-bold">{{ contactedCount }}</p>
+        </div>
+        <div class="bg-white border-2 border-brand-olive/10 p-4">
+          <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-1">Usaron codigo</p>
+          <p class="font-sans text-brand-primary text-2xl font-bold">{{ usedCodeCount }}</p>
+        </div>
+      </div>
+
       <!-- Filters -->
       <div class="flex flex-col sm:flex-row gap-3 mb-6">
         <!-- Search -->
@@ -31,6 +47,16 @@
         >
           <option value="">Todos los origenes</option>
           <option v-for="origin in availableOrigins" :key="origin" :value="origin">{{ origin }}</option>
+        </select>
+
+        <!-- Contacted filter -->
+        <select
+          v-model="contactedFilter"
+          class="px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+        >
+          <option value="">Todos</option>
+          <option value="contacted">Contactados</option>
+          <option value="not_contacted">Sin contactar</option>
         </select>
 
         <!-- Date from -->
@@ -61,6 +87,28 @@
         </select>
       </div>
 
+      <!-- Bulk action bar -->
+      <div
+        v-if="selectedIds.size > 0"
+        class="flex items-center gap-4 mb-4 p-3 bg-brand-primary/5 border-2 border-brand-primary/20"
+      >
+        <span class="font-sans text-sm text-brand-olive font-medium">
+          {{ selectedIds.size }} suscriptor{{ selectedIds.size > 1 ? 'es' : '' }} seleccionado{{ selectedIds.size > 1 ? 's' : '' }}
+        </span>
+        <button
+          @click="selectedIds.clear()"
+          class="px-3 py-1 font-sans text-xs text-brand-olive border-2 border-brand-olive/20 hover:border-brand-olive/40 transition-colors"
+        >
+          Deseleccionar
+        </button>
+        <button
+          @click="openBulkContactModal"
+          class="px-3 py-1 font-sans text-xs text-white bg-brand-primary hover:bg-brand-primary/90 transition-colors"
+        >
+          Marcar como contactados
+        </button>
+      </div>
+
       <!-- Loading skeleton -->
       <div v-if="loading" class="space-y-3">
         <div v-for="i in 5" :key="i" class="bg-white border-2 border-brand-olive/10 p-4 animate-pulse">
@@ -86,13 +134,25 @@
         </p>
 
         <!-- Desktop table -->
-        <div class="hidden md:block">
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full">
             <thead>
               <tr class="border-b-2 border-brand-olive/10">
+                <th class="pb-3 pr-2">
+                  <input
+                    type="checkbox"
+                    :checked="allPageSelected"
+                    @change="togglePageSelection"
+                    class="accent-brand-primary"
+                  />
+                </th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Email</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Origen</th>
-                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3">Fecha</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Fecha</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Contactado</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Codigo enviado</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Codigo usado</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -101,9 +161,33 @@
                 :key="sub.id"
                 class="border-b border-brand-olive/5"
               >
+                <td class="py-3 pr-2">
+                  <input
+                    type="checkbox"
+                    :checked="selectedIds.has(sub.id)"
+                    @change="toggleSelection(sub.id)"
+                    class="accent-brand-primary"
+                  />
+                </td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive">{{ sub.email }}</td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.source || '—' }}</td>
-                <td class="py-3 font-sans text-sm text-brand-olive/70">{{ formatDate(sub.createdAt) }}</td>
+                <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ formatDate(sub.createdAt) }}</td>
+                <td class="py-3 pr-4">
+                  <span v-if="sub.lastContactedAt" class="inline-flex items-center gap-1 font-sans text-xs text-green-700 bg-green-50 px-2 py-0.5 border border-green-200">
+                    Si · {{ formatDate(sub.lastContactedAt) }}
+                  </span>
+                  <span v-else class="font-sans text-xs text-brand-olive/40">No</span>
+                </td>
+                <td class="py-3 pr-4 font-sans text-xs text-brand-olive/70">{{ getLastPromoSent(sub) || '—' }}</td>
+                <td class="py-3 pr-4 font-sans text-xs text-brand-olive/70">{{ getPromoUsed(sub.email) || '—' }}</td>
+                <td class="py-3">
+                  <button
+                    @click="openSingleContactModal(sub)"
+                    class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
+                  >
+                    Contactar
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -116,10 +200,34 @@
             :key="sub.id"
             class="bg-white border-2 border-brand-olive/10 p-4"
           >
-            <p class="font-sans text-sm text-brand-olive mb-2">{{ sub.email }}</p>
-            <div class="flex items-center justify-between">
-              <span class="font-sans text-xs text-brand-olive/50 px-2 py-0.5 border border-brand-olive/10 bg-brand-olive/5">{{ sub.source || '—' }}</span>
-              <span class="font-sans text-xs text-brand-olive/50">{{ formatDate(sub.createdAt) }}</span>
+            <div class="flex items-start gap-3 mb-2">
+              <input
+                type="checkbox"
+                :checked="selectedIds.has(sub.id)"
+                @change="toggleSelection(sub.id)"
+                class="accent-brand-primary mt-1"
+              />
+              <div class="flex-1 min-w-0">
+                <p class="font-sans text-sm text-brand-olive truncate">{{ sub.email }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="font-sans text-xs text-brand-olive/50 px-2 py-0.5 border border-brand-olive/10 bg-brand-olive/5">{{ sub.source || '—' }}</span>
+                  <span class="font-sans text-xs text-brand-olive/50">{{ formatDate(sub.createdAt) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-brand-olive/5">
+              <div>
+                <span v-if="sub.lastContactedAt" class="inline-flex items-center gap-1 font-sans text-xs text-green-700 bg-green-50 px-2 py-0.5 border border-green-200">
+                  Contactado · {{ formatDate(sub.lastContactedAt) }}
+                </span>
+                <span v-else class="font-sans text-xs text-brand-olive/40">Sin contactar</span>
+              </div>
+              <button
+                @click="openSingleContactModal(sub)"
+                class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
+              >
+                Contactar
+              </button>
             </div>
           </div>
         </div>
@@ -147,22 +255,43 @@
           </button>
         </div>
       </template>
+
+      <!-- Contact Modal -->
+      <AdminContactModal
+        :visible="showContactModal"
+        :subscriber-count="contactModalCount"
+        :subscriber-email="contactModalEmail"
+        :promo-codes="activePromoCodes"
+        @confirm="handleContact"
+        @cancel="showContactModal = false"
+      />
     </NuxtLayout>
   </div>
 </template>
 
 <script setup>
-const { get } = useApi()
+const { get, patch, post } = useApi()
 
 const subscribers = ref([])
+const promoCodes = ref([])
 const loading = ref(true)
 const search = ref('')
 const originFilter = ref('')
+const contactedFilter = ref('')
 const dateFrom = ref('')
 const dateTo = ref('')
 const sortBy = ref('newest')
 const currentPage = ref(1)
 const perPage = 25
+
+// Selection
+const selectedIds = ref(new Set())
+
+// Contact modal
+const showContactModal = ref(false)
+const contactModalCount = ref(1)
+const contactModalEmail = ref('')
+const contactTarget = ref(null) // null = bulk, string = single subscriber id
 
 // Extract unique origins from loaded data
 const availableOrigins = computed(() => {
@@ -173,8 +302,37 @@ const availableOrigins = computed(() => {
   return [...origins].sort()
 })
 
+// Active promo codes for the modal dropdown
+const activePromoCodes = computed(() => {
+  return promoCodes.value.filter(p => p.isActive)
+})
+
+// Build a map of email → [{code, usedAt}] from promo code usedBy arrays
+const promoCodeUsageMap = computed(() => {
+  const map = new Map()
+  for (const promo of promoCodes.value) {
+    if (!promo.usedBy) continue
+    for (const usage of promo.usedBy) {
+      if (!usage.email) continue
+      const email = usage.email.toLowerCase()
+      if (!map.has(email)) map.set(email, [])
+      map.get(email).push({ code: promo.code, usedAt: usage.usedAt })
+    }
+  }
+  return map
+})
+
+// Metrics
+const contactedCount = computed(() => {
+  return subscribers.value.filter(s => s.lastContactedAt).length
+})
+
+const usedCodeCount = computed(() => {
+  return subscribers.value.filter(s => promoCodeUsageMap.value.has(s.email?.toLowerCase())).length
+})
+
 // Reset page when any filter changes
-watch([search, originFilter, dateFrom, dateTo, sortBy], () => {
+watch([search, originFilter, contactedFilter, dateFrom, dateTo, sortBy], () => {
   currentPage.value = 1
 })
 
@@ -184,6 +342,13 @@ const filteredSubscribers = computed(() => {
   // Filter by origin
   if (originFilter.value) {
     result = result.filter(s => s.source === originFilter.value)
+  }
+
+  // Filter by contacted status
+  if (contactedFilter.value === 'contacted') {
+    result = result.filter(s => s.lastContactedAt)
+  } else if (contactedFilter.value === 'not_contacted') {
+    result = result.filter(s => !s.lastContactedAt)
   }
 
   // Filter by search
@@ -221,6 +386,81 @@ const paginatedSubscribers = computed(() => {
   return filteredSubscribers.value.slice(start, start + perPage)
 })
 
+// Check if all items on current page are selected
+const allPageSelected = computed(() => {
+  if (paginatedSubscribers.value.length === 0) return false
+  return paginatedSubscribers.value.every(s => selectedIds.value.has(s.id))
+})
+
+function togglePageSelection() {
+  if (allPageSelected.value) {
+    paginatedSubscribers.value.forEach(s => selectedIds.value.delete(s.id))
+  } else {
+    paginatedSubscribers.value.forEach(s => selectedIds.value.add(s.id))
+  }
+}
+
+function toggleSelection(id) {
+  if (selectedIds.value.has(id)) {
+    selectedIds.value.delete(id)
+  } else {
+    selectedIds.value.add(id)
+  }
+}
+
+// Contact modal handlers
+function openSingleContactModal(sub) {
+  contactTarget.value = sub.id
+  contactModalCount.value = 1
+  contactModalEmail.value = sub.email
+  showContactModal.value = true
+}
+
+function openBulkContactModal() {
+  contactTarget.value = null
+  contactModalCount.value = selectedIds.value.size
+  contactModalEmail.value = ''
+  showContactModal.value = true
+}
+
+async function handleContact(data) {
+  showContactModal.value = false
+  try {
+    if (contactTarget.value) {
+      // Single subscriber
+      const updated = await patch(`/api/subscribe/${contactTarget.value}/contact`, data)
+      const idx = subscribers.value.findIndex(s => s.id === updated.id)
+      if (idx !== -1) subscribers.value[idx] = updated
+    } else {
+      // Bulk
+      const ids = [...selectedIds.value]
+      await post('/api/subscribe/bulk-contact', { subscriberIds: ids, ...data })
+      // Refresh all subscribers to get updated data
+      subscribers.value = await get('/api/subscribe')
+      selectedIds.value.clear()
+    }
+  } catch (error) {
+    console.error('Error marking as contacted:', error)
+  }
+}
+
+// Helpers
+function getLastPromoSent(sub) {
+  if (!sub.communications || sub.communications.length === 0) return null
+  // Find last communication that has a promo code
+  for (let i = sub.communications.length - 1; i >= 0; i--) {
+    if (sub.communications[i].promoCodeSent) return sub.communications[i].promoCodeSent
+  }
+  return null
+}
+
+function getPromoUsed(email) {
+  if (!email) return null
+  const usages = promoCodeUsageMap.value.get(email.toLowerCase())
+  if (!usages || usages.length === 0) return null
+  return usages.map(u => u.code).join(', ')
+}
+
 function toTimestamp(date) {
   if (!date) return 0
   if (date._seconds) return date._seconds * 1000
@@ -236,10 +476,14 @@ function formatDate(date) {
 }
 
 function exportCSV() {
-  const header = 'Email,Origen,Fecha'
+  const header = 'Email,Origen,Fecha,Contactado,Ultimo contacto,Codigo enviado,Codigo usado'
   const rows = filteredSubscribers.value.map(s => {
     const date = formatDate(s.createdAt)
-    return `${s.email},${s.source || ''},${date}`
+    const contacted = s.lastContactedAt ? 'Si' : 'No'
+    const lastContact = s.lastContactedAt ? formatDate(s.lastContactedAt) : ''
+    const promoSent = getLastPromoSent(s) || ''
+    const promoUsed = getPromoUsed(s.email) || ''
+    return `${s.email},${s.source || ''},${date},${contacted},${lastContact},${promoSent},${promoUsed}`
   })
   const csv = [header, ...rows].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -253,9 +497,14 @@ function exportCSV() {
 
 onMounted(async () => {
   try {
-    subscribers.value = await get('/api/subscribe')
+    const [subsData, promoData] = await Promise.all([
+      get('/api/subscribe'),
+      get('/api/promocodes'),
+    ])
+    subscribers.value = subsData
+    promoCodes.value = promoData
   } catch (error) {
-    console.error('Error loading subscribers:', error)
+    console.error('Error loading data:', error)
   } finally {
     loading.value = false
   }
