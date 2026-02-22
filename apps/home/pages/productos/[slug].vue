@@ -64,15 +64,22 @@
                   </div>
                 </template>
 
-                <!-- Video display -->
+                <!-- Video display (always thumbnail — tap opens video overlay) -->
                 <template v-else-if="currentGalleryItem.type === 'video'">
-                  <iframe
-                    :src="`https://www.youtube.com/embed/${currentGalleryItem.embedId}?rel=0`"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    class="w-full h-full"
-                  />
+                  <div class="relative w-full h-full cursor-pointer" @click.stop="openVideoOverlay(currentGalleryItem.embedId)">
+                    <img
+                      :src="`https://img.youtube.com/vi/${currentGalleryItem.embedId}/hqdefault.jpg`"
+                      :alt="currentGalleryItem.title || 'Video'"
+                      class="w-full h-full object-cover"
+                    />
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <div class="w-16 h-16 flex items-center justify-center bg-brand-primary">
+                        <svg class="w-7 h-7 text-brand-cream ml-1" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
                 </template>
               </div>
             </Transition>
@@ -461,6 +468,37 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Video overlay -->
+    <Teleport to="body">
+      <Transition name="lightbox">
+        <div
+          v-if="videoOverlayId"
+          class="fixed inset-0 z-50 bg-black flex items-center justify-center"
+          @click.self="closeVideoOverlay"
+        >
+          <!-- Close button -->
+          <button
+            class="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+            @click="closeVideoOverlay"
+            aria-label="Cerrar video"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+
+          <!-- Iframe — full viewport, no overlays competing for touch -->
+          <iframe
+            :src="`https://www.youtube.com/embed/${videoOverlayId}?rel=0&autoplay=1`"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="w-full h-full max-w-4xl max-h-[80vh]"
+          />
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -704,6 +742,19 @@ const currentGalleryItem = computed(() => {
 })
 
 const isVideoShowing = computed(() => currentGalleryItem.value.type === 'video')
+
+// Video overlay — opens full-screen so iframe has no touch conflicts
+const videoOverlayId = ref(null)
+
+function openVideoOverlay(embedId) {
+  videoOverlayId.value = embedId
+  document.body.style.overflow = 'hidden'
+}
+
+function closeVideoOverlay() {
+  videoOverlayId.value = null
+  document.body.style.overflow = ''
+}
 
 const slideDirection = ref('left')
 
@@ -974,8 +1025,12 @@ function onLightboxMouseUp() {
   isInteracting.value = false
 }
 
-// Keyboard navigation in lightbox
+// Keyboard navigation in lightbox + video overlay
 function onKeyDown(e) {
+  if (videoOverlayId.value && e.key === 'Escape') {
+    closeVideoOverlay()
+    return
+  }
   if (!lightboxOpen.value) return
   if (e.key === 'Escape') closeLightbox()
   if (e.key === 'ArrowLeft') lightboxPrev()
