@@ -5,91 +5,135 @@
 
       <!-- Loading -->
       <div v-if="loading">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <div v-for="i in 4" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
-            <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
-            <div class="h-8 w-12 bg-brand-olive/10" />
+        <!-- Attention skeleton -->
+        <div class="mb-8">
+          <div class="h-3 w-48 bg-brand-olive/10 mb-3" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div v-for="i in 2" :key="'a'+i" class="bg-white border-2 border-brand-olive/10 border-l-4 border-l-brand-olive/20 p-6 animate-pulse">
+              <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
+              <div class="h-8 w-12 bg-brand-olive/10 mb-2" />
+              <div class="h-2 w-32 bg-brand-olive/10" />
+            </div>
           </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div v-for="i in 5" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
-            <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
-            <div class="h-8 w-12 bg-brand-olive/10" />
+        <!-- Performance skeleton -->
+        <div class="mb-8">
+          <div class="h-3 w-40 bg-brand-olive/10 mb-3" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div v-for="i in 2" :key="'p'+i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
+              <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
+              <div class="h-8 w-12 bg-brand-olive/10 mb-2" />
+              <div class="h-2 w-32 bg-brand-olive/10" />
+            </div>
+          </div>
+        </div>
+        <!-- Management skeleton -->
+        <div>
+          <div class="h-3 w-24 bg-brand-olive/10 mb-3" />
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div v-for="i in 5" :key="'m'+i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
+              <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
+              <div class="h-8 w-12 bg-brand-olive/10 mb-2" />
+              <div class="h-2 w-24 bg-brand-olive/10" />
+            </div>
           </div>
         </div>
       </div>
 
       <template v-else>
-        <!-- Order Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-          <NuxtLink
-            to="/pedidos?status=nuevo"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Pedidos nuevos</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.newOrders }}</p>
-          </NuxtLink>
+        <!-- Pedidos que requieren atencion -->
+        <div class="mb-8">
+          <h3 class="font-sans text-sm text-brand-olive/50 uppercase tracking-wide mb-3">Pedidos que requieren atencion</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <NuxtLink
+              to="/pedidos?status=nuevo"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors border-l-4"
+              :class="stats.newOrders > 0 ? 'border-l-brand-primary' : 'border-l-brand-olive/20'"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Pedidos nuevos</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.newOrders }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Requieren contacto</p>
+            </NuxtLink>
 
-          <NuxtLink
-            to="/pedidos"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">En proceso</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.inProcess }}</p>
-          </NuxtLink>
-
-          <div class="bg-white border-2 border-brand-olive/10 p-6">
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Completados este mes</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.completedThisMonth }}</p>
-          </div>
-
-          <div class="bg-white border-2 border-brand-olive/10 p-6">
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Ingresos potenciales</p>
-            <p class="font-sans text-brand-primary text-2xl font-bold">{{ stats.potentialRevenue }}</p>
+            <NuxtLink
+              to="/pedidos"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors border-l-4"
+              :class="stats.inProcess > 0 ? 'border-l-brand-primary' : 'border-l-brand-olive/20'"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">En proceso</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.inProcess }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Contactados, en conversacion o confirmados</p>
+            </NuxtLink>
           </div>
         </div>
 
-        <!-- Catalog Stats -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <NuxtLink
-            to="/productos"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Productos</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.products }}</p>
-          </NuxtLink>
+        <!-- Rendimiento del mes -->
+        <div class="mb-8">
+          <h3 class="font-sans text-sm text-brand-olive/50 uppercase tracking-wide mb-3">Rendimiento del mes</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="bg-white border-2 border-brand-olive/10 p-6">
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Completados este mes</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.completedThisMonth }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Entregados en {{ currentMonthName }}</p>
+            </div>
 
-          <NuxtLink
-            to="/categorias"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Categorias</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.categories }}</p>
-          </NuxtLink>
+            <div class="bg-white border-2 border-brand-olive/10 p-6">
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Ingresos potenciales</p>
+              <p class="font-sans text-brand-primary text-2xl font-bold">{{ stats.potentialRevenue }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Confirmados y pagados pendientes de cobro</p>
+            </div>
+          </div>
+        </div>
 
-          <NuxtLink
-            to="/pedidos"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Total pedidos</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.totalOrders }}</p>
-          </NuxtLink>
+        <!-- Gestion -->
+        <div>
+          <h3 class="font-sans text-sm text-brand-olive/50 uppercase tracking-wide mb-3">Gestion</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            <NuxtLink
+              to="/productos"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Productos</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.products }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Publicados en la tienda</p>
+            </NuxtLink>
 
-          <NuxtLink
-            to="/promocodes"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Codigos promo</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.activePromoCodes }}</p>
-          </NuxtLink>
+            <NuxtLink
+              to="/categorias"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Categorias</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.categories }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Organizando el catalogo</p>
+            </NuxtLink>
 
-          <NuxtLink
-            to="/suscriptores"
-            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
-          >
-            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Suscriptores</p>
-            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.subscribers }}</p>
-          </NuxtLink>
+            <NuxtLink
+              to="/pedidos"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Total pedidos</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.totalOrders }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Desde el inicio</p>
+            </NuxtLink>
+
+            <NuxtLink
+              to="/promocodes"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Codigos promo</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.activePromoCodes }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Activos actualmente</p>
+            </NuxtLink>
+
+            <NuxtLink
+              to="/suscriptores"
+              class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+            >
+              <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Suscriptores</p>
+              <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.subscribers }}</p>
+              <p class="font-sans text-xs text-brand-olive/40 mt-1">Registrados por email</p>
+            </NuxtLink>
+          </div>
         </div>
       </template>
     </NuxtLayout>
@@ -100,6 +144,12 @@
 import { formatPrice } from '~/utils/format'
 
 const { get } = useApi()
+
+const spanishMonths = [
+  'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+]
+const currentMonthName = computed(() => spanishMonths[new Date().getMonth()])
 
 const loading = ref(true)
 const stats = ref({
