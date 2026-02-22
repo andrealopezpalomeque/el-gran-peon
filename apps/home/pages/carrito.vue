@@ -62,6 +62,7 @@
                       {{ item.productName }}
                     </NuxtLink>
                     <p v-if="item.categoryName" class="font-sans text-xs text-brand-olive/50 mt-1">{{ item.categoryName }}</p>
+                    <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80 mt-1">Envío gratis</p>
                   </div>
                 </div>
               </td>
@@ -148,6 +149,7 @@
                     {{ item.productName }}
                   </NuxtLink>
                   <p v-if="item.categoryName" class="font-sans text-xs text-brand-olive/50 mt-0.5">{{ item.categoryName }}</p>
+                  <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80 mt-0.5">Envío gratis</p>
                 </div>
                 <button
                   @click="cart.removeProduct(item.productId)"

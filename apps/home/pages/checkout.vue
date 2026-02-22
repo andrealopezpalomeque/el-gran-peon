@@ -374,6 +374,7 @@ async function submitOrder() {
         quantity: item.quantity,
         unitPrice: item.unitPrice,
         subtotal: item.unitPrice * item.quantity,
+        freeShipping: item.freeShipping || false,
       })),
       totalItems: cart.itemCount,
       totalAmount: cart.subtotal,

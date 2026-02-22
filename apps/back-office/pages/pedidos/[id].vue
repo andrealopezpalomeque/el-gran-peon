@@ -108,6 +108,7 @@
                     <td class="py-2 pr-3">
                       <p class="font-sans text-sm text-brand-olive">{{ item.name || item.productName }}</p>
                       <p v-if="item.category" class="font-sans text-xs text-brand-olive/40">{{ item.category }}</p>
+                      <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80">Envío gratis</p>
                     </td>
                     <td class="py-2 px-2 text-center">
                       <template v-if="editMode">

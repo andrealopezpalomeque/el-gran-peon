@@ -11,6 +11,7 @@
         <div class="flex-1 min-w-0">
           <p class="font-sans text-sm text-brand-olive">{{ item.productName }}</p>
           <p class="font-sans text-xs text-brand-olive/50">x{{ item.quantity }}</p>
+          <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80">Envío gratis</p>
         </div>
         <span class="font-sans text-sm text-brand-olive shrink-0">
           {{ formatPrice(item.unitPrice * item.quantity) }}

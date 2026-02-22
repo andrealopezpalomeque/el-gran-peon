@@ -44,6 +44,7 @@ export const useCartStore = defineStore('cart', () => {
         quantity: Math.min(quantity, stock),
         image: product.images?.[0]?.url || null,
         categoryName: product.categoryName,
+        freeShipping: product.freeShipping || false,
         stock: stock,
       })
     }
@@ -108,7 +109,11 @@ export const useCartStore = defineStore('cart', () => {
       message += `${index + 1}. ${item.productName}\n`
       message += `   Cantidad: ${item.quantity}\n`
       message += `   Precio unitario: ${formatPrice(item.unitPrice)}\n`
-      message += `   Subtotal: ${formatPrice(item.unitPrice * item.quantity)}\n\n`
+      message += `   Subtotal: ${formatPrice(item.unitPrice * item.quantity)}\n`
+      if (item.freeShipping) {
+        message += `   ✓ Envio gratis\n`
+      }
+      message += `\n`
     })
 
     message += `*Subtotal: ${formatPrice(subtotal.value)}*\n`

@@ -2,7 +2,7 @@
   <div class="group h-full flex flex-col">
     <NuxtLink :to="`/productos/${product.slug}`" class="block flex-1 flex flex-col">
       <!-- Image -->
-      <div class="aspect-[3/4] overflow-hidden bg-brand-cream">
+      <div class="relative aspect-[3/4] overflow-hidden bg-brand-cream">
         <img
           v-if="product.images && product.images.length && !imgBroken"
           :src="product.images[0].url"
@@ -13,6 +13,12 @@
         <div v-else class="w-full h-full flex items-center justify-center">
           <img src="/images/icon.png" alt="" class="w-16 h-16 opacity-20" />
         </div>
+        <span
+          v-if="product.freeShipping"
+          class="absolute top-2 left-2 bg-brand-primary text-brand-cream font-sans text-[10px] uppercase tracking-wide px-2 py-1"
+        >
+          Envío gratis
+        </span>
       </div>
       <!-- Info -->
       <div class="mt-3 flex-1">
@@ -33,9 +39,6 @@
             {{ formatPrice(product.compareAtPrice) }}
           </span>
         </div>
-        <p v-if="product.freeShipping" class="mt-1 font-sans text-xs uppercase tracking-wide text-brand-primary/80">
-          Envío gratis
-        </p>
       </div>
     </NuxtLink>
     <!-- Action buttons -->
