@@ -178,9 +178,54 @@
             <p v-if="errors.paymentMethod" class="font-sans text-xs text-red-500 mt-2">{{ errors.paymentMethod }}</p>
           </fieldset>
 
+          <!-- Codigo Promocional -->
+          <fieldset class="mb-10">
+            <legend class="font-display text-brand-primary text-lg mb-6">CODIGO PROMOCIONAL</legend>
+
+            <div v-if="!appliedPromo" class="flex gap-3">
+              <input
+                v-model="promoInput"
+                type="text"
+                class="flex-1 px-4 py-3 border border-brand-olive/20 font-sans text-sm text-brand-olive bg-white uppercase focus:outline-none focus:border-brand-primary transition-colors"
+                placeholder="Ingresa tu codigo"
+                @keyup.enter="applyPromoCode"
+              />
+              <button
+                type="button"
+                @click="applyPromoCode"
+                :disabled="validatingPromo || !promoInput.trim()"
+                class="px-6 py-3 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors disabled:bg-brand-olive/20 disabled:text-brand-olive/40"
+              >
+                {{ validatingPromo ? 'VALIDANDO...' : 'APLICAR' }}
+              </button>
+            </div>
+
+            <div v-else class="flex items-center justify-between p-4 border border-brand-primary bg-brand-primary/5">
+              <div>
+                <span class="font-sans text-sm font-semibold text-brand-primary">{{ appliedPromo.code }}</span>
+                <span class="font-sans text-sm text-brand-olive ml-2">{{ appliedPromo.discountPercent }}% de descuento</span>
+              </div>
+              <button
+                type="button"
+                @click="removePromoCode"
+                class="font-sans text-sm text-brand-olive/60 underline underline-offset-2 hover:text-brand-primary transition-colors"
+              >
+                Quitar
+              </button>
+            </div>
+
+            <p v-if="promoError" class="font-sans text-xs text-red-500 mt-2">{{ promoError }}</p>
+          </fieldset>
+
           <!-- Submit -->
           <div class="lg:hidden mb-10">
-            <OrderSummary :items="cart.items" :subtotal="cart.subtotal" :discount-amount="discountAmount" :total="orderTotal" />
+            <OrderSummary
+              :items="cart.items"
+              :subtotal="cart.subtotal"
+              :promo-discount="promoDiscountInfo"
+              :payment-discount-amount="paymentDiscountAmount"
+              :total="orderTotal"
+            />
           </div>
 
           <button
@@ -204,7 +249,13 @@
       <!-- Right: Order Summary (desktop) -->
       <div class="hidden lg:block lg:w-96">
         <div class="sticky top-44">
-          <OrderSummary :items="cart.items" :subtotal="cart.subtotal" :discount-amount="discountAmount" :total="orderTotal" />
+          <OrderSummary
+            :items="cart.items"
+            :subtotal="cart.subtotal"
+            :promo-discount="promoDiscountInfo"
+            :payment-discount-amount="paymentDiscountAmount"
+            :total="orderTotal"
+          />
         </div>
       </div>
     </div>
@@ -271,7 +322,7 @@ const provinces = [
   'Tucuman',
 ]
 
-const DISCOUNT_RATE = 0.10
+const PAYMENT_DISCOUNT_RATE = 0.10
 
 const paymentMethods = [
   { value: 'transferencia', label: 'Transferencia bancaria', discount: true },
@@ -279,18 +330,78 @@ const paymentMethods = [
   { value: 'tarjeta', label: 'Tarjeta de credito (hasta 3 cuotas)', discount: false },
 ]
 
-const hasDiscount = computed(() => {
+// Promo code state
+const promoInput = ref('')
+const promoError = ref('')
+const validatingPromo = ref(false)
+const appliedPromo = ref(null)
+
+// Promo discount: applied first on subtotal
+const promoDiscountAmount = computed(() => {
+  if (!appliedPromo.value) return 0
+  return Math.round(cart.subtotal * (appliedPromo.value.discountPercent / 100))
+})
+
+const promoDiscountInfo = computed(() => {
+  if (!appliedPromo.value) return null
+  return {
+    code: appliedPromo.value.code,
+    discountPercent: appliedPromo.value.discountPercent,
+    amount: promoDiscountAmount.value,
+  }
+})
+
+// Payment method discount: applied on remainder after promo
+const hasPaymentDiscount = computed(() => {
   const method = paymentMethods.find(m => m.value === form.paymentMethod)
   return method?.discount ?? false
 })
 
-const discountAmount = computed(() => {
-  return hasDiscount.value ? Math.round(cart.subtotal * DISCOUNT_RATE) : 0
+const afterPromoSubtotal = computed(() => {
+  return cart.subtotal - promoDiscountAmount.value
+})
+
+const paymentDiscountAmount = computed(() => {
+  return hasPaymentDiscount.value ? Math.round(afterPromoSubtotal.value * PAYMENT_DISCOUNT_RATE) : 0
 })
 
 const orderTotal = computed(() => {
-  return cart.subtotal - discountAmount.value
+  return afterPromoSubtotal.value - paymentDiscountAmount.value
 })
+
+async function applyPromoCode() {
+  if (!promoInput.value.trim()) return
+
+  validatingPromo.value = true
+  promoError.value = ''
+
+  try {
+    const result = await post('/api/promocodes/validate', {
+      code: promoInput.value.trim(),
+      email: form.email || '',
+    })
+
+    if (result.valid) {
+      appliedPromo.value = {
+        code: result.code,
+        discountPercent: result.discountPercent,
+        promoCodeId: result.promoCodeId,
+      }
+      promoInput.value = ''
+    } else {
+      promoError.value = result.error || 'Codigo invalido'
+    }
+  } catch (err) {
+    promoError.value = 'Error al validar el codigo. Intenta de nuevo.'
+  } finally {
+    validatingPromo.value = false
+  }
+}
+
+function removePromoCode() {
+  appliedPromo.value = null
+  promoError.value = ''
+}
 
 const paymentMethodLabels = {
   transferencia: 'Transferencia bancaria',
@@ -380,6 +491,8 @@ async function submitOrder() {
   submitError.value = ''
 
   try {
+    const totalDiscount = promoDiscountAmount.value + paymentDiscountAmount.value
+
     const orderData = {
       customer: {
         name: form.name.trim(),
@@ -404,7 +517,13 @@ async function submitOrder() {
       })),
       totalItems: cart.itemCount,
       totalAmount: cart.subtotal,
-      discountAmount: discountAmount.value,
+      promoCode: appliedPromo.value ? {
+        code: appliedPromo.value.code,
+        discountPercent: appliedPromo.value.discountPercent,
+        promoCodeId: appliedPromo.value.promoCodeId,
+      } : null,
+      paymentMethodDiscount: paymentDiscountAmount.value,
+      discountAmount: totalDiscount,
       adjustedAmount: orderTotal.value,
       paymentMethod: paymentMethodLabels[form.paymentMethod] || form.paymentMethod,
       source: 'storefront',
@@ -415,7 +534,9 @@ async function submitOrder() {
     const whatsappUrl = cart.generateWhatsAppUrl({
       customer: orderData.customer,
       paymentMethod: orderData.paymentMethod,
-      discountAmount: discountAmount.value,
+      promoCode: appliedPromo.value,
+      promoDiscountAmount: promoDiscountAmount.value,
+      paymentDiscountAmount: paymentDiscountAmount.value,
       adjustedAmount: orderTotal.value,
     })
 

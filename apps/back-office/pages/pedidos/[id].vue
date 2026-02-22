@@ -215,9 +215,15 @@
                   <span class="font-sans text-sm text-brand-olive/60">Subtotal productos</span>
                   <span class="font-sans text-sm text-brand-olive/60">{{ formatPrice(editableSubtotal) }}</span>
                 </div>
-                <div v-if="editableDiscount > 0" class="flex justify-between">
+                <div v-if="editablePromoDiscount > 0" class="flex justify-between">
+                  <span class="font-sans text-sm text-brand-primary">
+                    {{ order.promoCode?.discountPercent }}% codigo {{ order.promoCode?.code }}
+                  </span>
+                  <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(editablePromoDiscount) }}</span>
+                </div>
+                <div v-if="editablePaymentDiscount > 0" class="flex justify-between">
                   <span class="font-sans text-sm text-brand-primary">10% descuento (transferencia/efectivo)</span>
-                  <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(editableDiscount) }}</span>
+                  <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(editablePaymentDiscount) }}</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="font-sans text-sm font-semibold text-brand-olive">Total</span>
@@ -347,13 +353,34 @@ const editableSubtotal = computed(() => {
   return editableItems.value.reduce((sum, item) => sum + (item.quantity * item.price), 0)
 })
 
-const editableDiscount = computed(() => {
-  if (!order.value?.discountAmount || order.value.discountAmount <= 0) return 0
-  return Math.round(editableSubtotal.value * 0.10)
+const hasPromoCode = computed(() => {
+  return order.value?.promoCode && order.value.promoCode.discountPercent
+})
+
+const hasPaymentDiscount = computed(() => {
+  // For new orders with paymentMethodDiscount field, use that
+  if (order.value?.paymentMethodDiscount > 0) return true
+  // For old orders without promoCode field, fall back to checking discountAmount
+  if (!hasPromoCode.value && order.value?.discountAmount > 0) return true
+  return false
+})
+
+const editablePromoDiscount = computed(() => {
+  if (!hasPromoCode.value) return 0
+  return Math.round(editableSubtotal.value * (order.value.promoCode.discountPercent / 100))
+})
+
+const afterPromoSubtotal = computed(() => {
+  return editableSubtotal.value - editablePromoDiscount.value
+})
+
+const editablePaymentDiscount = computed(() => {
+  if (!hasPaymentDiscount.value) return 0
+  return Math.round(afterPromoSubtotal.value * 0.10)
 })
 
 const editableTotal = computed(() => {
-  return editableSubtotal.value - editableDiscount.value
+  return afterPromoSubtotal.value - editablePaymentDiscount.value
 })
 
 const filteredProducts = computed(() => {
@@ -433,14 +460,15 @@ async function saveItemChanges() {
     }))
     const totalItems = items.reduce((sum, i) => sum + i.quantity, 0)
     const totalAmount = items.reduce((sum, i) => sum + i.subtotal, 0)
-    const discount = editableDiscount.value
-    const adjustedAmount = totalAmount - discount
+    const totalDiscount = editablePromoDiscount.value + editablePaymentDiscount.value
+    const adjustedAmount = totalAmount - totalDiscount
 
     const updated = await put(`/api/orders/${order.value.id}`, {
       items,
       totalItems,
       totalAmount,
-      discountAmount: discount,
+      paymentMethodDiscount: editablePaymentDiscount.value,
+      discountAmount: totalDiscount,
       adjustedAmount,
     })
     order.value = updated

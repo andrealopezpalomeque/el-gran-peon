@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { db } from '../config/firebase.js';
+import { requireAuth } from '../middleware/auth.js';
+import { listSubscribers } from '../controllers/subscriberController.js';
 
 const router = Router();
+
+router.get('/', requireAuth, listSubscribers);
 
 router.post('/', async (req, res) => {
   try {

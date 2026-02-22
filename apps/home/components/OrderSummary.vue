@@ -33,9 +33,14 @@
         <span class="font-sans text-sm text-brand-olive">{{ formatPrice(subtotal) }}</span>
       </div>
 
-      <div v-if="discountAmount > 0" class="flex items-center justify-between">
+      <div v-if="promoDiscount" class="flex items-center justify-between">
+        <span class="font-sans text-sm text-brand-primary">{{ promoDiscount.discountPercent }}% codigo {{ promoDiscount.code }}</span>
+        <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(promoDiscount.amount) }}</span>
+      </div>
+
+      <div v-if="paymentDiscountAmount > 0" class="flex items-center justify-between">
         <span class="font-sans text-sm text-brand-primary">10% descuento (transferencia/efectivo)</span>
-        <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(discountAmount) }}</span>
+        <span class="font-sans text-sm text-brand-primary">-{{ formatPrice(paymentDiscountAmount) }}</span>
       </div>
 
       <div class="flex items-center justify-between pt-2 border-t border-brand-olive/10">
@@ -56,7 +61,8 @@ import { formatPrice } from '~/utils/format'
 defineProps({
   items: { type: Array, required: true },
   subtotal: { type: Number, required: true },
-  discountAmount: { type: Number, default: 0 },
+  promoDiscount: { type: Object, default: null },
+  paymentDiscountAmount: { type: Number, default: 0 },
   total: { type: Number, required: true },
 })
 </script>

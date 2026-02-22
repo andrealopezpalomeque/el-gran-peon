@@ -44,6 +44,8 @@ const navItems = [
   { label: 'Productos', to: '/productos' },
   { label: 'Categorias', to: '/categorias' },
   { label: 'Pedidos', to: '/pedidos' },
+  { label: 'Promo Codes', to: '/promocodes' },
+  { label: 'Suscriptores', to: '/suscriptores' },
 ]
 
 function handleLogout() {

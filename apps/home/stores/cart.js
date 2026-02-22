@@ -175,8 +175,15 @@ export const useCartStore = defineStore('cart', () => {
 
     message += `*Subtotal: ${formatPrice(subtotal.value)}*\n`
 
-    if (orderData.discountAmount > 0) {
-      message += `*Descuento 10% (transferencia/efectivo): -${formatPrice(orderData.discountAmount)}*\n`
+    if (orderData.promoCode) {
+      message += `*Codigo promo (${orderData.promoCode.code} - ${orderData.promoCode.discountPercent}%): -${formatPrice(orderData.promoDiscountAmount)}*\n`
+    }
+
+    if (orderData.paymentDiscountAmount > 0) {
+      message += `*Descuento 10% (transferencia/efectivo): -${formatPrice(orderData.paymentDiscountAmount)}*\n`
+    }
+
+    if (orderData.promoCode || orderData.paymentDiscountAmount > 0) {
       message += `*Total: ${formatPrice(orderData.adjustedAmount)}*\n\n`
     } else {
       message += `\n`

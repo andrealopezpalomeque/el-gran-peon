@@ -12,7 +12,7 @@
           </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div v-for="i in 3" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
+          <div v-for="i in 5" :key="i" class="bg-white border-2 border-brand-olive/10 p-6 animate-pulse">
             <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
             <div class="h-8 w-12 bg-brand-olive/10" />
           </div>
@@ -74,6 +74,22 @@
             <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Total pedidos</p>
             <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.totalOrders }}</p>
           </NuxtLink>
+
+          <NuxtLink
+            to="/promocodes"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Codigos promo</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.activePromoCodes }}</p>
+          </NuxtLink>
+
+          <NuxtLink
+            to="/suscriptores"
+            class="bg-white border-2 border-brand-olive/10 p-6 hover:border-brand-primary/30 transition-colors"
+          >
+            <p class="font-sans text-brand-olive/60 text-xs uppercase tracking-wide mb-2">Suscriptores</p>
+            <p class="font-sans text-brand-primary text-3xl font-bold">{{ stats.subscribers }}</p>
+          </NuxtLink>
         </div>
       </template>
     </NuxtLayout>
@@ -94,14 +110,18 @@ const stats = ref({
   inProcess: 0,
   completedThisMonth: 0,
   potentialRevenue: '$0',
+  activePromoCodes: 0,
+  subscribers: 0,
 })
 
 onMounted(async () => {
   try {
-    const [products, categories, orders] = await Promise.all([
+    const [products, categories, orders, promoCodes, subscribers] = await Promise.all([
       get('/api/products/all'),
       get('/api/categories/all'),
       get('/api/orders').catch(() => []),
+      get('/api/promocodes').catch(() => []),
+      get('/api/subscribe').catch(() => []),
     ])
 
     const inProcessStatuses = ['contactado', 'en_conversacion', 'confirmado']
@@ -130,6 +150,8 @@ onMounted(async () => {
       inProcess: orders.filter(o => inProcessStatuses.includes(o.status)).length,
       completedThisMonth,
       potentialRevenue: formatPrice(potentialSum),
+      activePromoCodes: (promoCodes || []).filter(p => p.isActive).length,
+      subscribers: (subscribers || []).length,
     }
   } catch (error) {
     console.error('Error loading stats:', error)

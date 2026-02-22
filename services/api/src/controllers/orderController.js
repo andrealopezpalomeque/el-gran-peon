@@ -2,6 +2,7 @@ import { db } from '../config/firebase.js';
 
 const ordersRef = db.collection('orders');
 const countersRef = db.collection('counters');
+const promoCodesRef = db.collection('promoCodes');
 
 async function getNextOrderNumber() {
   const counterDoc = countersRef.doc('orders');
@@ -17,7 +18,7 @@ async function getNextOrderNumber() {
 
 export async function createOrder(req, res) {
   try {
-    const { customer, items, source, discountAmount, adjustedAmount, paymentMethod } = req.body;
+    const { customer, items, source, discountAmount, adjustedAmount, paymentMethod, promoCode, paymentMethodDiscount } = req.body;
 
     if (!customer || !customer.name || !customer.phone) {
       return res.status(400).json({ error: 'Nombre y teléfono del cliente son requeridos.' });
@@ -31,6 +32,60 @@ export async function createOrder(req, res) {
     const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
     const orderNumber = await getNextOrderNumber();
     const now = new Date();
+
+    // Validate promo code server-side if provided
+    let validatedPromo = null;
+    if (promoCode && promoCode.code) {
+      try {
+        const normalizedCode = promoCode.code.toUpperCase().trim();
+        const snapshot = await promoCodesRef.where('code', '==', normalizedCode).get();
+
+        if (!snapshot.empty) {
+          const promoDoc = snapshot.docs[0];
+          const promo = promoDoc.data();
+          const customerEmail = (customer.email || '').toLowerCase().trim();
+
+          let isValid = promo.isActive;
+
+          // Check expiry
+          if (isValid && promo.expiresAt) {
+            const expiryDate = promo.expiresAt._seconds
+              ? new Date(promo.expiresAt._seconds * 1000)
+              : new Date(promo.expiresAt);
+            if (expiryDate < now) isValid = false;
+          }
+
+          // Check global limit
+          if (isValid && promo.maxUses > 0 && promo.currentUses >= promo.maxUses) {
+            isValid = false;
+          }
+
+          // Check per-customer limit
+          if (isValid && customerEmail && promo.maxUsesPerCustomer > 0) {
+            const customerUses = (promo.usedBy || []).filter(u => u.email === customerEmail).length;
+            if (customerUses >= promo.maxUsesPerCustomer) isValid = false;
+          }
+
+          if (isValid) {
+            validatedPromo = {
+              promoCodeId: promoDoc.id,
+              code: promo.code,
+              discountPercent: promo.discountPercent,
+            };
+
+            // Record usage
+            await promoCodesRef.doc(promoDoc.id).update({
+              currentUses: (promo.currentUses || 0) + 1,
+              usedBy: [...(promo.usedBy || []), { email: customerEmail, usedAt: now }],
+              updatedAt: now,
+            });
+          }
+        }
+      } catch (promoError) {
+        console.error('Error validating promo code at order time:', promoError);
+        // Silently ignore — order still saves
+      }
+    }
 
     const data = {
       orderNumber,
@@ -46,6 +101,8 @@ export async function createOrder(req, res) {
       items,
       totalItems,
       totalAmount,
+      promoCode: validatedPromo,
+      paymentMethodDiscount: paymentMethodDiscount || 0,
       discountAmount: discountAmount || 0,
       adjustedAmount: adjustedAmount || totalAmount,
       paymentMethod: paymentMethod || '',
