@@ -57,7 +57,7 @@
     <div class="text-center mt-10 md:mt-14">
       <NuxtLink
         to="/productos"
-        class="inline-block border-2 border-brand-primary text-brand-primary font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-brand-primary hover:text-brand-cream transition-colors duration-200"
+        class="inline-block border-2 border-brand-primary bg-brand-primary text-brand-cream font-sans text-sm uppercase tracking-widest px-8 py-3 hover:bg-transparent hover:text-brand-primary transition-colors duration-200"
       >
         VER TODA LA COLECCIÓN
       </NuxtLink>
