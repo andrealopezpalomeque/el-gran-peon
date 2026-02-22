@@ -212,7 +212,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, nextTick } from 'vue'
 import { formatPrice } from '~/utils/format'
 
 const cart = useCartStore()
@@ -350,8 +350,31 @@ function validate() {
   return valid
 }
 
+function scrollToFirstError() {
+  const fieldIds = ['name', 'phone', 'email', 'address', 'city', 'province']
+  for (const id of fieldIds) {
+    if (errors[id]) {
+      const el = document.getElementById(id)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        el.focus({ preventScroll: true })
+        return
+      }
+    }
+  }
+  if (errors.paymentMethod) {
+    const radios = document.querySelector('input[name="paymentMethod"]')
+    if (radios) {
+      radios.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+}
+
 async function submitOrder() {
-  if (!validate()) return
+  if (!validate()) {
+    nextTick(() => scrollToFirstError())
+    return
+  }
 
   submitting.value = true
   submitError.value = ''
