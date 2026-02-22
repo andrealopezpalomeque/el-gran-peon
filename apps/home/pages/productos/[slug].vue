@@ -149,14 +149,14 @@
           </div>
 
           <!-- Stock indicator -->
-          <div v-if="product.stock === 0" class="mt-3">
+          <div v-if="product.stock === 0 || (!canAddToCart && product.stock > 0)" class="mt-3">
             <span class="inline-block font-sans text-xs uppercase tracking-wide px-3 py-1 bg-brand-olive/10 text-brand-olive/60">
-              Sin stock
+              {{ product.stock === 0 ? 'Sin stock' : 'Stock en el carrito' }}
             </span>
           </div>
-          <div v-else-if="product.stock > 0 && product.stock <= 5 && canAddToCart" class="mt-3">
+          <div v-else-if="maxQuantity > 0 && maxQuantity <= 5" class="mt-3">
             <span class="font-sans text-xs text-brand-primary">
-              {{ product.stock === 1 ? 'Última unidad' : `Últimas ${product.stock} unidades` }}
+              {{ maxQuantity === 1 ? 'Última unidad disponible' : `Últimas ${maxQuantity} unidades disponibles` }}
             </span>
           </div>
 
@@ -353,7 +353,9 @@ const cart = useCartStore()
 
 // Max quantity the user can select, accounting for items already in cart
 const maxQuantity = computed(() => {
-  if (!product.value || !product.value.stock) return 0
+  if (!product.value) return 0
+  if (product.value.stock === -1) return 99
+  if (product.value.stock === 0) return 0
   const inCart = cart.items.find(item => item.productId === product.value.id)
   const alreadyInCart = inCart ? inCart.quantity : 0
   return product.value.stock - alreadyInCart
