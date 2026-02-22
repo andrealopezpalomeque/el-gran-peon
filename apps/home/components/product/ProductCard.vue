@@ -33,6 +33,9 @@
             {{ formatPrice(product.compareAtPrice) }}
           </span>
         </div>
+        <p v-if="product.freeShipping" class="mt-1 font-sans text-xs uppercase tracking-wide text-brand-primary/80">
+          Envío gratis
+        </p>
       </div>
     </NuxtLink>
     <!-- Action buttons -->

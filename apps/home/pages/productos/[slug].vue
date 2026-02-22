@@ -141,6 +141,13 @@
             </span>
           </div>
 
+          <!-- Free shipping badge -->
+          <div v-if="product.freeShipping" class="mt-3">
+            <span class="inline-block font-sans text-xs uppercase tracking-wide px-3 py-1 bg-brand-primary/10 text-brand-primary">
+              Envío gratis
+            </span>
+          </div>
+
           <!-- Stock indicator -->
           <div v-if="product.stock === 0" class="mt-3">
             <span class="inline-block font-sans text-xs uppercase tracking-wide px-3 py-1 bg-brand-olive/10 text-brand-olive/60">

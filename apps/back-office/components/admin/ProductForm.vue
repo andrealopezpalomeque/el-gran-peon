@@ -179,6 +179,15 @@
 
         <label class="flex items-center gap-3 cursor-pointer">
           <input
+            v-model="form.freeShipping"
+            type="checkbox"
+            class="w-4 h-4 accent-brand-primary"
+          />
+          <span class="font-sans text-sm text-brand-olive">Envío gratis</span>
+        </label>
+
+        <label class="flex items-center gap-3 cursor-pointer">
+          <input
             v-model="form.bulkAvailable"
             type="checkbox"
             class="w-4 h-4 accent-brand-primary"
@@ -257,6 +266,7 @@ const form = ref({
   stock: 0,
   isActive: true,
   isFeatured: false,
+  freeShipping: false,
   bulkAvailable: false,
   bulkMinQuantity: null,
   tags: [],
@@ -362,6 +372,7 @@ watch(() => props.product, (product) => {
       stock: product.stock === -1 ? 0 : (product.stock ?? 0),
       isActive: product.isActive ?? true,
       isFeatured: product.isFeatured ?? false,
+      freeShipping: product.freeShipping ?? false,
       bulkAvailable: product.bulkAvailable ?? false,
       bulkMinQuantity: product.bulkMinQuantity ?? null,
       tags: product.tags || [],

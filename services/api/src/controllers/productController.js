@@ -131,7 +131,7 @@ export async function createProduct(req, res) {
     const {
       name, description, shortDescription, price, compareAtPrice,
       categoryId, categoryName, parentCategoryId, parentCategoryName,
-      images, stock, isActive, isFeatured,
+      images, stock, isActive, isFeatured, freeShipping,
       tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
     } = req.body;
 
@@ -174,6 +174,7 @@ export async function createProduct(req, res) {
       isFeatured: isFeatured ?? false,
       featuredOrder: isFeatured ? resolvedFeaturedOrder : 0,
       tags: tags || [],
+      freeShipping: freeShipping ?? false,
       bulkAvailable: bulkAvailable ?? false,
       bulkMinQuantity: bulkMinQuantity || null,
       bulkWhatsappMessage: bulkWhatsappMessage || '',
