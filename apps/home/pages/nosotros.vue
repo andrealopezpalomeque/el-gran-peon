@@ -21,6 +21,19 @@
               <em>Creamos herencia.</em>
             </p>
           </div>
+          <div class="mt-10 text-center">
+            <NuxtLink
+              to="/productos"
+              class="inline-flex items-center font-sans text-sm text-brand-primary hover:text-brand-primary/80 transition-colors group"
+            >
+              <span class="border-b border-brand-primary/30 group-hover:border-brand-primary/60 transition-colors">
+                Conocé nuestras piezas
+              </span>
+              <svg class="ml-3 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </NuxtLink>
+          </div>
         </div>
       </div>
     </section>
@@ -192,6 +205,17 @@
             <p class="font-serif text-brand-primary text-xl md:text-2xl italic">
               "Hecho para durar. Como las cosas bien hechas."
             </p>
+          </div>
+          <div class="mt-12 text-center">
+            <NuxtLink
+              to="/productos"
+              class="btn-primary inline-flex items-center"
+            >
+              VER TODOS LOS PRODUCTOS
+              <svg class="ml-3 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </NuxtLink>
           </div>
         </div>
       </div>
