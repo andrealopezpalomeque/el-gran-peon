@@ -151,7 +151,65 @@
       />
     </div>
 
-    <!-- Section 5: Personalizacion (solo para categoria Mate) -->
+    <!-- Section 5: Videos -->
+    <div class="mb-8">
+      <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">VIDEOS</h3>
+      <p class="font-sans text-xs text-brand-olive/50 mb-4">
+        Agregá videos de YouTube para mostrar el producto en uso o el proceso artesanal.
+      </p>
+
+      <div class="space-y-4">
+        <div
+          v-for="(video, index) in localVideos"
+          :key="index"
+          class="flex items-start gap-4 p-4 border-2 border-brand-olive/10"
+        >
+          <div class="flex-1 space-y-2">
+            <input
+              v-model="video.url"
+              type="url"
+              placeholder="https://youtube.com/watch?v=..."
+              class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+              @blur="onVideoUrlBlur(video, index)"
+            />
+            <input
+              v-model="video.title"
+              type="text"
+              placeholder="Titulo del video (opcional)"
+              class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+            />
+            <p v-if="video._error" class="font-sans text-xs text-red-600">{{ video._error }}</p>
+          </div>
+
+          <!-- Video thumbnail preview -->
+          <div v-if="video.embedId" class="shrink-0 w-28 h-20 bg-black overflow-hidden">
+            <img
+              :src="`https://img.youtube.com/vi/${video.embedId}/mqdefault.jpg`"
+              alt="Preview"
+              class="w-full h-full object-cover"
+            />
+          </div>
+
+          <button
+            type="button"
+            @click="removeVideo(index)"
+            class="shrink-0 px-3 py-2 text-red-600 hover:bg-red-50 font-sans text-sm transition-colors"
+          >
+            Quitar
+          </button>
+        </div>
+
+        <button
+          type="button"
+          @click="addVideo"
+          class="w-full py-3 border-2 border-dashed border-brand-olive/20 text-brand-olive hover:border-brand-olive/40 font-sans text-sm transition-colors"
+        >
+          + Agregar Video de YouTube
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 6: Personalizacion (solo para categoria Mate) -->
     <div v-if="isMateCategory" class="mb-8">
       <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">PERSONALIZACION</h3>
       <p class="font-sans text-xs text-brand-olive/50 mb-4">Habilitar opciones de personalizacion para este producto</p>
@@ -398,6 +456,49 @@ const imageFolder = computed(() => {
   return generatedSlug.value || 'unsorted'
 })
 
+// ─── Videos ───
+const localVideos = ref([])
+
+function extractYouTubeId(url) {
+  if (!url || typeof url !== 'string') return null
+  const patterns = [
+    /youtube\.com\/watch\?v=([^&#]+)/,
+    /youtu\.be\/([^?&#]+)/,
+    /youtube\.com\/shorts\/([^?&#]+)/,
+    /youtube\.com\/embed\/([^?&#]+)/,
+  ]
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  return null
+}
+
+function addVideo() {
+  localVideos.value.push({ url: '', title: '', embedId: '', type: 'youtube', order: localVideos.value.length, _error: '' })
+}
+
+function removeVideo(index) {
+  localVideos.value.splice(index, 1)
+  localVideos.value.forEach((v, i) => { v.order = i })
+}
+
+function onVideoUrlBlur(video) {
+  if (!video.url) {
+    video.embedId = ''
+    video._error = ''
+    return
+  }
+  const id = extractYouTubeId(video.url)
+  if (id) {
+    video.embedId = id
+    video._error = ''
+  } else {
+    video.embedId = ''
+    video._error = 'URL de YouTube inválida'
+  }
+}
+
 // Children of selected parent
 const selectedParentChildren = computed(() => {
   if (!selectedParentId.value) return []
@@ -467,6 +568,16 @@ watch(() => props.product, (product) => {
     unlimitedStock.value = product.stock === -1
     tagsInput.value = (product.tags || []).join(', ')
 
+    // Populate videos
+    localVideos.value = (product.videos || []).map((v, i) => ({
+      url: v.url || '',
+      title: v.title || '',
+      embedId: v.embedId || '',
+      type: v.type || 'youtube',
+      order: v.order ?? i,
+      _error: '',
+    }))
+
     // Populate customization settings from saved product data
     const freshSettings = createDefaultCustSettings()
     if (product.customizations?.length) {
@@ -518,11 +629,17 @@ function handleSubmit() {
       options: s.options.map(o => ({ value: o.value, extraPrice: o.extraPrice || 0 })),
     }))
 
+  // Filter valid videos (with URL and embedId)
+  const videos = localVideos.value
+    .filter(v => v.url && v.embedId)
+    .map(({ _error, ...v }) => v)
+
   const data = {
     ...form.value,
     stock: unlimitedStock.value ? -1 : form.value.stock,
     tags,
     customizations,
+    videos,
     compareAtPrice: form.value.compareAtPrice || null,
     bulkMinQuantity: form.value.bulkAvailable ? form.value.bulkMinQuantity : null,
     cloudinaryFolder: imageFolder.value,

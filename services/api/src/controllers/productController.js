@@ -1,6 +1,7 @@
 import { db } from '../config/firebase.js';
 import slugify from 'slugify';
 import cloudinary from '../config/cloudinary.js';
+import { processVideos } from '../utils/videoUtils.js';
 
 const productsRef = db.collection('products');
 
@@ -131,7 +132,7 @@ export async function createProduct(req, res) {
     const {
       name, description, shortDescription, price, compareAtPrice,
       categoryId, categoryName, parentCategoryId, parentCategoryName,
-      images, stock, isActive, isFeatured, freeShipping,
+      images, videos, stock, isActive, isFeatured, freeShipping,
       tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
       customizations,
     } = req.body;
@@ -180,6 +181,7 @@ export async function createProduct(req, res) {
       bulkMinQuantity: bulkMinQuantity || null,
       bulkWhatsappMessage: bulkWhatsappMessage || '',
       customizations: customizations || [],
+      videos: videos ? processVideos(videos) : [],
       createdAt: now,
       updatedAt: now,
     };
@@ -210,6 +212,11 @@ export async function updateProduct(req, res) {
     delete updates.createdAt;
     delete updates.id;
     delete updates.cloudinaryFolder;
+
+    // Process video URLs if provided
+    if (updates.videos) {
+      updates.videos = processVideos(updates.videos);
+    }
 
     // Featured logic
     const oldData = doc.data();

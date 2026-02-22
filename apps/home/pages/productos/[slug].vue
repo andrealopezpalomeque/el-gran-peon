@@ -37,81 +37,125 @@
       <UiBreadcrumb :items="breadcrumbItems" class="mb-6" />
 
       <div class="md:flex gap-10">
-        <!-- Left: Image Gallery -->
+        <!-- Left: Image & Video Gallery -->
         <div class="md:w-1/2">
-          <!-- Main image with carousel arrows -->
+          <!-- Main display area -->
           <div
-            class="relative group aspect-[4/3] overflow-hidden bg-brand-cream cursor-zoom-in"
+            class="relative group aspect-[4/3] overflow-hidden"
+            :class="currentGalleryItem.type === 'image' ? 'cursor-zoom-in bg-brand-cream' : 'bg-black'"
             @touchstart="onGalleryTouchStart"
             @touchend="onGalleryTouchEnd"
             @click="onGalleryClick"
           >
+            <!-- Unified transition for images and videos -->
             <Transition :name="`slide-${slideDirection}`">
-              <img
-                v-if="mainImage && !mainImgBroken"
-                :key="selectedImageIndex"
-                :src="mainImage"
-                :alt="product.name"
-                class="absolute inset-0 w-full h-full object-contain"
-                @error="mainImgBroken = true"
-              />
-            </Transition>
-            <div v-if="!mainImage || mainImgBroken" class="absolute inset-0 flex items-center justify-center">
-              <img src="/images/icon.png" alt="El Gran Peón" class="w-24 h-24 opacity-20" />
-            </div>
+              <div :key="selectedGalleryIndex" class="absolute inset-0">
+                <!-- Image display -->
+                <template v-if="currentGalleryItem.type === 'image'">
+                  <img
+                    v-if="currentGalleryItem.url && !mainImgBroken"
+                    :src="currentGalleryItem.url"
+                    :alt="product.name"
+                    class="w-full h-full object-contain"
+                    @error="mainImgBroken = true"
+                  />
+                  <div v-else class="w-full h-full flex items-center justify-center">
+                    <img src="/images/icon.png" alt="El Gran Peón" class="w-24 h-24 opacity-20" />
+                  </div>
+                </template>
 
-            <!-- Carousel arrows (only if multiple images) -->
-            <template v-if="product.images && product.images.length > 1">
+                <!-- Video display -->
+                <template v-else-if="currentGalleryItem.type === 'video'">
+                  <iframe
+                    :src="`https://www.youtube.com/embed/${currentGalleryItem.embedId}?rel=0`"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                    class="w-full h-full"
+                  />
+                </template>
+              </div>
+            </Transition>
+
+            <!-- Carousel arrows (when multiple gallery items) -->
+            <template v-if="galleryItems.length > 1">
               <button
-                class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 md:opacity-0 md:group-hover:opacity-100"
-                @click.stop="prevImage"
-                aria-label="Imagen anterior"
+                class="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center transition-colors duration-200"
+                :class="isVideoShowing
+                  ? 'bg-white/90 text-brand-olive hover:bg-white'
+                  : 'bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 md:opacity-0 md:group-hover:opacity-100'"
+                @click.stop="prevMedia"
+                aria-label="Anterior"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               <button
-                class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 transition-colors duration-200 md:opacity-0 md:group-hover:opacity-100"
-                @click.stop="nextImage"
-                aria-label="Imagen siguiente"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center transition-colors duration-200"
+                :class="isVideoShowing
+                  ? 'bg-white/90 text-brand-olive hover:bg-white'
+                  : 'bg-brand-olive/10 text-brand-olive hover:bg-brand-olive/20 md:opacity-0 md:group-hover:opacity-100'"
+                @click.stop="nextMedia"
+                aria-label="Siguiente"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path d="M9 5l7 7-7 7" />
                 </svg>
               </button>
 
-              <!-- Image counter -->
-              <span class="absolute bottom-3 right-3 font-sans text-xs text-white bg-brand-olive/50 px-2 py-1">
-                {{ selectedImageIndex + 1 }} / {{ product.images.length }}
+              <!-- Gallery counter -->
+              <span
+                class="absolute bottom-3 right-3 z-10 font-sans text-xs px-2 py-1"
+                :class="isVideoShowing
+                  ? 'bg-white/90 text-brand-olive'
+                  : 'text-white bg-brand-olive/50'"
+              >
+                {{ selectedGalleryIndex + 1 }} / {{ galleryItems.length }}
               </span>
             </template>
 
-            <!-- Zoom hint icon -->
-            <div v-if="mainImage && !mainImgBroken" class="absolute bottom-3 left-3 text-brand-olive/30 pointer-events-none">
+            <!-- Zoom hint icon (images only) -->
+            <div v-if="currentGalleryItem.type === 'image' && currentGalleryItem.url && !mainImgBroken" class="absolute bottom-3 left-3 z-10 text-brand-olive/30 pointer-events-none">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35M11 8v6M8 11h6" />
               </svg>
             </div>
           </div>
-          <!-- Thumbnails -->
+
+          <!-- Thumbnails (unified: images + videos) -->
           <div
-            v-if="product.images && product.images.length > 1"
+            v-if="galleryItems.length > 1"
             class="flex gap-2 mt-3 overflow-x-auto scrollbar-hide"
           >
             <button
-              v-for="(img, index) in product.images"
+              v-for="(item, index) in galleryItems"
               :key="index"
-              class="shrink-0 w-16 h-16 overflow-hidden border-2 transition-colors duration-200"
-              :class="selectedImageIndex === index ? 'border-brand-primary' : 'border-transparent hover:border-brand-olive/20'"
-              @click="goToImage(index)"
+              class="shrink-0 w-16 h-16 overflow-hidden border-2 transition-colors duration-200 relative"
+              :class="selectedGalleryIndex === index ? 'border-brand-primary' : 'border-transparent hover:border-brand-olive/20'"
+              @click="goToGalleryItem(index)"
             >
+              <!-- Image thumbnail -->
               <img
-                :src="img.url"
+                v-if="item.type === 'image'"
+                :src="item.url"
                 :alt="`${product.name} - ${index + 1}`"
                 class="w-full h-full object-cover"
                 @error="onThumbError"
               />
+              <!-- Video thumbnail -->
+              <template v-else>
+                <img
+                  :src="`https://img.youtube.com/vi/${item.embedId}/mqdefault.jpg`"
+                  :alt="item.title || 'Video'"
+                  class="w-full h-full object-cover"
+                />
+                <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </template>
             </button>
           </div>
         </div>
@@ -637,8 +681,33 @@ function onThumbError(e) {
   e.target.classList.add('object-contain', 'p-2', 'opacity-20')
 }
 
+// ─── Unified gallery (images + videos as one sequence) ───
+const galleryItems = computed(() => {
+  const items = []
+  if (product.value?.images?.length) {
+    product.value.images.forEach((img, i) => {
+      items.push({ type: 'image', url: img.url, imageIndex: i })
+    })
+  }
+  if (product.value?.videos?.length) {
+    product.value.videos.forEach((vid) => {
+      items.push({ type: 'video', embedId: vid.embedId, title: vid.title || '' })
+    })
+  }
+  return items
+})
+
+const selectedGalleryIndex = ref(0)
+
+const currentGalleryItem = computed(() => {
+  return galleryItems.value[selectedGalleryIndex.value] || { type: 'image', url: '' }
+})
+
+const isVideoShowing = computed(() => currentGalleryItem.value.type === 'video')
+
 const slideDirection = ref('left')
 
+// mainImage: used by the lightbox (image-only context)
 const mainImage = computed(() => {
   if (product.value?.images?.length) {
     return product.value.images[selectedImageIndex.value]?.url || product.value.images[0].url
@@ -646,6 +715,47 @@ const mainImage = computed(() => {
   return null
 })
 
+function goToGalleryItem(index) {
+  if (index === selectedGalleryIndex.value) return
+  slideDirection.value = index > selectedGalleryIndex.value ? 'left' : 'right'
+  mainImgBroken.value = false
+  selectedGalleryIndex.value = index
+  // Sync selectedImageIndex for lightbox when landing on an image
+  const item = galleryItems.value[index]
+  if (item?.type === 'image') {
+    selectedImageIndex.value = item.imageIndex
+  }
+}
+
+function prevMedia() {
+  if (galleryItems.value.length <= 1) return
+  mainImgBroken.value = false
+  slideDirection.value = 'right'
+  const newIndex = selectedGalleryIndex.value > 0
+    ? selectedGalleryIndex.value - 1
+    : galleryItems.value.length - 1
+  selectedGalleryIndex.value = newIndex
+  const item = galleryItems.value[newIndex]
+  if (item?.type === 'image') {
+    selectedImageIndex.value = item.imageIndex
+  }
+}
+
+function nextMedia() {
+  if (galleryItems.value.length <= 1) return
+  mainImgBroken.value = false
+  slideDirection.value = 'left'
+  const newIndex = selectedGalleryIndex.value < galleryItems.value.length - 1
+    ? selectedGalleryIndex.value + 1
+    : 0
+  selectedGalleryIndex.value = newIndex
+  const item = galleryItems.value[newIndex]
+  if (item?.type === 'image') {
+    selectedImageIndex.value = item.imageIndex
+  }
+}
+
+// Image-only navigation (for lightbox)
 function prevImage() {
   if (!product.value?.images?.length) return
   mainImgBroken.value = false
@@ -688,14 +798,13 @@ function onGalleryTouchEnd(e) {
   const dy = e.changedTouches[0].clientY - galleryTouchStartY.value
   if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
     wasSwiped.value = true
-    mainImgBroken.value = false
-    if (dx > 0) prevImage()
-    else nextImage()
+    if (dx > 0) prevMedia()
+    else nextMedia()
   }
 }
 
 function onGalleryClick() {
-  if (!wasSwiped.value && mainImage.value && !mainImgBroken.value) {
+  if (!wasSwiped.value && currentGalleryItem.value.type === 'image' && currentGalleryItem.value.url && !mainImgBroken.value) {
     openLightbox()
   }
 }
