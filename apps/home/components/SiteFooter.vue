@@ -7,7 +7,7 @@
           <img
             :src="logoUrl"
             alt="El Gran Peón"
-            class="h-44 md:h-44 brightness-0 invert mb-1 -ml-6"
+            class="h-44 md:h-44 brightness-0 invert mb-1 -ml-10"
           />
           <p class="font-serif text-brand-cream/70 text-sm mt-2">
             Hecho para durar. Como las cosas bien hechas.
@@ -37,14 +37,16 @@
             Información
           </h3>
           <nav class="flex flex-col gap-3">
-            <NuxtLink
+            <a
               v-for="link in infoLinks"
-              :key="link.to"
-              :to="link.to"
+              :key="link.label"
+              :href="link.href"
+              target="_blank"
+              rel="noopener noreferrer"
               class="font-sans text-sm text-brand-cream/70 hover:text-brand-cream transition-colors"
             >
               {{ link.label }}
-            </NuxtLink>
+            </a>
           </nav>
         </div>
 
@@ -153,9 +155,8 @@ const navLinks = [
 ]
 
 const infoLinks = [
-  { to: '/contacto', label: 'Contacto' },
-  { to: '/contacto', label: 'Políticas de envío' },
-  { to: '/contacto', label: 'Garantías' },
-  { to: '/contacto', label: 'Devoluciones' },
+  { href: 'https://wa.me/543794007759?text=Hola%2C%20quisiera%20consultar%20sobre%20pol%C3%ADticas%20de%20env%C3%ADo', label: 'Políticas de envío' },
+  { href: 'https://wa.me/543794007759?text=Hola%2C%20quisiera%20consultar%20sobre%20garant%C3%ADas', label: 'Garantías' },
+  { href: 'https://wa.me/543794007759?text=Hola%2C%20quisiera%20consultar%20sobre%20devoluciones', label: 'Devoluciones' },
 ]
 </script>

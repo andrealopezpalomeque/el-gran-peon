@@ -124,7 +124,7 @@
         class="fixed inset-0 z-50 bg-brand-cream"
       >
         <div class="flex items-center justify-between px-6 h-20 border-b border-brand-olive/10 overflow-visible">
-          <NuxtLink to="/" @click="mobileMenuOpen = false" class="-ml-6">
+          <NuxtLink to="/" @click="mobileMenuOpen = false" class="-ml-8">
             <img
               :src="logoUrl"
               alt="El Gran Peón"
@@ -192,7 +192,6 @@ const mobileNavLinks = [
   { to: '/nosotros', label: 'Nosotros' },
   { to: '/empresariales', label: 'Empresariales' },
   { to: '/mayoristas', label: 'Mayoristas' },
-  { to: '/contacto', label: 'Contacto' },
 ]
 
 const mobileMenuOpen = ref(false)
