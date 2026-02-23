@@ -116,7 +116,7 @@ const slides = ref([
     image: mayoristasHero,
     tagline: 'MAYORISTAS',
     headline: 'CALIDAD QUE SE MULTIPLICA',
-    cta: 'CONSULTÁ CONDICIONES',
+    cta: 'SOLICITAR INFORMACIÓN MAYORISTA',
     ctaLink: '/mayoristas',
   },
 ])
