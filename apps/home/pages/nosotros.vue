@@ -81,8 +81,8 @@
             <!-- Right: Enhanced Workshop Image -->
             <div class="relative aspect-[4/5] overflow-hidden">
               <img
-                src="/images/workshop.jpg"
-                alt="Artesano trabajando cuero en el taller de El Gran Peón"
+                :src="workshopImg"
+                alt="Artesano cincelando una pieza de alpaca en el taller de El Gran Peón"
                 class="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
@@ -262,6 +262,7 @@
 
 <script setup>
 import capsulaRaizImg from '~/assets/images/capsula-raiz-hero.jpg'
+import workshopImg from '~/assets/images/workshop-artesano.jpg'
 
 useSeoMeta({
   title: 'Nosotros | El Gran Peón - Herencia Clásica',
