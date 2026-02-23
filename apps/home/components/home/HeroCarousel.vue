@@ -85,31 +85,34 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import capsulaRaizHero from '~/assets/images/capsula-raiz-hero.jpg'
+import nuestroOrigenHero from '~/assets/images/nuestro-origen-hero.jpg'
+import heroImg from '~/assets/images/hero.jpg'
 
 const slides = ref([
   {
-    image: '/images/capsula-raiz-hero.jpg',
+    image: capsulaRaizHero,
     tagline: 'CÁPSULA RAÍZ',
     headline: 'EL COMIENZO DE TODO',
     cta: 'VER COLECCIÓN',
     ctaLink: '#capsula-raiz',
   },
   {
-    image: '/images/nuestro-origen-hero.jpg',
+    image: nuestroOrigenHero,
     tagline: 'NUESTRO ORIGEN',
     headline: 'CADA PIEZA CUENTA UNA HISTORIA',
     cta: 'CONOCENOS',
     ctaLink: '/nosotros',
   },
   {
-    image: '/images/hero.jpg',
+    image: heroImg,
     tagline: 'REGALOS CORPORATIVOS',
     headline: 'TU MARCA, NUESTRO OFICIO',
     cta: 'TRABAJEMOS JUNTOS',
     ctaLink: '/empresariales',
   },
   {
-    image: '/images/hero.jpg',
+    image: heroImg,
     tagline: 'MAYORISTAS',
     headline: 'CALIDAD QUE SE MULTIPLICA',
     cta: 'CONSULTÁ CONDICIONES',

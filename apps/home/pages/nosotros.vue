@@ -129,7 +129,7 @@
             <!-- Right: Image -->
             <div class="relative aspect-[4/5] overflow-hidden">
               <img
-                src="/images/capsula-raiz-hero.jpg"
+                :src="capsulaRaizImg"
                 alt="Cápsula Raíz - Primera colección de El Gran Peón"
                 class="absolute inset-0 w-full h-full object-cover object-[30%_center]"
                 loading="lazy"
@@ -261,6 +261,8 @@
 </template>
 
 <script setup>
+import capsulaRaizImg from '~/assets/images/capsula-raiz-hero.jpg'
+
 useSeoMeta({
   title: 'Nosotros | El Gran Peón - Herencia Clásica',
   description: 'Creemos en el valor de las cosas bien hechas. Conocé la historia de El Gran Peón, nuestro oficio artesanal y la Cápsula Raíz: quince piezas que definen nuestra identidad.',
