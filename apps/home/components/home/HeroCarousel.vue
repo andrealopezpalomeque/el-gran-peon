@@ -96,7 +96,7 @@ const slides = ref([
   },
   {
     image: '/images/hero.jpg',
-    tagline: 'CAMPO Y OFICIO',
+    tagline: 'NUESTRO ORIGEN',
     headline: 'CADA PIEZA CUENTA UNA HISTORIA',
     cta: 'CONOCENOS',
     ctaLink: '/nosotros',
