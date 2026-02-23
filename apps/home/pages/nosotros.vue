@@ -115,7 +115,7 @@
                   Antes del nombre, antes del oficio, antes incluso de la forma, está la raíz. Es lo que sostiene cuando el tiempo empuja, cuando las modas pasan.
                 </p>
                 <p>
-                  Cápsula Raíz presenta quince piezas que definen nuestra identidad. Cada producto responde a una lógica simple: hacer cosas hechas para durar, como las cosas bien hechas.
+                  Cápsula Raíz presenta piezas que definen nuestra identidad. Cada producto responde a una lógica simple: hacer cosas hechas para durar, como las cosas bien hechas.
                 </p>
               </div>
               <NuxtLink
