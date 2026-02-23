@@ -30,11 +30,13 @@
             </a>
           </div>
         </div>
-        <!-- Image column (desktop) — pending client photo -->
-        <div class="hidden md:flex items-center justify-center h-[500px] border border-dashed border-brand-cream/30">
-          <p class="font-sans text-sm uppercase tracking-widest text-brand-cream/30">
-            Imagen pendiente
-          </p>
+        <!-- Image column -->
+        <div class="mt-10 md:mt-0">
+          <img
+            src="/images/empresariales-preview.jpg"
+            alt="Regalos empresariales de El Gran Peón: mates personalizados, cuchillos grabados, termos corporativos e indumentaria"
+            class="w-full h-[350px] md:h-[500px] object-cover"
+          />
         </div>
       </div>
 
