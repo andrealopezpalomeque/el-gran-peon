@@ -10,14 +10,16 @@
           <div class="mx-auto h-px w-16 bg-brand-primary/30 mb-8" />
           <div class="font-serif text-brand-olive text-lg md:text-xl leading-relaxed space-y-6">
             <p>
-              Creemos en el valor de las cosas bien hechas. En un mundo que cambia constantemente,
-              nosotros elegimos la permanencia. Cada pieza que creamos responde a una lógica simple:
-              hacer objetos que acompañen el tiempo, que se usen con orgullo y que mantengan su sentido
-              más allá de las modas.
+              En un mundo que corre detrás de lo inmediato, donde lo nuevo reemplaza a lo viejo sin dejar huella, nosotros elegimos permanecer.
+              Elegimos fabricar piezas que no respondan a temporadas sino al tiempo, objetos para usarse, marcarse, acompañar historias y sostener su sentido cuando todo cambia.
             </p>
             <p>
-              El Gran Peón nace del respeto por la tradición y el oficio. Trabajamos con materiales nobles,
-              atendemos cada detalle y buscamos la durabilidad en todo lo que hacemos. No seguimos tendencias.
+              El Gran Peón nace del respeto por el oficio, de trabajar materiales nobles que todavía tienen algo para decir.
+              De cuidar cada detalle como si fuera el más importante.
+            </p>
+            <p>
+              No hacemos moda.<br />
+              No seguimos tendencias.<br />
               <em>Creamos herencia.</em>
             </p>
           </div>
