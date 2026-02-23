@@ -108,6 +108,13 @@ const slides = ref([
     cta: 'TRABAJEMOS JUNTOS',
     ctaLink: '/empresariales',
   },
+  {
+    image: '/images/hero.jpg',
+    tagline: 'MAYORISTAS',
+    headline: 'CALIDAD QUE SE MULTIPLICA',
+    cta: 'CONSULTÁ CONDICIONES',
+    ctaLink: '/mayoristas',
+  },
 ])
 
 const carouselRef = ref(null)
