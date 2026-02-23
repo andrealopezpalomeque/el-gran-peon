@@ -88,6 +88,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import capsulaRaizHero from '~/assets/images/capsula-raiz-hero.jpg'
 import nuestroOrigenHero from '~/assets/images/nuestro-origen-hero.jpg'
 import heroImg from '~/assets/images/hero.jpg'
+import mayoristasHero from '~/assets/images/mayoristas-hero.jpg'
 
 const slides = ref([
   {
@@ -112,7 +113,7 @@ const slides = ref([
     ctaLink: '/empresariales',
   },
   {
-    image: heroImg,
+    image: mayoristasHero,
     tagline: 'MAYORISTAS',
     headline: 'CALIDAD QUE SE MULTIPLICA',
     cta: 'CONSULTÁ CONDICIONES',
