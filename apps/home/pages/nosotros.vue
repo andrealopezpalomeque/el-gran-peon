@@ -56,13 +56,24 @@
               <div class="mt-5 h-px w-12 bg-brand-primary" />
               <div class="mt-6 space-y-4 font-serif text-brand-olive/80 leading-relaxed">
                 <p>
-                  El Gran Peón nace de una convicción simple: las cosas bien hechas tienen un valor que va más allá de lo material. Cada pieza que hacemos lleva tiempo, atención y un compromiso con la calidad que no se negocia.
+                  El Gran Peón nace de una decisión.
                 </p>
                 <p>
-                  Trabajamos con materiales nobles porque sabemos que lo bueno se siente distinto. No buscamos lo rápido ni lo descartable. Buscamos lo que dura, lo que se usa con orgullo, lo que se hereda.
+                  Elegimos hacer las cosas como deben hacerse.<br />
+                  Sin atajos. Sin apuro.<br />
+                  Con atención al detalle y dando valor a cada pieza más allá de lo material.
                 </p>
                 <p>
-                  Somos artesanos. Y eso se nota.
+                  Trabajamos con materiales nobles, porque lo auténtico se reconoce al tacto.<br />
+                  Lo que vale la pena, se siente distinto.
+                </p>
+                <p>
+                  Elegimos hacer lo que se usa con orgullo.<br />
+                  Lo que se hereda.
+                </p>
+                <p>
+                  Piezas hechas para durar.<br />
+                  Como las cosas bien hechas.
                 </p>
               </div>
             </div>
