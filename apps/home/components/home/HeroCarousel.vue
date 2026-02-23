@@ -95,7 +95,7 @@ const slides = ref([
     ctaLink: '#capsula-raiz',
   },
   {
-    image: '/images/hero.jpg',
+    image: '/images/nuestro-origen-hero.jpg',
     tagline: 'NUESTRO ORIGEN',
     headline: 'CADA PIEZA CUENTA UNA HISTORIA',
     cta: 'CONOCENOS',
