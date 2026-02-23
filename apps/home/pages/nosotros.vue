@@ -189,13 +189,16 @@
           <div class="mx-auto h-px w-16 bg-brand-primary/30 mb-8" />
           <div class="font-serif text-brand-olive text-lg leading-relaxed space-y-6">
             <p>
-              El Gran Peón es más que una marca. Es la continuación de una tradición que valoriza
-              el trabajo bien hecho y la permanencia por sobre la novedad.
+              El Gran Peón no es solo una marca.<br />
+              Es una forma de entender el valor de las cosas.
             </p>
             <p>
-              Creamos para quienes entienden que las cosas buenas se compran una sola vez.
-              Para quienes buscan objetos que cuenten historias, que acompañen momentos y que
-              se transmitan con orgullo.
+              Creamos para quienes saben que lo bien hecho no se reemplaza. Se conserva.<br />
+              Para quienes buscan objetos que acompañen historias, que se marquen con el uso y que con el tiempo se vuelvan parte de algo más grande.
+            </p>
+            <p>
+              Porque la herencia no empieza cuando se entrega.<br />
+              Empieza cuando algo vale la pena quedarse.
             </p>
           </div>
           <div class="mt-12 pt-8 border-t border-brand-primary/10">
