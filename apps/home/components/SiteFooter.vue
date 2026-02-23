@@ -9,14 +9,14 @@
             alt="El Gran Peón"
             class="h-44 md:h-44 brightness-0 invert mb-1 -ml-10"
           />
-          <p class="font-serif text-brand-cream/70 text-sm mt-2">
+          <p class="font-serif text-brand-cream/70 text-sm mt-2 cursor-default">
             Hecho para durar. Como las cosas bien hechas.
           </p>
         </div>
 
         <!-- Column 2: Navigation -->
         <div>
-          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6">
+          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6 cursor-default">
             Navegación
           </h3>
           <nav class="flex flex-col gap-3">
@@ -33,26 +33,24 @@
 
         <!-- Column 3: Information -->
         <div>
-          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6">
+          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6 cursor-default">
             Información
           </h3>
           <nav class="flex flex-col gap-3">
-            <a
+            <NuxtLink
               v-for="link in infoLinks"
               :key="link.label"
-              :href="link.href"
-              target="_blank"
-              rel="noopener noreferrer"
+              :to="link.to"
               class="font-sans text-sm text-brand-cream/70 hover:text-brand-cream transition-colors"
             >
               {{ link.label }}
-            </a>
+            </NuxtLink>
           </nav>
         </div>
 
         <!-- Column 4: Contact -->
         <div>
-          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6">
+          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6 cursor-default">
             Contacto
           </h3>
           <div class="flex flex-col gap-3">
@@ -133,10 +131,10 @@
     <!-- Bottom Bar -->
     <div class="border-t border-brand-cream/10 bg-[#32312a]">
       <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
-        <p class="font-sans text-xs text-brand-cream/50">
+        <p class="font-sans text-xs text-brand-cream/50 cursor-default">
           &copy; 2026 El Gran Peón. Todos los derechos reservados.
         </p>
-        <p class="font-sans text-xs text-brand-cream/50">
+        <p class="font-sans text-xs text-brand-cream/50 cursor-default">
           Hecho con oficio en Argentina
         </p>
       </div>
@@ -155,8 +153,8 @@ const navLinks = [
 ]
 
 const infoLinks = [
-  { href: 'https://wa.me/543794007759?text=Hola%2C%20quisiera%20consultar%20sobre%20pol%C3%ADticas%20de%20env%C3%ADo', label: 'Políticas de envío' },
-  { href: 'https://wa.me/543794007759?text=Hola%2C%20quisiera%20consultar%20sobre%20garant%C3%ADas', label: 'Garantías' },
-  { href: 'https://wa.me/543794007759?text=Hola%2C%20quisiera%20consultar%20sobre%20devoluciones', label: 'Devoluciones' },
+  { to: '/informacion#envios', label: 'Políticas de envío' },
+  { to: '/informacion#cambios', label: 'Cambios y devoluciones' },
+  { to: '/informacion#garantia', label: 'Garantía' },
 ]
 </script>
