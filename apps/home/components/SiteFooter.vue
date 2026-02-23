@@ -9,14 +9,14 @@
             alt="El Gran Peón"
             class="h-44 md:h-44 brightness-0 invert mb-1 -ml-10"
           />
-          <p class="font-serif text-brand-cream/70 text-sm mt-2 cursor-default">
+          <p class="font-serif text-brand-cream/70 text-sm mt-2">
             Hecho para durar. Como las cosas bien hechas.
           </p>
         </div>
 
         <!-- Column 2: Navigation -->
         <div>
-          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6 cursor-default">
+          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6">
             Navegación
           </h3>
           <nav class="flex flex-col gap-3">
@@ -33,7 +33,7 @@
 
         <!-- Column 3: Information -->
         <div>
-          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6 cursor-default">
+          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6">
             Información
           </h3>
           <nav class="flex flex-col gap-3">
@@ -50,7 +50,7 @@
 
         <!-- Column 4: Contact -->
         <div>
-          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6 cursor-default">
+          <h3 class="font-sans text-sm font-medium text-brand-cream tracking-wide uppercase mb-6">
             Contacto
           </h3>
           <div class="flex flex-col gap-3">
@@ -131,10 +131,10 @@
     <!-- Bottom Bar -->
     <div class="border-t border-brand-cream/10 bg-[#32312a]">
       <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
-        <p class="font-sans text-xs text-brand-cream/50 cursor-default">
+        <p class="font-sans text-xs text-brand-cream/50">
           &copy; 2026 El Gran Peón. Todos los derechos reservados.
         </p>
-        <p class="font-sans text-xs text-brand-cream/50 cursor-default">
+        <p class="font-sans text-xs text-brand-cream/50">
           Hecho con oficio en Argentina
         </p>
       </div>
