@@ -245,89 +245,88 @@ const hasEmailTemplate = computed(() => {
 const emailHtml = computed(() => {
   const code = form.value.code || 'CODIGO'
   const discount = form.value.discountPercent || 0
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;padding:0;background-color:#FEFCF0;">
+  return `<div style="background-color:#FEFCF0;" bgcolor="#FEFCF0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FEFCF0" style="margin:0;padding:0;background-color:#FEFCF0;">
   <tr>
-    <td align="center" style="padding:0;">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin:0 auto;">
-        <!-- Header -->
+    <td align="center" bgcolor="#FEFCF0" style="padding:0;background-color:#FEFCF0;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#FEFCF0" style="max-width:600px;width:100%;margin:0 auto;background-color:#FEFCF0;">
         <tr>
-          <td style="background-color:#741617;padding:32px 0;text-align:center;">
+          <td bgcolor="#741617" style="background-color:#741617;padding:32px 0;text-align:center;">
             <a href="https://elgranpeon.com" target="_blank" style="display:block;text-decoration:none;"><img src="https://res.cloudinary.com/dmb1vyveg/image/upload/v1771960002/el-gran-peon/customer-logos/txxvbgcxjvctdqxwpgv9.png" alt="El Gran Peón" width="180" style="display:block;margin:0 auto;width:180px;height:auto;border:0;" /></a>
           </td>
         </tr>
-        <!-- Body -->
         <tr>
-          <td style="background-color:#FEFCF0;padding:40px 40px 24px 40px;">
+          <td bgcolor="#FEFCF0" style="background-color:#FEFCF0;padding:40px 40px 24px 40px;">
             <p style="margin:0 0 20px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
-              Te suscribiste para recibir el beneficio de lanzamiento.
+              <font color="#4C4A38">Te suscribiste para recibir el beneficio de lanzamiento.</font>
             </p>
             <p style="margin:0 0 28px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
-              La web de El Gran Peón ya está online y la Cápsula Raíz ya está disponible.
+              <font color="#4C4A38">La web de El Gran Peón ya está online y la Cápsula Raíz ya está disponible.</font>
             </p>
           </td>
         </tr>
-        <!-- Promo Code Box -->
         <tr>
-          <td style="padding:0 40px 28px 40px;background-color:#FEFCF0;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #741617;">
+          <td bgcolor="#FEFCF0" style="padding:0 40px 28px 40px;background-color:#FEFCF0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#FEFCF0" style="border:2px solid #741617;background-color:#FEFCF0;">
               <tr>
-                <td style="padding:28px 32px;text-align:center;">
+                <td bgcolor="#FEFCF0" style="padding:28px 32px;text-align:center;background-color:#FEFCF0;">
                   <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#4C4A38;">
-                    Este es tu código exclusivo:
+                    <font color="#4C4A38">Este es tu código exclusivo:</font>
                   </p>
                   <p style="margin:0 0 16px 0;font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:bold;letter-spacing:3px;color:#741617;">
-                    ${code}
+                    <font color="#741617">${code}</font>
                   </p>
                   <p style="margin:0;font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#4C4A38;">
-                    Ingresalo al finalizar la compra y aplicá tu ${discount}% de descuento de bienvenida.
+                    <font color="#4C4A38">Ingresalo al finalizar la compra y aplicá tu ${discount}% de descuento de bienvenida.</font>
                   </p>
                 </td>
               </tr>
             </table>
           </td>
         </tr>
-        <!-- Message -->
         <tr>
-          <td style="background-color:#FEFCF0;padding:0 40px 24px 40px;">
+          <td bgcolor="#FEFCF0" style="background-color:#FEFCF0;padding:0 40px 24px 40px;">
             <p style="margin:0 0 20px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
-              Este beneficio fue creado únicamente para quienes se registraron antes del lanzamiento. No es público y tiene tiempo limitado.
+              <font color="#4C4A38">Este beneficio fue creado únicamente para quienes se registraron antes del lanzamiento. No es público y tiene tiempo limitado.</font>
             </p>
             <p style="margin:0 0 28px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;font-style:italic;">
-              Si estabas esperando la señal, es esta.
+              <font color="#4C4A38"><em>Si estabas esperando la señal, es esta.</em></font>
             </p>
           </td>
         </tr>
-        <!-- CTA -->
         <tr>
-          <td align="center" style="background-color:#FEFCF0;padding:0 40px 28px 40px;">
-            <a href="https://elgranpeon.com" target="_blank" style="display:inline-block;padding:14px 40px;background-color:#741617;color:#FEFCF0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;letter-spacing:1.5px;text-decoration:none;text-transform:uppercase;">
-              ENTRAR AHORA
-            </a>
+          <td align="center" bgcolor="#FEFCF0" style="background-color:#FEFCF0;padding:0 40px 28px 40px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td bgcolor="#741617" style="background-color:#741617;padding:14px 40px;text-align:center;">
+                  <a href="https://elgranpeon.com" target="_blank" style="color:#FEFCF0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;letter-spacing:1.5px;text-decoration:none;text-transform:uppercase;"><font color="#FEFCF0">ENTRAR AHORA</font></a>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
-        <!-- Thanks -->
         <tr>
-          <td style="background-color:#FEFCF0;padding:0 40px 40px 40px;">
+          <td bgcolor="#FEFCF0" style="background-color:#FEFCF0;padding:0 40px 40px 40px;">
             <p style="margin:0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
-              Gracias por estar desde el inicio.
+              <font color="#4C4A38">Gracias por estar desde el inicio.</font>
             </p>
           </td>
         </tr>
-        <!-- Footer -->
         <tr>
-          <td style="background-color:#4C4A38;padding:24px 40px;text-align:center;">
+          <td bgcolor="#4C4A38" style="background-color:#4C4A38;padding:24px 40px;text-align:center;">
             <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
               <a href="https://elgranpeon.com" target="_blank" style="color:#FEFCF0;text-decoration:none;"><font color="#FEFCF0">elgranpeon.com</font></a>
             </p>
-            <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;opacity:0.7;">
-              Hecho para durar. Como las cosas bien hechas.
+            <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;">
+              <font color="#FEFCF0">Hecho para durar. Como las cosas bien hechas.</font>
             </p>
           </td>
         </tr>
       </table>
     </td>
   </tr>
-</table>`
+</table>
+</div>`
 })
 
 async function copyEmailToClipboard() {
