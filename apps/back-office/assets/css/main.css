@@ -47,6 +47,10 @@
     background-color: #FEFCF0;
   }
 
+  a, button, [role="button"] {
+    cursor: default;
+  }
+
   h1, h2, h3 {
     @apply font-display text-brand-primary;
   }
