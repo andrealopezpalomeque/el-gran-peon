@@ -252,7 +252,7 @@ const emailHtml = computed(() => {
         <!-- Header -->
         <tr>
           <td style="background-color:#741617;padding:32px 0;text-align:center;">
-            <img src="https://res.cloudinary.com/dmb1vyveg/image/upload/v1771960002/el-gran-peon/customer-logos/txxvbgcxjvctdqxwpgv9.png" alt="El Gran Peón" width="180" style="display:block;margin:0 auto;width:180px;height:auto;" />
+            <a href="https://elgranpeon.com" target="_blank" style="display:block;text-decoration:none;"><img src="https://res.cloudinary.com/dmb1vyveg/image/upload/v1771960002/el-gran-peon/customer-logos/txxvbgcxjvctdqxwpgv9.png" alt="El Gran Peón" width="180" style="display:block;margin:0 auto;width:180px;height:auto;border:0;" /></a>
           </td>
         </tr>
         <!-- Body -->
@@ -316,8 +316,8 @@ const emailHtml = computed(() => {
         <!-- Footer -->
         <tr>
           <td style="background-color:#4C4A38;padding:24px 40px;text-align:center;">
-            <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#FEFCF0;text-decoration:none;">
-              <span style="color:#FEFCF0;">elgranpeon.com</span>
+            <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;">
+              <a href="https://elgranpeon.com" target="_blank" style="color:#FEFCF0;text-decoration:none;"><font color="#FEFCF0">elgranpeon.com</font></a>
             </p>
             <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;opacity:0.7;">
               Hecho para durar. Como las cosas bien hechas.
