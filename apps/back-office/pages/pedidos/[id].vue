@@ -267,14 +267,20 @@
                 placeholder="Agregar notas internas sobre este pedido..."
                 class="w-full px-3 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors resize-vertical"
               />
-              <button
-                @click="saveNotes"
-                :disabled="savingNotes"
-                class="mt-3 px-6 py-2 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors disabled:opacity-50"
-              >
-                {{ savingNotes ? 'Guardando...' : 'GUARDAR NOTAS' }}
-              </button>
-              <span v-if="notesSaved" class="ml-3 font-sans text-sm text-green-600">Notas guardadas</span>
+              <div class="mt-3 flex items-center gap-3">
+                <button
+                  @click="saveNotes"
+                  :disabled="savingNotes"
+                  class="px-6 py-2 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors disabled:opacity-50"
+                >
+                  {{ savingNotes ? 'Guardando...' : 'GUARDAR NOTAS' }}
+                </button>
+                <span v-if="notesSaved" class="font-sans text-sm text-green-600">Notas guardadas</span>
+                <span v-if="notesError" class="font-sans text-sm text-red-500">Error al guardar. Intentá de nuevo.</span>
+              </div>
+              <p v-if="notesLastSaved" class="mt-2 font-sans text-xs text-brand-olive/40">
+                Última actualización: {{ formatDate(notesLastSaved) }}
+              </p>
             </div>
 
             <!-- Danger Zone -->
@@ -338,6 +344,8 @@ const allProducts = ref([])
 // Notes state
 const savingNotes = ref(false)
 const notesSaved = ref(false)
+const notesError = ref(false)
+const notesLastSaved = ref(null)
 
 const fullAddress = computed(() => {
   if (!order.value?.customer) return ''
@@ -485,15 +493,19 @@ async function saveItemChanges() {
 async function saveNotes() {
   savingNotes.value = true
   notesSaved.value = false
+  notesError.value = false
   try {
     const updated = await put(`/api/orders/${order.value.id}`, {
       adminNotes: adminNotes.value,
     })
     order.value = updated
+    notesLastSaved.value = new Date()
     notesSaved.value = true
     setTimeout(() => { notesSaved.value = false }, 3000)
   } catch (err) {
     console.error('Error saving notes:', err)
+    notesError.value = true
+    setTimeout(() => { notesError.value = false }, 5000)
   } finally {
     savingNotes.value = false
   }
@@ -522,6 +534,9 @@ onMounted(async () => {
     order.value = orderData
     allProducts.value = products
     adminNotes.value = orderData.adminNotes || ''
+    if (orderData.adminNotes) {
+      notesLastSaved.value = new Date(toTimestamp(orderData.updatedAt))
+    }
     initEditableItems()
   } catch (err) {
     error.value = 'Error al cargar el pedido.'
