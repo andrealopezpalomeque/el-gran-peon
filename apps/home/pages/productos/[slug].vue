@@ -530,7 +530,7 @@ function initCustomizationDefaults() {
   }
   const defaults = {}
   for (const cust of product.value.customizations) {
-    if (cust.options?.length) {
+    if (cust.options?.length && cust.required) {
       defaults[cust.id] = {
         label: cust.label,
         value: cust.options[0].value,
@@ -555,6 +555,19 @@ const hasCustomizations = computed(() => {
 })
 
 function onSelectChange(cust, value) {
+  // Toggle off: clicking the already-selected option on an optional customization deselects it
+  if (!cust.required && selectedCustomizations.value[cust.id]?.value === value) {
+    delete selectedCustomizations.value[cust.id]
+    if (cust.id === 'grabado') {
+      grabadoText.value = ''
+      grabadoLogoUrl.value = ''
+      logoUploadError.value = ''
+      delete custErrors.value.grabado_text
+      delete custErrors.value.grabado_logo
+    }
+    return
+  }
+
   const opt = cust.options.find(o => o.value === value)
   selectedCustomizations.value[cust.id] = {
     label: cust.label,
@@ -706,7 +719,8 @@ const addToCart = () => {
   }
 
   const cappedQty = Math.min(quantity.value, maxQuantity.value)
-  const custs = hasCustomizations.value ? { ...selectedCustomizations.value } : null
+  const hasSelectedCustomizations = Object.keys(selectedCustomizations.value).length > 0
+  const custs = hasSelectedCustomizations ? { ...selectedCustomizations.value } : null
   cart.addProduct(product.value, cappedQty, custs)
   quantity.value = 1
   added.value = true
