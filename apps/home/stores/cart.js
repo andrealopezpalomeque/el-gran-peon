@@ -12,13 +12,14 @@ export const useCartStore = defineStore('cart', () => {
       if (saved) {
         try {
           const parsed = JSON.parse(saved)
-          // Backward compat: ensure all items have customizationKey
+          // Backward compat: ensure all items have customizationKey + fix bad stock/quantity
           items.value = parsed.map(item => ({
             ...item,
             customizationKey: item.customizationKey || '',
             customizations: item.customizations || null,
             customizationsExtra: item.customizationsExtra || 0,
             basePrice: item.basePrice || item.unitPrice,
+            quantity: Math.max(1, item.quantity || 1),
           }))
         } catch {
           items.value = []
@@ -52,6 +53,11 @@ export const useCartStore = defineStore('cart', () => {
     return Object.values(selectedCustomizations).reduce((sum, c) => sum + (c.extraPrice || 0), 0)
   }
 
+  // Normalize stock: -1 or null/undefined means unlimited
+  const normalizeStock = (stock) => {
+    return (stock == null || stock === -1) ? Infinity : stock
+  }
+
   // Add product to cart
   const addProduct = (product, quantity = 1, selectedCustomizations = null) => {
     const customizationKey = buildCustomizationKey(selectedCustomizations)
@@ -63,7 +69,7 @@ export const useCartStore = defineStore('cart', () => {
       item => item.productId === product.id && item.customizationKey === customizationKey
     )
 
-    const stock = product.stock ?? Infinity
+    const stock = normalizeStock(product.stock)
 
     if (existingItem) {
       existingItem.quantity = Math.min(existingItem.quantity + quantity, stock)
@@ -98,7 +104,7 @@ export const useCartStore = defineStore('cart', () => {
       if (quantity <= 0) {
         removeProduct(productId, customizationKey)
       } else {
-        const max = item.stock ?? Infinity
+        const max = normalizeStock(item.stock)
         item.quantity = Math.min(quantity, max)
         saveCart()
       }

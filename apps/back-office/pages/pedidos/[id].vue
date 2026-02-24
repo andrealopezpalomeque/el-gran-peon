@@ -380,7 +380,7 @@ const editablePaymentDiscount = computed(() => {
 })
 
 const editableTotal = computed(() => {
-  return afterPromoSubtotal.value - editablePaymentDiscount.value
+  return Math.max(0, afterPromoSubtotal.value - editablePaymentDiscount.value)
 })
 
 const filteredProducts = computed(() => {

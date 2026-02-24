@@ -366,7 +366,7 @@ const paymentDiscountAmount = computed(() => {
 })
 
 const orderTotal = computed(() => {
-  return afterPromoSubtotal.value - paymentDiscountAmount.value
+  return Math.max(0, afterPromoSubtotal.value - paymentDiscountAmount.value)
 })
 
 async function applyPromoCode() {
