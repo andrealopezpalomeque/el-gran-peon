@@ -54,6 +54,11 @@
   *:focus-visible {
     @apply outline-2 outline-offset-2 outline-brand-primary;
   }
+
+  /* Prevent double-tap-to-zoom on interactive elements (mobile) */
+  button, a, input, select, textarea, label, [role="button"] {
+    touch-action: manipulation;
+  }
 }
 
 /* Component Layer */
