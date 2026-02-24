@@ -116,8 +116,8 @@
           <p v-if="error" class="mt-4 font-sans text-red-600 text-sm">{{ error }}</p>
         </form>
 
-        <!-- Welcome Email Preview -->
-        <div class="mt-10 pt-8 border-t-2 border-brand-olive/10">
+        <!-- Welcome Email Preview (only for codes with a template) -->
+        <div v-if="hasEmailTemplate" class="mt-10 pt-8 border-t-2 border-brand-olive/10">
           <div class="flex items-center justify-between mb-4">
             <h3 class="font-sans text-brand-olive text-lg font-semibold">Email de bienvenida</h3>
             <button
@@ -236,6 +236,12 @@ function toDateInputValue(date) {
   return d.toISOString().split('T')[0]
 }
 
+const CODES_WITH_EMAIL = ['ELCOMIENZO']
+
+const hasEmailTemplate = computed(() => {
+  return CODES_WITH_EMAIL.includes(form.value.code.toUpperCase())
+})
+
 const emailHtml = computed(() => {
   const code = form.value.code || 'CODIGO'
   const discount = form.value.discountPercent || 0
@@ -314,7 +320,7 @@ const emailHtml = computed(() => {
               elgranpeon.com
             </p>
             <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;opacity:0.7;">
-              Herencia Clásica
+              Hecho para durar. Como las cosas bien hechas.
             </p>
           </td>
         </tr>

@@ -64,11 +64,13 @@
               </td>
               <td class="py-3 pr-4">
                 <button
+                  v-if="hasEmailTemplate(promo.code)"
                   @click="openEmailPreview(promo)"
                   class="px-3 py-1 font-sans text-xs text-brand-olive border border-brand-olive/20 hover:border-brand-olive/40 transition-colors"
                 >
                   Ver email
                 </button>
+                <span v-else class="font-sans text-xs text-brand-olive/30">—</span>
               </td>
               <td class="py-3 text-right">
                 <div class="flex items-center justify-end gap-2">
@@ -205,6 +207,12 @@ async function deletePromo() {
   }
 }
 
+const CODES_WITH_EMAIL = ['ELCOMIENZO']
+
+function hasEmailTemplate(code) {
+  return CODES_WITH_EMAIL.includes((code || '').toUpperCase())
+}
+
 function openEmailPreview(promo) {
   selectedPromo.value = promo
   emailCopied.value = false
@@ -283,7 +291,7 @@ const emailHtml = computed(() => {
               elgranpeon.com
             </p>
             <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;opacity:0.7;">
-              Herencia Clásica
+              Hecho para durar. Como las cosas bien hechas.
             </p>
           </td>
         </tr>
