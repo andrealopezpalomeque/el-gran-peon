@@ -4,7 +4,7 @@
       CÁPSULA RAÍZ · DESTACADOS
     </h2>
     <p class="font-serif text-brand-olive/70 text-center mb-10 md:mb-14">
-      El comienzo de todo. Estas son las piezas que elegimos para empezar.
+      Nuestras primeras piezas.
     </p>
 
     <!-- Carousel -->
