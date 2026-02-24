@@ -92,19 +92,21 @@
               {{ products.length }} {{ products.length === 1 ? 'producto' : 'productos' }}
             </template>
           </p>
-          <div class="relative">
-            <select
-              v-model="sortBy"
-              class="font-sans text-sm text-brand-olive bg-transparent border border-brand-olive/20 px-3 py-2 pr-8 appearance-none cursor-pointer focus:outline-none focus:border-brand-primary"
-            >
-              <option value="relevancia">Relevancia</option>
-              <option value="precio-asc">Precio: menor a mayor</option>
-              <option value="precio-desc">Precio: mayor a menor</option>
-              <option value="recientes">Más recientes</option>
-            </select>
-            <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-olive/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M19 9l-7 7-7-7" />
-            </svg>
+          <div class="flex items-center gap-2">
+            <span class="font-sans text-xs uppercase tracking-wide text-brand-olive/50">Ordenar</span>
+            <div class="relative">
+              <select
+                v-model="sortBy"
+                class="font-sans text-sm text-brand-olive bg-transparent border border-brand-olive/20 px-3 py-2 pr-8 appearance-none cursor-pointer focus:outline-none focus:border-brand-primary"
+              >
+                <option value="destacados">Destacados</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+              </select>
+              <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-olive/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -147,7 +149,7 @@ const { get } = useApi()
 const categories = ref([])
 const products = ref([])
 const loading = ref(true)
-const sortBy = ref('relevancia')
+const sortBy = ref('destacados')
 const activeCategory = ref(null)
 const isParentFilter = ref(false)
 const expandedMobileParent = ref(null)
@@ -192,10 +194,19 @@ const sortedProducts = computed(() => {
       return list.sort((a, b) => a.price - b.price)
     case 'precio-desc':
       return list.sort((a, b) => b.price - a.price)
-    case 'recientes':
-      return list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     default:
-      return list
+      // Featured products first (by featuredOrder), then the rest by createdAt
+      return list.sort((a, b) => {
+        const aFeat = a.isFeatured ? 1 : 0
+        const bFeat = b.isFeatured ? 1 : 0
+        if (aFeat !== bFeat) return bFeat - aFeat
+        if (aFeat && bFeat) {
+          const aOrder = a.featuredOrder || 9999
+          const bOrder = b.featuredOrder || 9999
+          if (aOrder !== bOrder) return aOrder - bOrder
+        }
+        return new Date(b.createdAt) - new Date(a.createdAt)
+      })
   }
 })
 
