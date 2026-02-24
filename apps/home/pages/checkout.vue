@@ -326,7 +326,7 @@ const PAYMENT_DISCOUNT_RATE = 0.10
 
 const paymentMethods = [
   { value: 'transferencia', label: 'Transferencia bancaria', discount: true },
-  { value: 'efectivo', label: 'Efectivo contra entrega', discount: true },
+  { value: 'efectivo', label: 'Efectivo contra entrega (disponible en Corrientes Capital)', discount: true },
   { value: 'tarjeta', label: 'Tarjeta de credito (hasta 3 cuotas)', discount: false },
 ]
 
@@ -405,7 +405,7 @@ function removePromoCode() {
 
 const paymentMethodLabels = {
   transferencia: 'Transferencia bancaria',
-  efectivo: 'Efectivo contra entrega',
+  efectivo: 'Efectivo contra entrega (disponible en Corrientes Capital)',
   tarjeta: 'Tarjeta de credito (hasta 3 cuotas)',
 }
 
