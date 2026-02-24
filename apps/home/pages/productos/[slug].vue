@@ -723,6 +723,11 @@ const addToCart = () => {
   const custs = hasSelectedCustomizations ? { ...selectedCustomizations.value } : null
   cart.addProduct(product.value, cappedQty, custs)
   quantity.value = 1
+  // Reset customizations to defaults
+  grabadoText.value = ''
+  grabadoLogoUrl.value = ''
+  logoUploadError.value = ''
+  initCustomizationDefaults()
   added.value = true
   setTimeout(() => { added.value = false }, 2000)
 }
