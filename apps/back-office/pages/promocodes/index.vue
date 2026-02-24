@@ -31,6 +31,7 @@
               <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Usos</th>
               <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Vencimiento</th>
               <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Estado</th>
+              <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Email</th>
               <th class="text-right font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3">Acciones</th>
             </tr>
           </thead>
@@ -61,6 +62,14 @@
               <td class="py-3 pr-4">
                 <AdminStatusBadge :status="promo.isActive" type="active" />
               </td>
+              <td class="py-3 pr-4">
+                <button
+                  @click="openEmailPreview(promo)"
+                  class="px-3 py-1 font-sans text-xs text-brand-olive border border-brand-olive/20 hover:border-brand-olive/40 transition-colors"
+                >
+                  Ver email
+                </button>
+              </td>
               <td class="py-3 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <NuxtLink
@@ -89,6 +98,42 @@
         @confirm="deletePromo"
         @cancel="showDeleteModal = false"
       />
+
+      <!-- Email Preview Modal -->
+      <div
+        v-if="showEmailModal"
+        class="fixed inset-0 z-50 flex items-start justify-center pt-10 px-4"
+        @click.self="showEmailModal = false"
+      >
+        <div class="fixed inset-0 bg-black/50" @click="showEmailModal = false" />
+        <div class="relative bg-brand-cream border-2 border-brand-olive/20 w-full max-w-[680px] max-h-[90vh] flex flex-col">
+          <!-- Modal header -->
+          <div class="flex items-center justify-between px-6 py-4 border-b-2 border-brand-olive/10">
+            <h3 class="font-sans text-brand-olive text-lg font-semibold">Email de bienvenida</h3>
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                class="px-5 py-2 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors"
+                @click="copyEmailToClipboard"
+              >
+                {{ emailCopied ? 'Copiado' : 'Copiar al portapapeles' }}
+              </button>
+              <span v-if="emailCopied" class="font-sans text-xs text-green-700">Listo para pegar en Gmail</span>
+              <button
+                type="button"
+                class="px-3 py-2 font-sans text-xs text-brand-olive/50 hover:text-brand-olive transition-colors"
+                @click="showEmailModal = false"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+          <!-- Modal body -->
+          <div class="overflow-auto p-4 bg-white">
+            <div ref="emailContainer" v-html="emailHtml" />
+          </div>
+        </div>
+      </div>
     </NuxtLayout>
   </div>
 </template>
@@ -100,6 +145,10 @@ const promoCodes = ref([])
 const loading = ref(true)
 const showDeleteModal = ref(false)
 const promoToDelete = ref(null)
+const showEmailModal = ref(false)
+const emailCopied = ref(false)
+const emailContainer = ref(null)
+const selectedPromo = ref(null)
 
 const deleteMessage = computed(() => {
   if (!promoToDelete.value) return ''
@@ -153,6 +202,109 @@ async function deletePromo() {
   } finally {
     showDeleteModal.value = false
     promoToDelete.value = null
+  }
+}
+
+function openEmailPreview(promo) {
+  selectedPromo.value = promo
+  emailCopied.value = false
+  showEmailModal.value = true
+}
+
+const emailHtml = computed(() => {
+  if (!selectedPromo.value) return ''
+  const code = selectedPromo.value.code || 'CODIGO'
+  const discount = selectedPromo.value.discountPercent || 0
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;padding:0;background-color:#FEFCF0;">
+  <tr>
+    <td align="center" style="padding:0;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin:0 auto;">
+        <tr>
+          <td style="background-color:#741617;padding:32px 0;text-align:center;">
+            <img src="https://res.cloudinary.com/dmb1vyveg/image/upload/v1771960002/el-gran-peon/customer-logos/txxvbgcxjvctdqxwpgv9.png" alt="El Gran Peón" width="180" style="display:block;margin:0 auto;width:180px;height:auto;" />
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#FEFCF0;padding:40px 40px 24px 40px;">
+            <p style="margin:0 0 20px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
+              Te suscribiste para recibir el beneficio de lanzamiento.
+            </p>
+            <p style="margin:0 0 28px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
+              La web de El Gran Peón ya está online y la Cápsula Raíz ya está disponible.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 40px 28px 40px;background-color:#FEFCF0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid #741617;">
+              <tr>
+                <td style="padding:28px 32px;text-align:center;">
+                  <p style="margin:0 0 16px 0;font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#4C4A38;">
+                    Este es tu código exclusivo:
+                  </p>
+                  <p style="margin:0 0 16px 0;font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:bold;letter-spacing:3px;color:#741617;">
+                    ${code}
+                  </p>
+                  <p style="margin:0;font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#4C4A38;">
+                    Ingresalo al finalizar la compra y aplicá tu ${discount}% de descuento de bienvenida.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#FEFCF0;padding:0 40px 24px 40px;">
+            <p style="margin:0 0 20px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
+              Este beneficio fue creado únicamente para quienes se registraron antes del lanzamiento. No es público y tiene tiempo limitado.
+            </p>
+            <p style="margin:0 0 28px 0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;font-style:italic;">
+              Si estabas esperando la señal, es esta.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="background-color:#FEFCF0;padding:0 40px 28px 40px;">
+            <a href="https://elgranpeon.com" target="_blank" style="display:inline-block;padding:14px 40px;background-color:#741617;color:#FEFCF0;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;letter-spacing:1.5px;text-decoration:none;text-transform:uppercase;">
+              ENTRAR AHORA
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#FEFCF0;padding:0 40px 40px 40px;">
+            <p style="margin:0;font-family:Georgia,serif;font-size:17px;line-height:1.6;color:#4C4A38;">
+              Gracias por estar desde el inicio.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color:#4C4A38;padding:24px 40px;text-align:center;">
+            <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#FEFCF0;">
+              elgranpeon.com
+            </p>
+            <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;opacity:0.7;">
+              Herencia Clásica
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>`
+})
+
+async function copyEmailToClipboard() {
+  try {
+    const html = emailContainer.value?.innerHTML
+    if (!html) return
+    const blob = new Blob([html], { type: 'text/html' })
+    await navigator.clipboard.write([
+      new ClipboardItem({ 'text/html': blob })
+    ])
+    emailCopied.value = true
+    setTimeout(() => { emailCopied.value = false }, 3000)
+  } catch (err) {
+    console.error('Failed to copy email:', err)
   }
 }
 
