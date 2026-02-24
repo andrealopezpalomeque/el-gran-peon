@@ -41,7 +41,7 @@
   }
 
   body {
-    @apply text-brand-olive font-sans;
+    @apply text-brand-olive font-sans cursor-default;
     height: 100%;
     min-height: 100dvh;
     background-color: #FEFCF0;
