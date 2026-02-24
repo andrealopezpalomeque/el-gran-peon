@@ -316,8 +316,8 @@ const emailHtml = computed(() => {
         <!-- Footer -->
         <tr>
           <td style="background-color:#4C4A38;padding:24px 40px;text-align:center;">
-            <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#FEFCF0;">
-              elgranpeon.com
+            <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#FEFCF0;text-decoration:none;">
+              <span style="color:#FEFCF0;">elgranpeon.com</span>
             </p>
             <p style="margin:0;font-family:Georgia,serif;font-size:12px;color:#FEFCF0;letter-spacing:1px;opacity:0.7;">
               Hecho para durar. Como las cosas bien hechas.
