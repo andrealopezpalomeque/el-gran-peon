@@ -1,17 +1,17 @@
 <template>
   <div>
     <!-- Hero -->
-    <section class="bg-brand-cream py-12 md:py-20">
+    <section class="bg-brand-cream pt-4 pb-6 md:pt-6 md:pb-8">
       <div class="container mx-auto px-6">
         <div class="max-w-3xl mx-auto">
-          <UiBreadcrumb :items="breadcrumbItems" class="mb-8" />
+          <UiBreadcrumb :items="breadcrumbItems" class="mb-4" />
           <span class="font-sans text-xs uppercase tracking-wide text-brand-olive/50">
             Lanzamiento
           </span>
           <h1 class="font-display uppercase text-brand-primary text-3xl md:text-4xl mt-2">
             EL GRAN PEÓN PRESENTA LA CÁPSULA RAÍZ
           </h1>
-          <p class="font-serif text-brand-olive/60 text-lg mt-4">
+          <p class="font-serif text-brand-olive/60 text-lg mt-2">
             Accesorios artesanales hechos en Argentina
           </p>
         </div>
@@ -21,7 +21,7 @@
     <!-- Image -->
     <section class="container mx-auto px-6">
       <div class="max-w-3xl mx-auto">
-        <div class="aspect-[16/9] overflow-hidden -mt-2">
+        <div class="aspect-[16/9] overflow-hidden">
           <img
             :src="capsulaRaizImg"
             alt="Cápsula Raíz - Primera colección de El Gran Peón"
