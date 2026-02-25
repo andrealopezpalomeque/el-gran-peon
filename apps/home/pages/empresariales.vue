@@ -140,6 +140,7 @@
               :product="product"
               :show-actions="true"
               :compact-actions="true"
+              :olive="true"
               @addToCart="onAddToCart"
             />
           </div>
@@ -147,6 +148,7 @@
             v-model="currentPage"
             :total-items="filteredProducts.length"
             :items-per-page="ITEMS_PER_PAGE"
+            :olive="true"
           />
         </div>
 

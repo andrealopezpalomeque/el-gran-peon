@@ -56,11 +56,19 @@
         COMPRAR AHORA
       </button>
       <button
-        class="w-full border-2 border-brand-primary text-brand-primary bg-transparent font-sans text-xs uppercase tracking-wide py-2 hover:bg-brand-primary hover:text-brand-cream transition-colors duration-200"
-        :class="{ 'mt-2': !compactActions }"
-        @click="$emit('addToCart', product)"
+        class="w-full font-sans text-xs uppercase tracking-wide py-2 transition-colors duration-200"
+        :class="[
+          product.stock === 0
+            ? 'bg-brand-olive/10 text-brand-olive/40 cursor-not-allowed'
+            : olive
+              ? 'border-2 border-brand-olive text-brand-olive bg-transparent hover:bg-brand-olive hover:text-brand-cream'
+              : 'border-2 border-brand-primary text-brand-primary bg-transparent hover:bg-brand-primary hover:text-brand-cream',
+          { 'mt-2': !compactActions },
+        ]"
+        :disabled="product.stock === 0"
+        @click="product.stock !== 0 && $emit('addToCart', product)"
       >
-        AGREGAR AL CARRITO
+        {{ product.stock === 0 ? 'SIN STOCK' : 'AGREGAR AL CARRITO' }}
       </button>
     </div>
   </div>
@@ -80,6 +88,10 @@ defineProps({
     default: false,
   },
   compactActions: {
+    type: Boolean,
+    default: false,
+  },
+  olive: {
     type: Boolean,
     default: false,
   },

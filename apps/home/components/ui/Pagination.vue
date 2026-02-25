@@ -3,7 +3,8 @@
     <!-- Previous -->
     <button
       :disabled="modelValue <= 1"
-      class="font-sans text-sm px-3 py-2 border border-brand-olive/20 text-brand-olive transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-primary hover:text-brand-primary"
+      class="font-sans text-sm px-3 py-2 border border-brand-olive/20 text-brand-olive transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+      :class="olive ? 'hover:border-brand-olive hover:text-brand-olive' : 'hover:border-brand-primary hover:text-brand-primary'"
       @click="goTo(modelValue - 1)"
     >
       Anterior
@@ -21,8 +22,12 @@
         v-else
         class="font-sans text-sm w-10 py-2 border transition-colors duration-200"
         :class="page === modelValue
-          ? 'border-brand-primary bg-brand-primary text-brand-cream'
-          : 'border-brand-olive/20 text-brand-olive hover:border-brand-primary hover:text-brand-primary'"
+          ? olive
+            ? 'border-brand-olive bg-brand-olive text-brand-cream'
+            : 'border-brand-primary bg-brand-primary text-brand-cream'
+          : olive
+            ? 'border-brand-olive/20 text-brand-olive hover:border-brand-olive hover:text-brand-olive'
+            : 'border-brand-olive/20 text-brand-olive hover:border-brand-primary hover:text-brand-primary'"
         @click="goTo(page)"
       >
         {{ page }}
@@ -32,7 +37,8 @@
     <!-- Next -->
     <button
       :disabled="modelValue >= totalPages"
-      class="font-sans text-sm px-3 py-2 border border-brand-olive/20 text-brand-olive transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-primary hover:text-brand-primary"
+      class="font-sans text-sm px-3 py-2 border border-brand-olive/20 text-brand-olive transition-colors duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
+      :class="olive ? 'hover:border-brand-olive hover:text-brand-olive' : 'hover:border-brand-primary hover:text-brand-primary'"
       @click="goTo(modelValue + 1)"
     >
       Siguiente
@@ -47,6 +53,7 @@ const props = defineProps({
   totalItems: { type: Number, required: true },
   itemsPerPage: { type: Number, default: 12 },
   modelValue: { type: Number, default: 1 },
+  olive: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['update:modelValue'])

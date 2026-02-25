@@ -309,7 +309,7 @@
           <!-- Cotización product: Quantity selector + Add to cart (olive-styled) -->
           <template v-if="isCotizacionProduct">
             <div class="mt-5 flex items-center gap-4">
-              <div class="flex items-center border border-brand-olive/20">
+              <div v-if="canAddToCart" class="flex items-center border border-brand-olive/20">
                 <button
                   class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
                   :disabled="quantity <= 1"
@@ -329,10 +329,14 @@
                 </button>
               </div>
               <button
-                class="flex-1 py-3 bg-brand-olive text-brand-cream font-sans font-medium tracking-wide text-sm hover:bg-brand-olive/90 transition-colors duration-200"
+                class="flex-1 py-3 font-sans font-medium tracking-wide text-sm transition-colors duration-200"
+                :class="!canAddToCart
+                  ? 'bg-brand-olive/10 text-brand-olive/40 cursor-not-allowed'
+                  : 'bg-brand-olive text-brand-cream hover:bg-brand-olive/90'"
+                :disabled="!canAddToCart"
                 @click="addToCart"
               >
-                AGREGAR AL CARRITO
+                {{ product.stock === 0 ? 'SIN STOCK' : 'AGREGAR AL CARRITO' }}
               </button>
             </div>
 
@@ -685,6 +689,7 @@ function removeGrabadoLogo() {
 // Max quantity the user can select, accounting for ALL cart items for same productId
 const maxQuantity = computed(() => {
   if (!product.value) return 0
+  if (product.value.stock === 0) return 0
   if (isCotizacionProduct.value) return 99
   if (product.value.stock === -1) return 99
   if (product.value.stock === 0) return 0
