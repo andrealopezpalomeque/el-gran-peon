@@ -10,6 +10,21 @@ export async function listActiveProducts(req, res) {
     const snapshot = await productsRef.where('isActive', '==', true).get();
     let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+    // Exclude products from hidden categories (empresariales, mayoristas, etc.)
+    // unless explicitly requesting a parentCategory filter
+    if (!req.query.parentCategory) {
+      const hiddenSnapshot = await db.collection('categories')
+        .where('hiddenFromStore', '==', true)
+        .get();
+
+      if (!hiddenSnapshot.empty) {
+        const hiddenIds = new Set(hiddenSnapshot.docs.map(d => d.id));
+        products = products.filter(p =>
+          !hiddenIds.has(p.categoryId) && !hiddenIds.has(p.parentCategoryId)
+        );
+      }
+    }
+
     // Filter by child category slug
     if (req.query.category) {
       const catSnapshot = await db.collection('categories')
