@@ -298,24 +298,6 @@
           <span class="font-sans text-sm text-brand-olive">Envío gratis</span>
         </label>
 
-        <label class="flex items-center gap-3 cursor-pointer">
-          <input
-            v-model="form.bulkAvailable"
-            type="checkbox"
-            class="w-4 h-4 accent-brand-primary"
-          />
-          <span class="font-sans text-sm text-brand-olive">Disponible para mayoristas</span>
-        </label>
-      </div>
-
-      <div v-if="form.bulkAvailable" class="mb-5">
-        <label class="block font-sans text-sm text-brand-olive/70 mb-1">Cantidad minima mayorista</label>
-        <input
-          v-model.number="form.bulkMinQuantity"
-          type="number"
-          min="1"
-          class="w-32 px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
-        />
       </div>
 
       <div class="mb-5">
@@ -379,8 +361,6 @@ const form = ref({
   isActive: true,
   isFeatured: false,
   freeShipping: false,
-  bulkAvailable: false,
-  bulkMinQuantity: null,
   tags: [],
 })
 
@@ -561,8 +541,6 @@ watch(() => props.product, (product) => {
       isActive: product.isActive ?? true,
       isFeatured: product.isFeatured ?? false,
       freeShipping: product.freeShipping ?? false,
-      bulkAvailable: product.bulkAvailable ?? false,
-      bulkMinQuantity: product.bulkMinQuantity ?? null,
       tags: product.tags || [],
     }
     unlimitedStock.value = product.stock === -1
@@ -641,7 +619,6 @@ function handleSubmit() {
     customizations,
     videos,
     compareAtPrice: form.value.compareAtPrice || null,
-    bulkMinQuantity: form.value.bulkAvailable ? form.value.bulkMinQuantity : null,
     cloudinaryFolder: imageFolder.value,
   }
 

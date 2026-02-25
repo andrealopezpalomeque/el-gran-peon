@@ -133,8 +133,7 @@ export async function createProduct(req, res) {
       name, description, shortDescription, price, compareAtPrice,
       categoryId, categoryName, parentCategoryId, parentCategoryName,
       images, videos, stock, isActive, isFeatured, freeShipping,
-      tags, bulkAvailable, bulkMinQuantity, bulkWhatsappMessage,
-      customizations,
+      tags, customizations,
     } = req.body;
 
     if (!name || !price || !categoryId) {
@@ -177,9 +176,6 @@ export async function createProduct(req, res) {
       featuredOrder: isFeatured ? resolvedFeaturedOrder : 0,
       tags: tags || [],
       freeShipping: freeShipping ?? false,
-      bulkAvailable: bulkAvailable ?? false,
-      bulkMinQuantity: bulkMinQuantity || null,
-      bulkWhatsappMessage: bulkWhatsappMessage || '',
       customizations: customizations || [],
       videos: videos ? processVideos(videos) : [],
       createdAt: now,
