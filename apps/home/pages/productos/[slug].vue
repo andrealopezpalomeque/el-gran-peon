@@ -183,7 +183,7 @@
           </h1>
 
           <!-- Price -->
-          <div class="mt-4 flex items-baseline gap-3">
+          <div v-if="product.price" class="mt-4 flex items-baseline gap-3">
             <span
               v-if="product.compareAtPrice"
               class="font-sans line-through text-brand-olive/40"
@@ -199,6 +199,9 @@
             <span v-if="customizationsExtra > 0" class="font-sans text-xs text-brand-olive/40">
               +{{ formatPrice(customizationsExtra) }} personalización
             </span>
+          </div>
+          <div v-else class="mt-4">
+            <span class="font-sans text-lg text-brand-olive/70">Consultar precio</span>
           </div>
 
           <!-- Free shipping badge -->

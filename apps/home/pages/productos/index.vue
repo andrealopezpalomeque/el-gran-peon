@@ -114,11 +114,18 @@
         <UiSkeletonGrid v-if="loading" :count="6" />
 
         <!-- Product grid -->
-        <div v-else-if="sortedProducts.length" class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <ProductCard
-            v-for="product in sortedProducts"
-            :key="product.id"
-            :product="product"
+        <div v-else-if="sortedProducts.length" ref="productGridRef">
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <ProductCard
+              v-for="product in paginatedProducts"
+              :key="product.id"
+              :product="product"
+            />
+          </div>
+          <UiPagination
+            v-model="currentPage"
+            :total-items="sortedProducts.length"
+            :items-per-page="ITEMS_PER_PAGE"
           />
         </div>
 
@@ -140,11 +147,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
 const { get } = useApi()
+
+const ITEMS_PER_PAGE = 12
 
 const categories = ref([])
 const products = ref([])
@@ -153,6 +162,8 @@ const sortBy = ref('destacados')
 const activeCategory = ref(null)
 const isParentFilter = ref(false)
 const expandedMobileParent = ref(null)
+const currentPage = ref(1)
+const productGridRef = ref(null)
 
 // Find the active category object for breadcrumb
 const activeCategoryData = computed(() => {
@@ -208,6 +219,23 @@ const sortedProducts = computed(() => {
         return new Date(b.createdAt) - new Date(a.createdAt)
       })
   }
+})
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  return sortedProducts.value.slice(start, start + ITEMS_PER_PAGE)
+})
+
+// Reset page when category or sort changes
+watch([activeCategory, sortBy], () => {
+  currentPage.value = 1
+})
+
+// Scroll to top of grid on page change
+watch(currentPage, () => {
+  nextTick(() => {
+    productGridRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 })
 
 function isParentActive(parent) {

@@ -47,13 +47,13 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
         <div>
-          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Precio (ARS) *</label>
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Precio (ARS)</label>
           <input
             v-model.number="form.price"
             type="number"
             min="0"
             step="1"
-            required
+            placeholder="Dejar vacío si el precio es a consultar"
             class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
           />
         </div>

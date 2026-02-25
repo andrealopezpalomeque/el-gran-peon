@@ -18,6 +18,31 @@ function buildNestedCategories(categories) {
 
 export async function listActiveCategories(req, res) {
   try {
+    // If ?parent=slug is provided, return active children of that parent (even if hiddenFromStore)
+    if (req.query.parent) {
+      const parentSnapshot = await categoriesRef
+        .where('slug', '==', req.query.parent)
+        .where('parentId', '==', null)
+        .limit(1)
+        .get();
+
+      if (parentSnapshot.empty) {
+        return res.json([]);
+      }
+
+      const parentId = parentSnapshot.docs[0].id;
+      const childrenSnapshot = await categoriesRef
+        .where('parentId', '==', parentId)
+        .where('isActive', '==', true)
+        .get();
+
+      const children = childrenSnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      return res.json(children);
+    }
+
     const snapshot = await categoriesRef.where('isActive', '==', true).get();
     const categories = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))

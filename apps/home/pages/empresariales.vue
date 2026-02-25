@@ -108,15 +108,42 @@
 
       <!-- Product catalog -->
       <section class="container mx-auto px-4 md:px-6 py-10 md:py-16">
+        <!-- Sub-category filter pills -->
+        <div v-if="subCategories.length > 1" class="flex gap-2 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+          <button
+            class="shrink-0 font-sans text-xs uppercase tracking-wide px-4 py-2 border transition-colors duration-200"
+            :class="!activeFilter ? 'border-brand-olive text-brand-olive bg-brand-olive/5' : 'border-brand-olive/20 text-brand-olive/60'"
+            @click="activeFilter = null"
+          >
+            Todos
+          </button>
+          <button
+            v-for="cat in subCategories"
+            :key="cat.id"
+            class="shrink-0 font-sans text-xs uppercase tracking-wide px-4 py-2 border transition-colors duration-200"
+            :class="activeFilter === cat.id ? 'border-brand-olive text-brand-olive bg-brand-olive/5' : 'border-brand-olive/20 text-brand-olive/60'"
+            @click="activeFilter = cat.id"
+          >
+            {{ cat.name }}
+          </button>
+        </div>
+
         <!-- Loading -->
         <UiSkeletonGrid v-if="loadingProducts" :count="6" />
 
         <!-- Product grid -->
-        <div v-else-if="products.length" class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <ProductCard
-            v-for="product in products"
-            :key="product.id"
-            :product="product"
+        <div v-else-if="filteredProducts.length" ref="productGridRef">
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            <ProductCard
+              v-for="product in paginatedProducts"
+              :key="product.id"
+              :product="product"
+            />
+          </div>
+          <UiPagination
+            v-model="currentPage"
+            :total-items="filteredProducts.length"
+            :items-per-page="ITEMS_PER_PAGE"
           />
         </div>
 
@@ -150,12 +177,13 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
 const { get, post } = useApi()
 const { hidden: hideWhatsApp } = useWhatsAppVisibility()
 
 const STORAGE_KEY = 'egp-empresariales'
+const ITEMS_PER_PAGE = 12
 
 const isRegistered = ref(false)
 
@@ -164,7 +192,33 @@ onBeforeUnmount(() => { hideWhatsApp.value = false })
 const submitting = ref(false)
 const errorMsg = ref('')
 const products = ref([])
+const subCategories = ref([])
 const loadingProducts = ref(true)
+const activeFilter = ref(null)
+const currentPage = ref(1)
+const productGridRef = ref(null)
+
+const filteredProducts = computed(() => {
+  if (!activeFilter.value) return products.value
+  return products.value.filter(p => p.categoryId === activeFilter.value)
+})
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  return filteredProducts.value.slice(start, start + ITEMS_PER_PAGE)
+})
+
+// Reset page when filter changes
+watch(activeFilter, () => {
+  currentPage.value = 1
+})
+
+// Scroll to top of grid on page change
+watch(currentPage, () => {
+  nextTick(() => {
+    productGridRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
+})
 
 const form = ref({
   nombreRazonSocial: '',
@@ -186,7 +240,13 @@ onMounted(() => {
     // ignore parse errors
   }
   fetchProducts()
+  fetchSubCategories()
 })
+
+async function fetchSubCategories() {
+  const data = await get('/api/categories?parent=empresariales')
+  subCategories.value = data || []
+}
 
 async function handleSubmit() {
   errorMsg.value = ''
@@ -236,3 +296,13 @@ useHead({
   ],
 })
 </script>
+
+<style scoped>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>

@@ -29,14 +29,19 @@
           {{ product.name }}
         </h3>
         <div class="mt-2 flex items-center gap-2">
-          <span class="font-sans font-semibold text-brand-primary">
-            {{ formatPrice(product.price) }}
-          </span>
-          <span
-            v-if="product.compareAtPrice"
-            class="font-sans text-sm text-brand-olive/40 line-through"
-          >
-            {{ formatPrice(product.compareAtPrice) }}
+          <template v-if="product.price">
+            <span class="font-sans font-semibold text-brand-primary">
+              {{ formatPrice(product.price) }}
+            </span>
+            <span
+              v-if="product.compareAtPrice"
+              class="font-sans text-sm text-brand-olive/40 line-through"
+            >
+              {{ formatPrice(product.compareAtPrice) }}
+            </span>
+          </template>
+          <span v-else class="font-sans text-sm text-brand-olive/60">
+            Consultar precio
           </span>
         </div>
       </div>

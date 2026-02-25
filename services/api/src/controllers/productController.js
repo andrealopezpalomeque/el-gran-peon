@@ -151,8 +151,8 @@ export async function createProduct(req, res) {
       tags, customizations,
     } = req.body;
 
-    if (!name || !price || !categoryId) {
-      return res.status(400).json({ error: 'Nombre, precio y categoría son requeridos.' });
+    if (!name || !categoryId) {
+      return res.status(400).json({ error: 'Nombre y categoría son requeridos.' });
     }
 
     const slug = slugify(name, { lower: true, strict: true });
@@ -177,7 +177,7 @@ export async function createProduct(req, res) {
       slug,
       description: description || '',
       shortDescription: shortDescription || '',
-      price,
+      price: price || null,
       compareAtPrice: compareAtPrice || null,
       categoryId,
       categoryName: categoryName || '',
