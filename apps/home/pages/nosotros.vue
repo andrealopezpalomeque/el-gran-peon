@@ -222,7 +222,7 @@
     </section>
 
     <!-- Section 6: Noticias y Historias -->
-    <section class="bg-brand-cream py-20 md:py-28">
+    <section id="noticias" class="bg-brand-cream py-20 md:py-28">
       <div class="container mx-auto px-6">
         <div class="max-w-6xl mx-auto">
           <div class="text-center mb-12">
@@ -230,29 +230,34 @@
               NOTICIAS E HISTORIAS
             </h2>
             <div class="mx-auto mt-4 h-px w-12 bg-brand-primary/30" />
-            <p class="font-serif text-brand-olive/70 mt-6">Próximamente</p>
           </div>
 
-          <!-- 3-column placeholder grid -->
-          <div class="grid md:grid-cols-3 gap-6">
-            <div v-for="n in 3" :key="n" class="group">
-              <div class="aspect-square bg-white border border-brand-olive/10 flex items-center justify-center">
-                <svg class="w-10 h-10 text-brand-olive/15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
-                </svg>
+          <!-- Blog article card (centered) -->
+          <div class="max-w-lg mx-auto">
+            <NuxtLink to="/blog/capsula-raiz" class="group block">
+              <div class="aspect-[4/3] bg-white border border-brand-olive/10 overflow-hidden">
+                <img
+                  :src="capsulaRaizImg"
+                  alt="Cápsula Raíz - Accesorios artesanales hechos en Argentina"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
               </div>
-              <div class="mt-4">
-                <div class="h-3 w-20 bg-brand-olive/10 mb-3" />
-                <div class="h-5 w-full bg-brand-olive/10 mb-2" />
-                <div class="h-5 w-3/4 bg-brand-olive/10" />
+              <div class="mt-5">
+                <span class="font-sans text-xs uppercase tracking-wide text-brand-olive/50">
+                  Lanzamiento
+                </span>
+                <h3 class="font-sans font-medium text-brand-olive text-lg mt-1 group-hover:text-brand-primary transition-colors">
+                  El Gran Peón presenta la Cápsula Raíz: accesorios artesanales hechos en Argentina
+                </h3>
+                <p class="font-serif text-brand-olive/60 text-sm mt-2 leading-relaxed line-clamp-3">
+                  Una cápsula permanente que reúne productos tradicionales desarrollados con un criterio claro: perdurar en el tiempo. 100% artesanal, fabricado en Corrientes.
+                </p>
+                <span class="inline-block mt-3 font-sans text-sm text-brand-primary border-b border-brand-primary/30 group-hover:border-brand-primary/60 transition-colors">
+                  Leer más
+                </span>
               </div>
-            </div>
-          </div>
-
-          <div class="text-center mt-12">
-            <p class="font-serif text-brand-olive/60 text-sm">
-              Aquí compartiremos historias sobre el oficio, los materiales y las personas que hacen posible cada pieza de El Gran Peón.
-            </p>
+            </NuxtLink>
           </div>
         </div>
       </div>

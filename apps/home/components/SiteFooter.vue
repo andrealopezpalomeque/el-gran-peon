@@ -150,6 +150,7 @@ const navLinks = [
   { to: '/nosotros', label: 'Nosotros' },
   { to: '/empresariales', label: 'Empresariales' },
   { to: '/mayoristas', label: 'Mayoristas' },
+  { to: '/nosotros#noticias', label: 'Noticias' },
 ]
 
 const infoLinks = [
