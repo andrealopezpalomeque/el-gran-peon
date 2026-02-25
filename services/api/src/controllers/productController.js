@@ -2,25 +2,25 @@ import { db } from '../config/firebase.js';
 import slugify from 'slugify';
 import cloudinary from '../config/cloudinary.js';
 import { processVideos } from '../utils/videoUtils.js';
-import { cache } from '../utils/cache.js';
+import { cache, withRetry } from '../utils/cache.js';
 
 const productsRef = db.collection('products');
 
 export async function listActiveProducts(req, res) {
+  const cacheKey = `products:active:${JSON.stringify(req.query)}`;
   try {
-    const cacheKey = `products:active:${JSON.stringify(req.query)}`;
     const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
-    const snapshot = await productsRef.where('isActive', '==', true).get();
+    const snapshot = await withRetry(() => productsRef.where('isActive', '==', true).get());
     let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
     // Exclude products from hidden categories (empresariales, mayoristas, etc.)
     // unless explicitly requesting a parentCategory filter
     if (!req.query.parentCategory) {
-      const hiddenSnapshot = await db.collection('categories')
+      const hiddenSnapshot = await withRetry(() => db.collection('categories')
         .where('hiddenFromStore', '==', true)
-        .get();
+        .get());
 
       if (!hiddenSnapshot.empty) {
         const hiddenIds = new Set(hiddenSnapshot.docs.map(d => d.id));
@@ -32,10 +32,10 @@ export async function listActiveProducts(req, res) {
 
     // Filter by child category slug
     if (req.query.category) {
-      const catSnapshot = await db.collection('categories')
+      const catSnapshot = await withRetry(() => db.collection('categories')
         .where('slug', '==', req.query.category)
         .limit(1)
-        .get();
+        .get());
 
       if (catSnapshot.empty) {
         return res.json([]);
@@ -47,11 +47,11 @@ export async function listActiveProducts(req, res) {
 
     // Filter by parent category slug (returns all products under that parent)
     if (req.query.parentCategory) {
-      const parentSnapshot = await db.collection('categories')
+      const parentSnapshot = await withRetry(() => db.collection('categories')
         .where('slug', '==', req.query.parentCategory)
         .where('parentId', '==', null)
         .limit(1)
-        .get();
+        .get());
 
       if (parentSnapshot.empty) {
         return res.json([]);
@@ -60,9 +60,9 @@ export async function listActiveProducts(req, res) {
       const parentId = parentSnapshot.docs[0].id;
 
       // Get all child category IDs under this parent
-      const childrenSnapshot = await db.collection('categories')
+      const childrenSnapshot = await withRetry(() => db.collection('categories')
         .where('parentId', '==', parentId)
-        .get();
+        .get());
 
       const categoryIds = [parentId, ...childrenSnapshot.docs.map(d => d.id)];
       products = products.filter(p => categoryIds.includes(p.categoryId) || p.parentCategoryId === parentId);
@@ -105,6 +105,12 @@ export async function listActiveProducts(req, res) {
     res.json(products);
   } catch (error) {
     console.error('Error listing products:', error);
+    // Serve stale cached data if Firestore is unavailable
+    const stale = cache.getStale(cacheKey);
+    if (stale) {
+      console.log('Serving stale cache for:', cacheKey);
+      return res.json(stale);
+    }
     res.status(500).json({ error: 'Error del servidor.' });
   }
 }
@@ -121,14 +127,14 @@ export async function listAllProducts(req, res) {
 }
 
 export async function getProduct(req, res) {
+  const { idOrSlug } = req.params;
+  const cacheKey = `products:single:${idOrSlug}`;
   try {
-    const { idOrSlug } = req.params;
-    const cacheKey = `products:single:${idOrSlug}`;
     const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
     // Try by ID first
-    const doc = await productsRef.doc(idOrSlug).get();
+    const doc = await withRetry(() => productsRef.doc(idOrSlug).get());
     if (doc.exists) {
       const product = { id: doc.id, ...doc.data() };
       cache.set(cacheKey, product);
@@ -136,10 +142,10 @@ export async function getProduct(req, res) {
     }
 
     // Try by slug
-    const slugSnapshot = await productsRef
+    const slugSnapshot = await withRetry(() => productsRef
       .where('slug', '==', idOrSlug)
       .limit(1)
-      .get();
+      .get());
 
     if (slugSnapshot.empty) {
       return res.status(404).json({ error: 'Producto no encontrado.' });
@@ -151,6 +157,11 @@ export async function getProduct(req, res) {
     res.json(product);
   } catch (error) {
     console.error('Error getting product:', error);
+    const stale = cache.getStale(cacheKey);
+    if (stale) {
+      console.log('Serving stale cache for:', cacheKey);
+      return res.json(stale);
+    }
     res.status(500).json({ error: 'Error del servidor.' });
   }
 }

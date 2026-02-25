@@ -1,6 +1,6 @@
 import { db } from '../config/firebase.js';
 import slugify from 'slugify';
-import { cache } from '../utils/cache.js';
+import { cache, withRetry } from '../utils/cache.js';
 
 const categoriesRef = db.collection('categories');
 
@@ -18,28 +18,28 @@ function buildNestedCategories(categories) {
 }
 
 export async function listActiveCategories(req, res) {
+  const cacheKey = `categories:active:${JSON.stringify(req.query)}`;
   try {
-    const cacheKey = `categories:active:${JSON.stringify(req.query)}`;
     const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
     // If ?parent=slug is provided, return active children of that parent (even if hiddenFromStore)
     if (req.query.parent) {
-      const parentSnapshot = await categoriesRef
+      const parentSnapshot = await withRetry(() => categoriesRef
         .where('slug', '==', req.query.parent)
         .where('parentId', '==', null)
         .limit(1)
-        .get();
+        .get());
 
       if (parentSnapshot.empty) {
         return res.json([]);
       }
 
       const parentId = parentSnapshot.docs[0].id;
-      const childrenSnapshot = await categoriesRef
+      const childrenSnapshot = await withRetry(() => categoriesRef
         .where('parentId', '==', parentId)
         .where('isActive', '==', true)
-        .get();
+        .get());
 
       const children = childrenSnapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
@@ -49,7 +49,7 @@ export async function listActiveCategories(req, res) {
       return res.json(children);
     }
 
-    const snapshot = await categoriesRef.where('isActive', '==', true).get();
+    const snapshot = await withRetry(() => categoriesRef.where('isActive', '==', true).get());
     const categories = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .filter(c => !c.hiddenFromStore);
@@ -58,6 +58,11 @@ export async function listActiveCategories(req, res) {
     res.json(result);
   } catch (error) {
     console.error('Error listing categories:', error);
+    const stale = cache.getStale(cacheKey);
+    if (stale) {
+      console.log('Serving stale cache for:', cacheKey);
+      return res.json(stale);
+    }
     res.status(500).json({ error: 'Error del servidor.' });
   }
 }
@@ -85,12 +90,12 @@ export async function listFlatCategories(req, res) {
 }
 
 export async function getCategory(req, res) {
+  const cacheKey = `categories:single:${req.params.id}`;
   try {
-    const cacheKey = `categories:single:${req.params.id}`;
     const cached = cache.get(cacheKey);
     if (cached) return res.json(cached);
 
-    const doc = await categoriesRef.doc(req.params.id).get();
+    const doc = await withRetry(() => categoriesRef.doc(req.params.id).get());
 
     if (!doc.exists) {
       return res.status(404).json({ error: 'Categoría no encontrada.' });
@@ -101,6 +106,11 @@ export async function getCategory(req, res) {
     res.json(category);
   } catch (error) {
     console.error('Error getting category:', error);
+    const stale = cache.getStale(cacheKey);
+    if (stale) {
+      console.log('Serving stale cache for:', cacheKey);
+      return res.json(stale);
+    }
     res.status(500).json({ error: 'Error del servidor.' });
   }
 }
