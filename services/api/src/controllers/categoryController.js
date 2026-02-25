@@ -1,5 +1,6 @@
 import { db } from '../config/firebase.js';
 import slugify from 'slugify';
+import { cache } from '../utils/cache.js';
 
 const categoriesRef = db.collection('categories');
 
@@ -18,6 +19,10 @@ function buildNestedCategories(categories) {
 
 export async function listActiveCategories(req, res) {
   try {
+    const cacheKey = `categories:active:${JSON.stringify(req.query)}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return res.json(cached);
+
     // If ?parent=slug is provided, return active children of that parent (even if hiddenFromStore)
     if (req.query.parent) {
       const parentSnapshot = await categoriesRef
@@ -40,6 +45,7 @@ export async function listActiveCategories(req, res) {
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
+      cache.set(cacheKey, children);
       return res.json(children);
     }
 
@@ -47,7 +53,9 @@ export async function listActiveCategories(req, res) {
     const categories = snapshot.docs
       .map(doc => ({ id: doc.id, ...doc.data() }))
       .filter(c => !c.hiddenFromStore);
-    res.json(buildNestedCategories(categories));
+    const result = buildNestedCategories(categories);
+    cache.set(cacheKey, result);
+    res.json(result);
   } catch (error) {
     console.error('Error listing categories:', error);
     res.status(500).json({ error: 'Error del servidor.' });
@@ -78,13 +86,19 @@ export async function listFlatCategories(req, res) {
 
 export async function getCategory(req, res) {
   try {
+    const cacheKey = `categories:single:${req.params.id}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return res.json(cached);
+
     const doc = await categoriesRef.doc(req.params.id).get();
 
     if (!doc.exists) {
       return res.status(404).json({ error: 'Categoría no encontrada.' });
     }
 
-    res.json({ id: doc.id, ...doc.data() });
+    const category = { id: doc.id, ...doc.data() };
+    cache.set(cacheKey, category);
+    res.json(category);
   } catch (error) {
     console.error('Error getting category:', error);
     res.status(500).json({ error: 'Error del servidor.' });
@@ -125,6 +139,8 @@ export async function createCategory(req, res) {
     };
 
     const docRef = await categoriesRef.add(data);
+    cache.invalidatePrefix('categories:');
+    cache.invalidatePrefix('products:');
     res.status(201).json({ id: docRef.id, ...data });
   } catch (error) {
     console.error('Error creating category:', error);
@@ -163,6 +179,8 @@ export async function updateCategory(req, res) {
     delete updates.id;
 
     await categoriesRef.doc(req.params.id).update(updates);
+    cache.invalidatePrefix('categories:');
+    cache.invalidatePrefix('products:');
     const updated = await categoriesRef.doc(req.params.id).get();
     res.json({ id: updated.id, ...updated.data() });
   } catch (error) {
@@ -191,6 +209,8 @@ export async function deleteCategory(req, res) {
     }
 
     await categoriesRef.doc(req.params.id).delete();
+    cache.invalidatePrefix('categories:');
+    cache.invalidatePrefix('products:');
     res.json({ success: true, message: 'Categoría eliminada.' });
   } catch (error) {
     console.error('Error deleting category:', error);

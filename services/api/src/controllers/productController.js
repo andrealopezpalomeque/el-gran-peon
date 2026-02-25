@@ -2,11 +2,16 @@ import { db } from '../config/firebase.js';
 import slugify from 'slugify';
 import cloudinary from '../config/cloudinary.js';
 import { processVideos } from '../utils/videoUtils.js';
+import { cache } from '../utils/cache.js';
 
 const productsRef = db.collection('products');
 
 export async function listActiveProducts(req, res) {
   try {
+    const cacheKey = `products:active:${JSON.stringify(req.query)}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return res.json(cached);
+
     const snapshot = await productsRef.where('isActive', '==', true).get();
     let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
@@ -96,6 +101,7 @@ export async function listActiveProducts(req, res) {
       products = products.slice(0, parseInt(req.query.limit, 10));
     }
 
+    cache.set(cacheKey, products);
     res.json(products);
   } catch (error) {
     console.error('Error listing products:', error);
@@ -117,11 +123,16 @@ export async function listAllProducts(req, res) {
 export async function getProduct(req, res) {
   try {
     const { idOrSlug } = req.params;
+    const cacheKey = `products:single:${idOrSlug}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return res.json(cached);
 
     // Try by ID first
     const doc = await productsRef.doc(idOrSlug).get();
     if (doc.exists) {
-      return res.json({ id: doc.id, ...doc.data() });
+      const product = { id: doc.id, ...doc.data() };
+      cache.set(cacheKey, product);
+      return res.json(product);
     }
 
     // Try by slug
@@ -135,7 +146,9 @@ export async function getProduct(req, res) {
     }
 
     const slugDoc = slugSnapshot.docs[0];
-    res.json({ id: slugDoc.id, ...slugDoc.data() });
+    const product = { id: slugDoc.id, ...slugDoc.data() };
+    cache.set(cacheKey, product);
+    res.json(product);
   } catch (error) {
     console.error('Error getting product:', error);
     res.status(500).json({ error: 'Error del servidor.' });
@@ -198,6 +211,7 @@ export async function createProduct(req, res) {
     };
 
     const docRef = await productsRef.add(data);
+    cache.invalidatePrefix('products:');
     res.status(201).json({ id: docRef.id, ...data });
   } catch (error) {
     console.error('Error creating product:', error);
@@ -257,6 +271,7 @@ export async function updateProduct(req, res) {
     }
 
     await productsRef.doc(req.params.id).update(updates);
+    cache.invalidatePrefix('products:');
     const updated = await productsRef.doc(req.params.id).get();
     res.json({ id: updated.id, ...updated.data() });
   } catch (error) {
@@ -287,6 +302,7 @@ export async function reorderFeatured(req, res) {
     }
 
     await batch.commit();
+    cache.invalidatePrefix('products:');
     res.json({ success: true });
   } catch (error) {
     console.error('Error reordering featured:', error);
@@ -318,6 +334,7 @@ export async function deleteProduct(req, res) {
     }
 
     await productsRef.doc(req.params.id).delete();
+    cache.invalidatePrefix('products:');
     res.json({ success: true, message: 'Producto eliminado.' });
   } catch (error) {
     console.error('Error deleting product:', error);
