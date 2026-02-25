@@ -1,5 +1,6 @@
 <template>
   <a
+    v-show="!hidden"
     :href="whatsappUrl"
     target="_blank"
     rel="noopener noreferrer"
@@ -16,6 +17,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
+const { hidden } = useWhatsAppVisibility()
 const whatsappUrl = 'https://wa.me/543794007759?text=Hola!%20Quiero%20consultar%20sobre%20los%20productos%20de%20El%20Gran%20Pe%C3%B3n'
 const mounted = ref(false)
 

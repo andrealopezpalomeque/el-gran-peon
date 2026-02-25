@@ -150,13 +150,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
 const { get, post } = useApi()
+const { hidden: hideWhatsApp } = useWhatsAppVisibility()
 
 const STORAGE_KEY = 'egp-mayorista'
 
 const isRegistered = ref(false)
+
+watch(isRegistered, (val) => { hideWhatsApp.value = !val }, { immediate: true })
+onBeforeUnmount(() => { hideWhatsApp.value = false })
 const submitting = ref(false)
 const errorMsg = ref('')
 const products = ref([])
