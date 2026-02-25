@@ -48,7 +48,6 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      accessCode: process.env.NUXT_PUBLIC_ACCESS_CODE || '',
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001',
       firebaseApiKey: process.env.NUXT_PUBLIC_FIREBASE_API_KEY,
       firebaseAuthDomain: process.env.NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
