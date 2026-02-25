@@ -7,6 +7,13 @@
 
       <!-- Modal -->
       <div class="relative w-full max-w-md mx-4 md:mx-0 bg-brand-cream border-2 border-brand-olive/20 max-h-[90vh] overflow-y-auto">
+        <!-- Back arrow -->
+        <button @click="$router.back()" class="absolute top-4 left-4 z-10 text-brand-olive/60 hover:text-brand-olive transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="square" stroke-linejoin="miter" d="M19 12H5m7-7-7 7 7 7" />
+          </svg>
+        </button>
+
         <div class="p-8 md:p-10">
           <!-- Header -->
           <h2 class="font-display text-brand-olive text-2xl md:text-3xl text-center">
