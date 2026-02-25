@@ -251,8 +251,8 @@ const emailHtml = computed(() => {
     <td align="center" bgcolor="#FEFCF0" style="padding:0;background:#FEFCF0;background-color:#FEFCF0;">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#FEFCF0" style="max-width:600px;width:100%;margin:0 auto;background:#FEFCF0;background-color:#FEFCF0;">
         <tr>
-          <td align="center" bgcolor="#4C4A38" style="background:#4C4A38;background-color:#4C4A38;padding:0;text-align:center;">
-            <a href="https://elgranpeon.com" target="_blank" style="display:inline-block;text-decoration:none;"><img src="https://res.cloudinary.com/dmb1vyveg/image/upload/v1771988370/el-gran-peon/customer-logos/bwrnkfvllozliopo8hk3.png" alt="El Gran Peón - Herencia Clásica" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>
+          <td align="center" bgcolor="#4C4A38" style="background:#4C4A38;background-color:#4C4A38;padding:0;text-align:center;line-height:0;font-size:0;">
+            <a href="https://elgranpeon.com" target="_blank" style="display:block;text-decoration:none;line-height:0;font-size:0;"><img src="https://res.cloudinary.com/dmb1vyveg/image/upload/v1771988370/el-gran-peon/customer-logos/bwrnkfvllozliopo8hk3.png" alt="El Gran Peón - Herencia Clásica" width="600" style="display:block;width:100%;height:auto;border:0;" /></a>
           </td>
         </tr>
         <tr>
