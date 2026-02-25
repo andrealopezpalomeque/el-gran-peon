@@ -41,13 +41,13 @@
               {{ item.productName }}
             </NuxtLink>
             <p class="font-sans text-xs text-brand-olive/50 mt-0.5">
-              {{ item.quantity }} × {{ formatPrice(item.unitPrice) }}
+              {{ item.quantity }} × {{ item.unitPrice != null ? formatPrice(item.unitPrice) : 'A consultar' }}
             </p>
           </div>
 
           <!-- Item total -->
           <span class="shrink-0 font-sans text-xs font-medium text-brand-olive self-center">
-            {{ formatPrice(item.unitPrice * item.quantity) }}
+            {{ item.unitPrice != null ? formatPrice(item.unitPrice * item.quantity) : 'A consultar' }}
           </span>
         </div>
       </div>

@@ -18,7 +18,8 @@ export const useCartStore = defineStore('cart', () => {
             customizationKey: item.customizationKey || '',
             customizations: item.customizations || null,
             customizationsExtra: item.customizationsExtra || 0,
-            basePrice: item.basePrice || item.unitPrice,
+            basePrice: item.basePrice ?? item.unitPrice,
+            parentCategoryName: item.parentCategoryName || '',
             quantity: Math.max(1, item.quantity || 1),
           }))
         } catch {
@@ -63,7 +64,7 @@ export const useCartStore = defineStore('cart', () => {
     const customizationKey = buildCustomizationKey(selectedCustomizations)
     const customizationsExtra = calcCustomizationsExtra(selectedCustomizations)
     const basePrice = product.price
-    const unitPrice = basePrice + customizationsExtra
+    const unitPrice = basePrice != null ? basePrice + customizationsExtra : null
 
     const existingItem = items.value.find(
       item => item.productId === product.id && item.customizationKey === customizationKey
@@ -84,6 +85,7 @@ export const useCartStore = defineStore('cart', () => {
         quantity: Math.min(quantity, stock),
         image: product.images?.[0]?.url || null,
         categoryName: product.categoryName,
+        parentCategoryName: product.parentCategoryName || '',
         freeShipping: product.freeShipping || false,
         stock: stock,
         customizations: selectedCustomizations || null,
@@ -137,8 +139,31 @@ export const useCartStore = defineStore('cart', () => {
     return items.value.reduce((total, item) => total + item.quantity, 0)
   })
 
+  const COTIZACION_CATEGORIES = ['mayoristas', 'empresariales']
+
+  const isCotizacionItem = (item) => {
+    const parent = (item.parentCategoryName || '').toLowerCase()
+    const category = (item.categoryName || '').toLowerCase()
+    return COTIZACION_CATEGORIES.includes(parent) || (!parent && COTIZACION_CATEGORIES.includes(category))
+  }
+
+  const cotizacionItems = computed(() => items.value.filter(isCotizacionItem))
+  const regularItems = computed(() => items.value.filter(item => !isCotizacionItem(item)))
+  const hasCotizacionItems = computed(() => cotizacionItems.value.length > 0)
+  const hasRegularItems = computed(() => regularItems.value.length > 0)
+
   const subtotal = computed(() => {
-    return items.value.reduce((total, item) => total + (item.unitPrice * item.quantity), 0)
+    return items.value.reduce((total, item) => {
+      if (item.unitPrice == null) return total
+      return total + (item.unitPrice * item.quantity)
+    }, 0)
+  })
+
+  const regularSubtotal = computed(() => {
+    return regularItems.value.reduce((total, item) => {
+      if (item.unitPrice == null) return total
+      return total + (item.unitPrice * item.quantity)
+    }, 0)
   })
 
   // WhatsApp message generation
@@ -212,16 +237,46 @@ export const useCartStore = defineStore('cart', () => {
     return `https://wa.me/543794007759?text=${encodedMessage}`
   }
 
+  const generateCotizacionWhatsAppUrl = () => {
+    const cItems = cotizacionItems.value
+    if (!cItems.length) return '#'
+
+    let message = `*SOLICITUD DE COTIZACIÓN - El Gran Peon*\n\n`
+    message += `*Productos:*\n`
+    cItems.forEach((item, index) => {
+      const price = item.unitPrice != null ? formatPrice(item.unitPrice) : 'A consultar'
+      message += `${index + 1}. ${item.productName}\n`
+      message += `   Cantidad: ${item.quantity}\n`
+      message += `   Precio ref.: ${price}\n\n`
+    })
+    message += `Quedo a la espera de la cotización. Gracias!`
+
+    return `https://wa.me/543794007759?text=${encodeURIComponent(message)}`
+  }
+
+  const clearCotizacionItems = () => {
+    items.value = items.value.filter(item => !isCotizacionItem(item))
+    saveCart()
+  }
+
   return {
     items,
     itemCount,
     subtotal,
+    regularSubtotal,
+    cotizacionItems,
+    regularItems,
+    hasCotizacionItems,
+    hasRegularItems,
+    isCotizacionItem,
     loadCart,
     addProduct,
     updateQuantity,
     removeProduct,
     getProductTotalQuantity,
     clearCart,
+    clearCotizacionItems,
     generateWhatsAppUrl,
+    generateCotizacionWhatsAppUrl,
   }
 })

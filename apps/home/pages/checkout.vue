@@ -270,6 +270,11 @@ const cart = useCartStore()
 const { post } = useApi()
 const router = useRouter()
 
+// Redirect to cart if only cotización items (no regular items to checkout)
+if (import.meta.client && cart.items.length > 0 && !cart.hasRegularItems) {
+  router.replace('/carrito')
+}
+
 const submitting = ref(false)
 const submitError = ref('')
 

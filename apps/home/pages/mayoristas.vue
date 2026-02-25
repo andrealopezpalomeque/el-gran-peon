@@ -138,6 +138,9 @@
               v-for="product in paginatedProducts"
               :key="product.id"
               :product="product"
+              :show-actions="true"
+              :compact-actions="true"
+              @addToCart="onAddToCart"
             />
           </div>
           <UiPagination
@@ -181,6 +184,7 @@ import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
 const { get, post } = useApi()
 const { hidden: hideWhatsApp } = useWhatsAppVisibility()
+const cart = useCartStore()
 
 const STORAGE_KEY = 'egp-mayorista'
 const ITEMS_PER_PAGE = 12
@@ -287,6 +291,10 @@ async function fetchProducts() {
   const data = await get('/api/products?parentCategory=mayoristas')
   products.value = data || []
   loadingProducts.value = false
+}
+
+function onAddToCart(product) {
+  cart.addProduct(product, 1)
 }
 
 useHead({

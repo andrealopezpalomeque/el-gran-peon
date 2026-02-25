@@ -10,8 +10,21 @@
       </NuxtLink>
     </div>
 
-    <!-- Filters -->
+    <!-- Search & Filters -->
     <div class="flex flex-wrap items-center gap-4 mb-6 pb-4 border-b-2 border-brand-olive/10">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-olive/40 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Buscar por nombre..."
+          class="w-48 pl-10 pr-3 py-1.5 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+        />
+      </div>
+
       <div>
         <select
           v-model="filterCategory"
@@ -37,6 +50,10 @@
         <input v-model="filterInactive" type="checkbox" class="w-4 h-4 accent-brand-primary" />
         <span class="font-sans text-sm text-brand-olive">Solo inactivos</span>
       </label>
+
+      <span class="font-sans text-xs text-brand-olive/40 ml-auto">
+        {{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'producto' : 'productos' }}
+      </span>
     </div>
 
     <!-- Loading -->
@@ -150,7 +167,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="product in filteredProducts"
+            v-for="product in paginatedProducts"
             :key="product.id"
             class="border-b border-brand-olive/5"
           >
@@ -183,13 +200,16 @@
 
             <!-- Precio -->
             <td class="py-3 pr-4 text-right">
-              <span class="font-sans text-sm text-brand-olive font-medium">{{ formatPrice(product.price) }}</span>
-              <span
-                v-if="product.compareAtPrice"
-                class="block font-sans text-xs text-brand-olive/40 line-through"
-              >
-                {{ formatPrice(product.compareAtPrice) }}
-              </span>
+              <template v-if="product.price">
+                <span class="font-sans text-sm text-brand-olive font-medium">{{ formatPrice(product.price) }}</span>
+                <span
+                  v-if="product.compareAtPrice"
+                  class="block font-sans text-xs text-brand-olive/40 line-through"
+                >
+                  {{ formatPrice(product.compareAtPrice) }}
+                </span>
+              </template>
+              <span v-else class="font-sans text-xs text-brand-olive/40">A consultar</span>
             </td>
 
             <!-- Stock -->
@@ -246,6 +266,42 @@
       </table>
     </div>
 
+    <!-- Pagination -->
+    <div v-if="!filterFeatured && totalPages > 1" class="flex items-center justify-between mt-6 pt-4 border-t-2 border-brand-olive/10">
+      <span class="font-sans text-xs text-brand-olive/50">
+        Mostrando {{ paginationStart }}-{{ paginationEnd }} de {{ filteredProducts.length }}
+      </span>
+      <div class="flex items-center gap-1">
+        <button
+          :disabled="currentPage <= 1"
+          class="px-3 py-1.5 font-sans text-sm border-2 border-brand-olive/20 text-brand-olive transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-primary hover:text-brand-primary"
+          @click="currentPage--"
+        >
+          Anterior
+        </button>
+        <template v-for="page in visiblePages" :key="page">
+          <span v-if="page === '...'" class="px-1 font-sans text-sm text-brand-olive/40">...</span>
+          <button
+            v-else
+            class="w-9 py-1.5 font-sans text-sm border-2 transition-colors"
+            :class="page === currentPage
+              ? 'border-brand-primary bg-brand-primary text-brand-cream'
+              : 'border-brand-olive/20 text-brand-olive hover:border-brand-primary hover:text-brand-primary'"
+            @click="currentPage = page"
+          >
+            {{ page }}
+          </button>
+        </template>
+        <button
+          :disabled="currentPage >= totalPages"
+          class="px-3 py-1.5 font-sans text-sm border-2 border-brand-olive/20 text-brand-olive transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:border-brand-primary hover:text-brand-primary"
+          @click="currentPage++"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+
     <AdminConfirmModal
       :visible="showDeleteModal"
       title="Eliminar producto"
@@ -272,10 +328,15 @@ const savingOrder = ref(false)
 const justDroppedId = ref(null)
 let dropTimeoutId = null
 
-// Filters
+// Search & Filters
+const searchQuery = ref('')
 const filterCategory = ref('')
 const filterFeatured = ref(false)
 const filterInactive = ref(false)
+
+// Pagination
+const ITEMS_PER_PAGE = 20
+const currentPage = ref(1)
 
 // Flatten nested categories into a single list with labels
 const flatCategories = computed(() => {
@@ -295,6 +356,11 @@ const featuredCount = computed(() => products.value.filter(p => p.isFeatured).le
 
 const filteredProducts = computed(() => {
   let result = products.value
+
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.trim().toLowerCase()
+    result = result.filter(p => p.name?.toLowerCase().includes(q))
+  }
 
   if (filterCategory.value) {
     result = result.filter(p =>
@@ -322,6 +388,42 @@ const filteredProducts = computed(() => {
   }
 
   return result
+})
+
+// Reset page when filters or search change
+watch([searchQuery, filterCategory, filterFeatured, filterInactive], () => {
+  currentPage.value = 1
+})
+
+const totalPages = computed(() => Math.ceil(filteredProducts.value.length / ITEMS_PER_PAGE))
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  return filteredProducts.value.slice(start, start + ITEMS_PER_PAGE)
+})
+
+const paginationStart = computed(() => {
+  if (filteredProducts.value.length === 0) return 0
+  return (currentPage.value - 1) * ITEMS_PER_PAGE + 1
+})
+
+const paginationEnd = computed(() => {
+  return Math.min(currentPage.value * ITEMS_PER_PAGE, filteredProducts.value.length)
+})
+
+const visiblePages = computed(() => {
+  const total = totalPages.value
+  const current = currentPage.value
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+
+  const pages = [1]
+  if (current > 3) pages.push('...')
+  const start = Math.max(2, current - 1)
+  const end = Math.min(total - 1, current + 1)
+  for (let i = start; i <= end; i++) pages.push(i)
+  if (current < total - 2) pages.push('...')
+  pages.push(total)
+  return pages
 })
 
 // Drag-and-drop for featured reorder
