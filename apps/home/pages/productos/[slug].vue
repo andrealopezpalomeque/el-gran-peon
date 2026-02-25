@@ -175,7 +175,10 @@
           </p>
 
           <!-- Name -->
-          <h1 class="font-display uppercase text-brand-primary text-2xl md:text-3xl mt-2">
+          <h1
+            class="font-display uppercase text-2xl md:text-3xl mt-2"
+            :class="isCotizacionProduct ? 'text-brand-olive' : 'text-brand-primary'"
+          >
             {{ product.name.toUpperCase() }}
           </h1>
 
@@ -187,7 +190,10 @@
             >
               {{ formatPrice(product.compareAtPrice) }}
             </span>
-            <span class="font-sans font-bold text-brand-primary text-2xl">
+            <span
+              class="font-sans font-bold text-2xl"
+              :class="isCotizacionProduct ? 'text-brand-olive' : 'text-brand-primary'"
+            >
               {{ formatPrice(hasCustomizations ? effectivePrice : product.price) }}
             </span>
             <span v-if="customizationsExtra > 0" class="font-sans text-xs text-brand-olive/40">
@@ -297,59 +303,77 @@
             </div>
           </div>
 
-          <!-- Quantity selector + Add to cart -->
-          <div class="mt-5 flex items-center gap-4">
-            <div v-if="canAddToCart" class="flex items-center border border-brand-olive/20">
-              <button
-                class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
-                :disabled="quantity <= 1"
-                @click="quantity > 1 && quantity--"
-              >
-                −
-              </button>
-              <span class="w-12 h-10 flex items-center justify-center font-sans text-sm text-brand-olive border-x border-brand-olive/20">
-                {{ quantity }}
-              </span>
-              <button
-                class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
-                :disabled="quantity >= maxQuantity"
-                @click="quantity < maxQuantity && quantity++"
-              >
-                +
-              </button>
-            </div>
-            <button
-              class="flex-1 py-3 font-sans font-medium tracking-wide text-sm transition-colors duration-200"
-              :class="!canAddToCart
-                ? 'bg-brand-olive/10 text-brand-olive/40 cursor-not-allowed'
-                : 'bg-brand-primary text-brand-cream hover:bg-brand-primary/90'"
-              :disabled="!canAddToCart"
-              @click="addToCart"
-            >
-              {{ product.stock === 0 ? 'SIN STOCK' : !canAddToCart ? 'STOCK EN EL CARRITO' : 'AGREGAR AL CARRITO' }}
-            </button>
-          </div>
-
-          <!-- Success message -->
-          <p v-if="added" class="mt-3 text-green-700 font-sans text-sm">
-            Producto agregado al carrito
-          </p>
-
-          <!-- Bulk section -->
-          <div v-if="product.bulkAvailable" class="mt-4">
+          <!-- Cotización CTA (mayoristas / empresariales) -->
+          <div v-if="isCotizacionProduct" class="mt-5">
             <a
-              :href="bulkWhatsappUrl"
+              :href="cotizarWhatsappUrl"
               target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-2 font-sans text-sm text-brand-primary hover:text-brand-primary/80 transition-colors duration-200"
+              rel="noopener noreferrer"
+              class="flex items-center justify-center gap-2 w-full py-3 bg-brand-olive text-brand-cream font-sans font-medium tracking-wide text-sm hover:bg-brand-olive/90 transition-colors duration-200"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                 <path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.828L.057 23.681l5.994-1.57A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.94 0-3.79-.508-5.417-1.467l-.388-.231-4.025 1.055 1.074-3.922-.253-.402A9.777 9.777 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z" />
               </svg>
-              ¿Comprás en cantidad? Consultanos por WhatsApp
+              SOLICITAR COTIZACIÓN
             </a>
           </div>
+
+          <!-- Regular product: Quantity selector + Add to cart -->
+          <template v-else>
+            <div class="mt-5 flex items-center gap-4">
+              <div v-if="canAddToCart" class="flex items-center border border-brand-olive/20">
+                <button
+                  class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
+                  :disabled="quantity <= 1"
+                  @click="quantity > 1 && quantity--"
+                >
+                  −
+                </button>
+                <span class="w-12 h-10 flex items-center justify-center font-sans text-sm text-brand-olive border-x border-brand-olive/20">
+                  {{ quantity }}
+                </span>
+                <button
+                  class="w-10 h-10 flex items-center justify-center font-sans text-brand-olive hover:bg-brand-olive/5 transition-colors duration-200 disabled:opacity-30"
+                  :disabled="quantity >= maxQuantity"
+                  @click="quantity < maxQuantity && quantity++"
+                >
+                  +
+                </button>
+              </div>
+              <button
+                class="flex-1 py-3 font-sans font-medium tracking-wide text-sm transition-colors duration-200"
+                :class="!canAddToCart
+                  ? 'bg-brand-olive/10 text-brand-olive/40 cursor-not-allowed'
+                  : 'bg-brand-primary text-brand-cream hover:bg-brand-primary/90'"
+                :disabled="!canAddToCart"
+                @click="addToCart"
+              >
+                {{ product.stock === 0 ? 'SIN STOCK' : !canAddToCart ? 'STOCK EN EL CARRITO' : 'AGREGAR AL CARRITO' }}
+              </button>
+            </div>
+
+            <!-- Success message -->
+            <p v-if="added" class="mt-3 text-green-700 font-sans text-sm">
+              Producto agregado al carrito
+            </p>
+
+            <!-- Bulk section -->
+            <div v-if="product.bulkAvailable" class="mt-4">
+              <a
+                :href="bulkWhatsappUrl"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-2 font-sans text-sm text-brand-primary hover:text-brand-primary/80 transition-colors duration-200"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                  <path d="M12 0C5.373 0 0 5.373 0 12c0 2.116.553 4.1 1.519 5.828L.057 23.681l5.994-1.57A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.82c-1.94 0-3.79-.508-5.417-1.467l-.388-.231-4.025 1.055 1.074-3.922-.253-.402A9.777 9.777 0 012.18 12c0-5.422 4.398-9.82 9.82-9.82 5.422 0 9.82 4.398 9.82 9.82 0 5.422-4.398 9.82-9.82 9.82z" />
+                </svg>
+                ¿Comprás en cantidad? Consultanos por WhatsApp
+              </a>
+            </div>
+          </template>
 
           <!-- Description -->
           <div
@@ -1090,6 +1114,22 @@ const breadcrumbItems = computed(() => {
 const categorySlugs = computed(() => {
   const catInfo = categoryMap.value[product.value?.categoryId]
   return catInfo?.slug || null
+})
+
+const COTIZACION_CATEGORIES = ['mayoristas', 'empresariales']
+
+const isCotizacionProduct = computed(() => {
+  if (!product.value) return false
+  const parent = product.value.parentCategoryName?.toLowerCase()
+  const category = product.value.categoryName?.toLowerCase()
+  return COTIZACION_CATEGORIES.includes(parent) || (!parent && COTIZACION_CATEGORIES.includes(category))
+})
+
+const cotizarWhatsappUrl = computed(() => {
+  if (!product.value) return '#'
+  const price = formatPrice(product.value.price)
+  const message = `Hola! Quiero solicitar cotización de: ${product.value.name} (${price})`
+  return `https://wa.me/543794007759?text=${encodeURIComponent(message)}`
 })
 
 const bulkWhatsappUrl = computed(() => {

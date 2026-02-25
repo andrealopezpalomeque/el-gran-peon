@@ -31,18 +31,19 @@ router.post('/', async (req, res) => {
     const existingQuery = await subscribersRef.where('email', '==', normalizedEmail).get();
 
     if (!existingQuery.empty) {
-      // For mayoristas source, update existing record with new fields
-      if (source === 'mayoristas') {
+      // For registration sources, update existing record with new fields
+      const registrationSources = ['mayoristas', 'empresariales'];
+      if (registrationSources.includes(source)) {
         const existingDoc = existingQuery.docs[0];
-        const updateData = { source: 'mayoristas' };
+        const updateData = { source };
         if (nombre) updateData.nombre = nombre.trim();
         if (telefono) updateData.telefono = telefono.trim();
         if (empresa) updateData.empresa = empresa.trim();
         await existingDoc.ref.update(updateData);
-        console.log(`Updated subscriber to mayorista: ${normalizedEmail}`);
+        console.log(`Updated subscriber to ${source}: ${normalizedEmail}`);
         return res.status(200).json({
           success: true,
-          message: '¡Registro mayorista actualizado!'
+          message: '¡Registro actualizado!'
         });
       }
       return res.status(409).json({ error: 'Este email ya está registrado.' });
