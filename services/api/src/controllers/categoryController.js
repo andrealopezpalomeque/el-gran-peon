@@ -19,7 +19,9 @@ function buildNestedCategories(categories) {
 export async function listActiveCategories(req, res) {
   try {
     const snapshot = await categoriesRef.where('isActive', '==', true).get();
-    const categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const categories = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(c => !c.hiddenFromStore);
     res.json(buildNestedCategories(categories));
   } catch (error) {
     console.error('Error listing categories:', error);
@@ -91,6 +93,7 @@ export async function createCategory(req, res) {
       imagePublicId: imagePublicId || '',
       order: order ?? 0,
       isActive: isActive ?? true,
+      hiddenFromStore: req.body.hiddenFromStore ?? false,
       parentId: parentId || null,
       createdAt: now,
       updatedAt: now,

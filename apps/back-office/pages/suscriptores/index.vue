@@ -35,7 +35,7 @@
           <input
             v-model="search"
             type="text"
-            placeholder="Buscar por email..."
+            placeholder="Buscar por email, nombre o empresa..."
             class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
           />
         </div>
@@ -147,6 +147,8 @@
                   />
                 </th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Email</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Nombre</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Empresa</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Origen</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Fecha</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Contactado</th>
@@ -170,6 +172,8 @@
                   />
                 </td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive">{{ sub.email }}</td>
+                <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.nombre || '—' }}</td>
+                <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.empresa || '—' }}</td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.source || '—' }}</td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ formatDate(sub.createdAt) }}</td>
                 <td class="py-3 pr-4">
@@ -209,6 +213,7 @@
               />
               <div class="flex-1 min-w-0">
                 <p class="font-sans text-sm text-brand-olive truncate">{{ sub.email }}</p>
+                <p v-if="sub.nombre" class="font-sans text-xs text-brand-olive/60 mt-0.5">{{ sub.nombre }}<span v-if="sub.empresa"> · {{ sub.empresa }}</span></p>
                 <div class="flex items-center gap-2 mt-1">
                   <span class="font-sans text-xs text-brand-olive/50 px-2 py-0.5 border border-brand-olive/10 bg-brand-olive/5">{{ sub.source || '—' }}</span>
                   <span class="font-sans text-xs text-brand-olive/50">{{ formatDate(sub.createdAt) }}</span>
@@ -354,7 +359,11 @@ const filteredSubscribers = computed(() => {
   // Filter by search
   if (search.value.trim()) {
     const q = search.value.toLowerCase().trim()
-    result = result.filter(s => s.email.toLowerCase().includes(q))
+    result = result.filter(s =>
+      s.email.toLowerCase().includes(q) ||
+      (s.nombre && s.nombre.toLowerCase().includes(q)) ||
+      (s.empresa && s.empresa.toLowerCase().includes(q))
+    )
   }
 
   // Filter by date range
@@ -476,14 +485,14 @@ function formatDate(date) {
 }
 
 function exportCSV() {
-  const header = 'Email,Origen,Fecha,Contactado,Ultimo contacto,Codigo enviado,Codigo usado'
+  const header = 'Email,Nombre,Empresa,Origen,Fecha,Contactado,Ultimo contacto,Codigo enviado,Codigo usado'
   const rows = filteredSubscribers.value.map(s => {
     const date = formatDate(s.createdAt)
     const contacted = s.lastContactedAt ? 'Si' : 'No'
     const lastContact = s.lastContactedAt ? formatDate(s.lastContactedAt) : ''
     const promoSent = getLastPromoSent(s) || ''
     const promoUsed = getPromoUsed(s.email) || ''
-    return `${s.email},${s.source || ''},${date},${contacted},${lastContact},${promoSent},${promoUsed}`
+    return `${s.email},${s.nombre || ''},${s.empresa || ''},${s.source || ''},${date},${contacted},${lastContact},${promoSent},${promoUsed}`
   })
   const csv = [header, ...rows].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })

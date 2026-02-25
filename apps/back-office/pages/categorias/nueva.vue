@@ -98,6 +98,21 @@
           </label>
         </div>
 
+        <!-- Hidden from store -->
+        <div class="mb-5">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              v-model="form.hiddenFromStore"
+              type="checkbox"
+              class="w-4 h-4 accent-brand-primary"
+            />
+            <span class="font-sans text-sm text-brand-olive">Ocultar de la tienda</span>
+          </label>
+          <p class="font-sans text-xs text-brand-olive/50 mt-1 ml-7">
+            La categoria no aparece en la tienda pero sus productos siguen accesibles por URL directa.
+          </p>
+        </div>
+
         <!-- Image (only for parent categories) -->
         <div v-if="categoryType === 'parent'" class="mb-8">
           <label class="block font-sans text-sm text-brand-olive/70 mb-2">Imagen</label>
@@ -146,6 +161,7 @@ const form = ref({
   description: '',
   order: 0,
   isActive: true,
+  hiddenFromStore: false,
   image: '',
   parentId: '',
 })
@@ -171,6 +187,7 @@ async function handleSubmit() {
       description: form.value.description,
       order: form.value.order,
       isActive: form.value.isActive,
+      hiddenFromStore: form.value.hiddenFromStore,
       image: form.value.image,
       parentId: categoryType.value === 'child' ? form.value.parentId : null,
     }
