@@ -222,7 +222,7 @@
     </section>
 
     <!-- Section 6: Noticias y Historias -->
-    <section id="noticias" class="bg-brand-cream py-20 md:py-28">
+    <section id="noticias" class="bg-brand-cream py-20 md:py-28 scroll-mt-16">
       <div class="container mx-auto px-6">
         <div class="max-w-6xl mx-auto">
           <div class="text-center mb-12">
