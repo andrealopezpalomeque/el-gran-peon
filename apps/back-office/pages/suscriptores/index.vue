@@ -35,7 +35,7 @@
           <input
             v-model="search"
             type="text"
-            placeholder="Buscar por email, nombre o empresa..."
+            placeholder="Buscar por nombre, email o teléfono..."
             class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
           />
         </div>
@@ -146,9 +146,8 @@
                     class="accent-brand-primary"
                   />
                 </th>
-                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Email</th>
-                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Nombre</th>
-                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Empresa</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Nombre / Razón Social</th>
+                <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Contacto</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Origen</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Fecha</th>
                 <th class="text-left font-sans text-xs text-brand-olive/50 uppercase tracking-wide pb-3 pr-4">Contactado</th>
@@ -171,9 +170,13 @@
                     class="accent-brand-primary"
                   />
                 </td>
-                <td class="py-3 pr-4 font-sans text-sm text-brand-olive">{{ sub.email }}</td>
-                <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.nombre || '—' }}</td>
-                <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.empresa || '—' }}</td>
+                <td class="py-3 pr-4 font-sans text-sm text-brand-olive">{{ sub.nombreRazonSocial || sub.nombre || '—' }}</td>
+                <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">
+                  <span v-if="sub.email">{{ sub.email }}</span>
+                  <span v-else-if="sub.telefono">{{ sub.telefono }}</span>
+                  <span v-else>—</span>
+                  <span v-if="sub.contactType" class="ml-1 font-sans text-[10px] uppercase text-brand-olive/40">{{ sub.contactType === 'telefono' ? 'Tel' : 'Email' }}</span>
+                </td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ sub.source || '—' }}</td>
                 <td class="py-3 pr-4 font-sans text-sm text-brand-olive/70">{{ formatDate(sub.createdAt) }}</td>
                 <td class="py-3 pr-4">
@@ -212,8 +215,8 @@
                 class="accent-brand-primary mt-1"
               />
               <div class="flex-1 min-w-0">
-                <p class="font-sans text-sm text-brand-olive truncate">{{ sub.email }}</p>
-                <p v-if="sub.nombre" class="font-sans text-xs text-brand-olive/60 mt-0.5">{{ sub.nombre }}<span v-if="sub.empresa"> · {{ sub.empresa }}</span></p>
+                <p class="font-sans text-sm text-brand-olive truncate">{{ sub.nombreRazonSocial || sub.nombre || '—' }}</p>
+                <p class="font-sans text-xs text-brand-olive/60 mt-0.5 truncate">{{ sub.email || sub.telefono || '—' }}<span v-if="sub.contactType" class="ml-1 uppercase text-brand-olive/40">{{ sub.contactType === 'telefono' ? '(Tel)' : '(Email)' }}</span></p>
                 <div class="flex items-center gap-2 mt-1">
                   <span class="font-sans text-xs text-brand-olive/50 px-2 py-0.5 border border-brand-olive/10 bg-brand-olive/5">{{ sub.source || '—' }}</span>
                   <span class="font-sans text-xs text-brand-olive/50">{{ formatDate(sub.createdAt) }}</span>
@@ -333,7 +336,7 @@ const contactedCount = computed(() => {
 })
 
 const usedCodeCount = computed(() => {
-  return subscribers.value.filter(s => promoCodeUsageMap.value.has(s.email?.toLowerCase())).length
+  return subscribers.value.filter(s => s.email && promoCodeUsageMap.value.has(s.email.toLowerCase())).length
 })
 
 // Reset page when any filter changes
@@ -360,7 +363,9 @@ const filteredSubscribers = computed(() => {
   if (search.value.trim()) {
     const q = search.value.toLowerCase().trim()
     result = result.filter(s =>
-      s.email.toLowerCase().includes(q) ||
+      (s.email && s.email.toLowerCase().includes(q)) ||
+      (s.telefono && s.telefono.toLowerCase().includes(q)) ||
+      (s.nombreRazonSocial && s.nombreRazonSocial.toLowerCase().includes(q)) ||
       (s.nombre && s.nombre.toLowerCase().includes(q)) ||
       (s.empresa && s.empresa.toLowerCase().includes(q))
     )
@@ -421,7 +426,7 @@ function toggleSelection(id) {
 function openSingleContactModal(sub) {
   contactTarget.value = sub.id
   contactModalCount.value = 1
-  contactModalEmail.value = sub.email
+  contactModalEmail.value = sub.email || sub.telefono || ''
   showContactModal.value = true
 }
 
@@ -485,14 +490,17 @@ function formatDate(date) {
 }
 
 function exportCSV() {
-  const header = 'Email,Nombre,Empresa,Origen,Fecha,Contactado,Ultimo contacto,Codigo enviado,Codigo usado'
+  const header = 'Nombre/Razon Social,Contacto,Tipo Contacto,Origen,Fecha,Contactado,Ultimo contacto,Codigo enviado,Codigo usado'
   const rows = filteredSubscribers.value.map(s => {
+    const name = s.nombreRazonSocial || s.nombre || ''
+    const contact = s.email || s.telefono || ''
+    const contactType = s.contactType || (s.email ? 'email' : '')
     const date = formatDate(s.createdAt)
     const contacted = s.lastContactedAt ? 'Si' : 'No'
     const lastContact = s.lastContactedAt ? formatDate(s.lastContactedAt) : ''
     const promoSent = getLastPromoSent(s) || ''
     const promoUsed = getPromoUsed(s.email) || ''
-    return `${s.email},${s.nombre || ''},${s.empresa || ''},${s.source || ''},${date},${contacted},${lastContact},${promoSent},${promoUsed}`
+    return `${name},${contact},${contactType},${s.source || ''},${date},${contacted},${lastContact},${promoSent},${promoUsed}`
   })
   const csv = [header, ...rows].join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })

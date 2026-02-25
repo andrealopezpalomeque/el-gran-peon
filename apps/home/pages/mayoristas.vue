@@ -20,52 +20,42 @@
           <form class="mt-8 space-y-4" @submit.prevent="handleSubmit">
             <div>
               <label class="block font-sans text-xs uppercase tracking-wide text-brand-olive/60 mb-1">
-                Nombre completo
+                Nombre o Razón Social
               </label>
               <input
-                v-model="form.nombre"
+                v-model="form.nombreRazonSocial"
                 type="text"
                 required
-                placeholder="Tu nombre"
+                placeholder="Persona o empresa"
                 class="w-full px-4 py-3 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-olive transition-colors"
               />
             </div>
 
             <div>
               <label class="block font-sans text-xs uppercase tracking-wide text-brand-olive/60 mb-1">
-                Email
+                Método de contacto
               </label>
-              <input
-                v-model="form.email"
-                type="email"
-                required
-                placeholder="tu@email.com"
-                class="w-full px-4 py-3 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-olive transition-colors"
-              />
+              <div class="flex gap-6 mt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.contactType" value="email" class="accent-brand-olive" />
+                  <span class="font-sans text-sm text-brand-olive">Email</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" v-model="form.contactType" value="telefono" class="accent-brand-olive" />
+                  <span class="font-sans text-sm text-brand-olive">Teléfono</span>
+                </label>
+              </div>
             </div>
 
             <div>
               <label class="block font-sans text-xs uppercase tracking-wide text-brand-olive/60 mb-1">
-                Teléfono
+                {{ form.contactType === 'email' ? 'Email' : 'Teléfono' }}
               </label>
               <input
-                v-model="form.telefono"
-                type="tel"
+                v-model="form.contactValue"
+                :type="form.contactType === 'email' ? 'email' : 'tel'"
                 required
-                placeholder="+54 ..."
-                class="w-full px-4 py-3 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-olive transition-colors"
-              />
-            </div>
-
-            <div>
-              <label class="block font-sans text-xs uppercase tracking-wide text-brand-olive/60 mb-1">
-                Empresa
-              </label>
-              <input
-                v-model="form.empresa"
-                type="text"
-                required
-                placeholder="Nombre de tu empresa"
+                :placeholder="form.contactType === 'email' ? 'tu@email.com' : '+54 ...'"
                 class="w-full px-4 py-3 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-olive transition-colors"
               />
             </div>
@@ -166,10 +156,9 @@ const products = ref([])
 const loadingProducts = ref(true)
 
 const form = ref({
-  nombre: '',
-  email: '',
-  telefono: '',
-  empresa: '',
+  nombreRazonSocial: '',
+  contactType: 'email',
+  contactValue: '',
 })
 
 // Check localStorage on mount
@@ -194,17 +183,15 @@ async function handleSubmit() {
 
   try {
     await post('/api/subscribe', {
-      email: form.value.email,
-      nombre: form.value.nombre,
-      telefono: form.value.telefono,
-      empresa: form.value.empresa,
+      nombreRazonSocial: form.value.nombreRazonSocial,
+      contactType: form.value.contactType,
+      contactValue: form.value.contactValue,
       source: 'mayoristas',
     })
 
     // Save to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       registered: true,
-      email: form.value.email,
     }))
 
     isRegistered.value = true
@@ -214,7 +201,6 @@ async function handleSubmit() {
     if (msg.includes('ya está registrado')) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         registered: true,
-        email: form.value.email,
       }))
       isRegistered.value = true
     } else {

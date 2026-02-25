@@ -11,9 +11,64 @@ router.post('/bulk-contact', requireAuth, bulkMarkAsContacted);
 
 router.post('/', async (req, res) => {
   try {
-    const { email, source, nombre, telefono, empresa } = req.body;
+    const { email, source, nombre, telefono, empresa, nombreRazonSocial, contactType, contactValue } = req.body;
 
-    // Validate email
+    const subscribersRef = db.collection('subscribers');
+    const registrationSources = ['mayoristas', 'empresariales'];
+    const isRegistration = registrationSources.includes(source);
+
+    // Registration flow (mayoristas / empresariales)
+    if (isRegistration) {
+      if (!nombreRazonSocial || !contactType || !contactValue) {
+        return res.status(400).json({ error: 'Nombre/Razón Social y método de contacto son requeridos.' });
+      }
+
+      if (!['email', 'telefono'].includes(contactType)) {
+        return res.status(400).json({ error: 'Tipo de contacto inválido.' });
+      }
+
+      const trimmedValue = contactValue.trim();
+
+      if (contactType === 'email') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedValue)) {
+          return res.status(400).json({ error: 'El email no es válido.' });
+        }
+      }
+
+      const normalizedValue = contactType === 'email' ? trimmedValue.toLowerCase() : trimmedValue;
+      const field = contactType === 'email' ? 'email' : 'telefono';
+      const existingQuery = await subscribersRef.where(field, '==', normalizedValue).get();
+
+      if (!existingQuery.empty) {
+        const existingDoc = existingQuery.docs[0];
+        const updateData = {
+          source,
+          nombreRazonSocial: nombreRazonSocial.trim(),
+          contactType,
+        };
+        if (contactType === 'email') updateData.email = normalizedValue;
+        if (contactType === 'telefono') updateData.telefono = normalizedValue;
+        await existingDoc.ref.update(updateData);
+        console.log(`Updated subscriber to ${source}: ${normalizedValue}`);
+        return res.status(200).json({ success: true, message: '¡Registro actualizado!' });
+      }
+
+      const data = {
+        nombreRazonSocial: nombreRazonSocial.trim(),
+        contactType,
+        createdAt: new Date(),
+        source,
+      };
+      if (contactType === 'email') data.email = normalizedValue;
+      if (contactType === 'telefono') data.telefono = normalizedValue;
+
+      const docRef = await subscribersRef.add(data);
+      console.log(`New ${source} subscriber: ${normalizedValue} (${docRef.id})`);
+      return res.status(201).json({ success: true, message: '¡Registro exitoso!' });
+    }
+
+    // Landing-page flow (email only)
     if (!email) {
       return res.status(400).json({ error: 'El email es requerido.' });
     }
@@ -23,44 +78,20 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'El email no es válido.' });
     }
 
-    // Normalize email
     const normalizedEmail = email.toLowerCase().trim();
-
-    // Check if email already exists
-    const subscribersRef = db.collection('subscribers');
     const existingQuery = await subscribersRef.where('email', '==', normalizedEmail).get();
 
     if (!existingQuery.empty) {
-      // For registration sources, update existing record with new fields
-      const registrationSources = ['mayoristas', 'empresariales'];
-      if (registrationSources.includes(source)) {
-        const existingDoc = existingQuery.docs[0];
-        const updateData = { source };
-        if (nombre) updateData.nombre = nombre.trim();
-        if (telefono) updateData.telefono = telefono.trim();
-        if (empresa) updateData.empresa = empresa.trim();
-        await existingDoc.ref.update(updateData);
-        console.log(`Updated subscriber to ${source}: ${normalizedEmail}`);
-        return res.status(200).json({
-          success: true,
-          message: '¡Registro actualizado!'
-        });
-      }
       return res.status(409).json({ error: 'Este email ya está registrado.' });
     }
 
-    // Build subscriber data
     const data = {
       email: normalizedEmail,
       createdAt: new Date(),
       source: source || 'landing-page',
     };
-    if (nombre) data.nombre = nombre.trim();
-    if (telefono) data.telefono = telefono.trim();
-    if (empresa) data.empresa = empresa.trim();
 
     const docRef = await subscribersRef.add(data);
-
     console.log(`New subscriber: ${normalizedEmail} (${docRef.id})`);
 
     res.status(201).json({
