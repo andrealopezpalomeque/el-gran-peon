@@ -34,15 +34,16 @@ export async function listActiveProducts(req, res) {
     if (req.query.category) {
       const catSnapshot = await withRetry(() => db.collection('categories')
         .where('slug', '==', req.query.category)
-        .limit(1)
         .get());
 
       if (catSnapshot.empty) {
         return res.json([]);
       }
 
-      const categoryId = catSnapshot.docs[0].id;
-      products = products.filter(p => p.categoryId === categoryId);
+      // Multiple categories may share the same slug (e.g. storefront vs empresariales).
+      // Use all matching IDs so the filter works regardless of which duplicate exists.
+      const categoryIds = new Set(catSnapshot.docs.map(d => d.id));
+      products = products.filter(p => categoryIds.has(p.categoryId));
     }
 
     // Filter by parent category slug (returns all products under that parent)
