@@ -1,4 +1,5 @@
 import { db } from '../config/firebase.js';
+import { cache } from '../utils/cache.js';
 
 const ordersRef = db.collection('orders');
 const countersRef = db.collection('counters');
@@ -144,6 +145,28 @@ export async function createOrder(req, res) {
     };
 
     const docRef = await ordersRef.add(data);
+
+    // Decrement stock for each item
+    try {
+      const batch = db.batch();
+      for (const item of enrichedItems) {
+        if (!item.productId) continue;
+        const productDoc = await productsRef.doc(item.productId).get();
+        if (!productDoc.exists) continue;
+        const productData = productDoc.data();
+        // Skip unlimited stock products (stock === -1)
+        if (productData.stock === -1) continue;
+        const newStock = Math.max(0, (productData.stock ?? 0) - (item.quantity || 0));
+        batch.update(productsRef.doc(item.productId), { stock: newStock, updatedAt: now });
+      }
+      await batch.commit();
+      cache.invalidatePrefix('products:');
+      cache.invalidatePrefix('dashboard:');
+    } catch (stockError) {
+      console.error('Error updating stock after order:', stockError);
+      // Order is already saved — stock update failure is non-fatal
+    }
+
     res.status(201).json({ id: docRef.id, ...data });
   } catch (error) {
     console.error('Error creating order:', error);

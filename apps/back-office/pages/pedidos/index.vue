@@ -1,7 +1,15 @@
 <template>
   <div>
     <NuxtLayout name="admin">
-      <h2 class="font-display text-brand-primary text-2xl mb-6">PEDIDOS</h2>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="font-display text-brand-primary text-2xl">PEDIDOS</h2>
+        <NuxtLink
+          to="/pedidos/nuevo"
+          class="px-4 py-2 bg-brand-primary text-brand-cream font-sans text-sm font-medium hover:bg-brand-primary/90 transition-colors"
+        >
+          + NUEVA VENTA
+        </NuxtLink>
+      </div>
 
       <!-- Filters -->
       <div class="flex flex-col sm:flex-row gap-3 mb-6">
@@ -89,6 +97,7 @@
                 >
                   {{ order.orderNumber }}
                 </NuxtLink>
+                <span v-if="order.source === 'backoffice'" class="ml-1 font-sans text-[10px] px-1.5 py-0.5 bg-brand-olive/10 text-brand-olive/60 uppercase">manual</span>
               </td>
 
               <!-- Customer -->
