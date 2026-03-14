@@ -95,6 +95,8 @@
                     <th class="text-left font-sans text-xs text-brand-olive/50 pb-2 pr-3">Producto</th>
                     <th class="text-center font-sans text-xs text-brand-olive/50 pb-2 px-2">Cant.</th>
                     <th class="text-right font-sans text-xs text-brand-olive/50 pb-2 px-2">P. Unit.</th>
+                    <th class="text-right font-sans text-xs text-brand-olive/50 pb-2 px-2">Costo</th>
+                    <th class="text-right font-sans text-xs text-brand-olive/50 pb-2 px-2">Ganancia</th>
                     <th class="text-right font-sans text-xs text-brand-olive/50 pb-2 pl-2">Subtotal</th>
                     <th v-if="editMode" class="pb-2 w-8" />
                   </tr>
@@ -151,6 +153,14 @@
                         />
                       </template>
                       <span v-else class="font-sans text-sm text-brand-olive/70">{{ formatPrice(item.price) }}</span>
+                    </td>
+                    <td class="py-2 px-2 text-right">
+                      <span v-if="item.costAtSale" class="font-sans text-sm text-brand-olive/50">{{ formatPrice(item.costAtSale) }}</span>
+                      <span v-else class="font-sans text-xs text-brand-olive/30">—</span>
+                    </td>
+                    <td class="py-2 px-2 text-right">
+                      <span v-if="item.profitTotal != null" class="font-sans text-sm" :class="item.profitTotal > 0 ? 'text-green-700' : 'text-red-600'">{{ formatPrice(item.profitTotal) }}</span>
+                      <span v-else class="font-sans text-xs text-brand-olive/30">—</span>
                     </td>
                     <td class="py-2 pl-2 text-right">
                       <span class="font-sans text-sm font-medium text-brand-olive">{{ formatPrice(item.quantity * item.price) }}</span>
@@ -228,6 +238,10 @@
                 <div class="flex justify-between">
                   <span class="font-sans text-sm font-semibold text-brand-olive">Total</span>
                   <span class="font-sans text-sm font-semibold text-brand-primary">{{ formatPrice(editableTotal) }}</span>
+                </div>
+                <div v-if="order.totalProfit != null" class="flex justify-between pt-2 border-t border-brand-olive/10">
+                  <span class="font-sans text-sm text-brand-olive/60">Ganancia estimada</span>
+                  <span class="font-sans text-sm font-medium" :class="order.totalProfit > 0 ? 'text-green-700' : 'text-red-600'">{{ formatPrice(order.totalProfit) }}</span>
                 </div>
               </div>
 

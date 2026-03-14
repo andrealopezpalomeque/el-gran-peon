@@ -159,6 +159,8 @@
             <th class="text-left font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Nombre</th>
             <th class="text-left font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Categoria</th>
             <th class="text-right font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Precio</th>
+            <th class="text-right font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Costo</th>
+            <th class="text-center font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Margen</th>
             <th class="text-center font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Stock</th>
             <th class="text-center font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Destacado</th>
             <th class="text-center font-sans text-xs uppercase tracking-wide text-brand-olive/60 py-3 pr-4">Estado</th>
@@ -212,10 +214,30 @@
               <span v-else class="font-sans text-xs text-brand-olive/40">A consultar</span>
             </td>
 
+            <!-- Costo -->
+            <td class="py-3 pr-4 text-right">
+              <span v-if="product.cost" class="font-sans text-sm text-brand-olive/60">{{ formatPrice(product.cost) }}</span>
+              <span v-else class="font-sans text-xs text-brand-olive/30">—</span>
+            </td>
+
+            <!-- Margen -->
+            <td class="py-3 pr-4 text-center">
+              <span v-if="product.marginPercent != null" class="font-sans text-sm font-medium" :class="product.marginPercent > 0 ? 'text-green-700' : 'text-red-600'">
+                {{ product.marginPercent.toFixed(1) }}%
+              </span>
+              <span v-else class="font-sans text-xs text-brand-olive/30">—</span>
+            </td>
+
             <!-- Stock -->
             <td class="py-3 pr-4 text-center">
-              <span class="font-sans text-sm text-brand-olive/60">
+              <span
+                class="font-sans text-sm"
+                :class="product.stock !== -1 && product.stockMinimo > 0 && product.stock <= product.stockMinimo ? 'text-red-600 font-semibold' : 'text-brand-olive/60'"
+              >
                 {{ product.stock === -1 ? 'Ilimitado' : product.stock }}
+              </span>
+              <span v-if="product.stock !== -1 && product.stockMinimo > 0 && product.stock <= product.stockMinimo" class="block font-sans text-xs text-red-500">
+                Stock bajo
               </span>
             </td>
 

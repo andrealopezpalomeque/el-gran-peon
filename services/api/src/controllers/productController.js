@@ -174,6 +174,7 @@ export async function createProduct(req, res) {
       categoryId, categoryName, parentCategoryId, parentCategoryName,
       images, videos, stock, isActive, isFeatured, freeShipping,
       tags, customizations,
+      sku, cost, wholesalePrice, marginPercent, wholesaleMarginPercent, stockMinimo,
     } = req.body;
 
     if (!name || !categoryId) {
@@ -218,6 +219,12 @@ export async function createProduct(req, res) {
       freeShipping: freeShipping ?? false,
       customizations: customizations || [],
       videos: videos ? processVideos(videos) : [],
+      sku: sku || '',
+      cost: cost ?? null,
+      wholesalePrice: wholesalePrice ?? null,
+      marginPercent: marginPercent ?? null,
+      wholesaleMarginPercent: wholesaleMarginPercent ?? null,
+      stockMinimo: stockMinimo ?? 0,
       createdAt: now,
       updatedAt: now,
     };

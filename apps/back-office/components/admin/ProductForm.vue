@@ -91,6 +91,77 @@
       </div>
     </div>
 
+    <!-- Section 2b: Costos y Margenes -->
+    <div class="mb-8">
+      <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">COSTOS Y MARGENES</h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">SKU</label>
+          <input
+            v-model="form.sku"
+            type="text"
+            placeholder="Codigo interno del producto"
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          />
+        </div>
+
+        <div>
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Costo unitario (ARS)</label>
+          <input
+            v-model.number="form.cost"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Costo de compra/produccion"
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+        <div>
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Precio mayorista (ARS)</label>
+          <input
+            v-model.number="form.wholesalePrice"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Precio para mayoristas"
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          />
+        </div>
+
+        <div>
+          <label class="block font-sans text-sm text-brand-olive/70 mb-1">Stock minimo</label>
+          <input
+            v-model.number="form.stockMinimo"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Alerta cuando llegue a este nivel"
+            class="w-full px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+          />
+        </div>
+      </div>
+
+      <!-- Auto-calculated margins -->
+      <div v-if="form.cost && form.cost > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="px-4 py-3 border-2 border-brand-olive/10 bg-brand-olive/5">
+          <p class="font-sans text-xs text-brand-olive/50 mb-1">Margen minorista</p>
+          <p class="font-sans text-lg font-semibold" :class="retailMargin > 0 ? 'text-green-700' : 'text-red-600'">
+            {{ retailMargin !== null ? `${retailMargin.toFixed(1)}%` : '—' }}
+          </p>
+        </div>
+        <div class="px-4 py-3 border-2 border-brand-olive/10 bg-brand-olive/5">
+          <p class="font-sans text-xs text-brand-olive/50 mb-1">Margen mayorista</p>
+          <p class="font-sans text-lg font-semibold" :class="wholesaleMargin > 0 ? 'text-green-700' : 'text-red-600'">
+            {{ wholesaleMargin !== null ? `${wholesaleMargin.toFixed(1)}%` : '—' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Section 3: Categoria (cascading dropdowns) -->
     <div class="mb-8">
       <h3 class="font-display text-brand-olive text-lg mb-4 uppercase">CATEGORIA</h3>
@@ -362,6 +433,10 @@ const form = ref({
   isFeatured: false,
   freeShipping: false,
   tags: [],
+  sku: '',
+  cost: null,
+  wholesalePrice: null,
+  stockMinimo: 0,
 })
 
 // Predefined customization catalog — static options, admin only toggles enabled/required and sets extra prices
@@ -395,6 +470,17 @@ const isMateCategory = computed(() => {
 
 const unlimitedStock = ref(false)
 const tagsInput = ref('')
+
+// Auto-calculated margins
+const retailMargin = computed(() => {
+  if (!form.value.cost || form.value.cost <= 0 || !form.value.price) return null
+  return ((form.value.price - form.value.cost) / form.value.cost) * 100
+})
+
+const wholesaleMargin = computed(() => {
+  if (!form.value.cost || form.value.cost <= 0 || !form.value.wholesalePrice) return null
+  return ((form.value.wholesalePrice - form.value.cost) / form.value.cost) * 100
+})
 const selectedParentId = ref('')
 const selectedChildId = ref('')
 
@@ -542,6 +628,10 @@ watch(() => props.product, (product) => {
       isFeatured: product.isFeatured ?? false,
       freeShipping: product.freeShipping ?? false,
       tags: product.tags || [],
+      sku: product.sku || '',
+      cost: product.cost ?? null,
+      wholesalePrice: product.wholesalePrice ?? null,
+      stockMinimo: product.stockMinimo ?? 0,
     }
     unlimitedStock.value = product.stock === -1
     tagsInput.value = (product.tags || []).join(', ')
@@ -620,6 +710,10 @@ function handleSubmit() {
     videos,
     compareAtPrice: form.value.compareAtPrice || null,
     cloudinaryFolder: imageFolder.value,
+    cost: form.value.cost || null,
+    wholesalePrice: form.value.wholesalePrice || null,
+    marginPercent: retailMargin.value,
+    wholesaleMarginPercent: wholesaleMargin.value,
   }
 
   emit('save', data)

@@ -30,6 +30,34 @@ export async function createOrder(req, res) {
 
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
+
+    const productsRef = db.collection('products');
+    const enrichedItems = await Promise.all(items.map(async (item) => {
+      let costAtSale = null;
+      let profitPerUnit = null;
+      let profitTotal = null;
+
+      if (item.productId) {
+        try {
+          const productDoc = await productsRef.doc(item.productId).get();
+          if (productDoc.exists) {
+            const productData = productDoc.data();
+            costAtSale = productData.cost || null;
+            if (costAtSale !== null && item.price) {
+              profitPerUnit = item.price - costAtSale;
+              profitTotal = profitPerUnit * item.quantity;
+            }
+          }
+        } catch (e) {
+          // Graceful - order still proceeds without cost data
+        }
+      }
+
+      return { ...item, costAtSale, profitPerUnit, profitTotal };
+    }));
+
+    const totalProfit = enrichedItems.reduce((sum, item) => sum + (item.profitTotal || 0), 0);
+
     const orderNumber = await getNextOrderNumber();
     const now = new Date();
 
@@ -98,9 +126,10 @@ export async function createOrder(req, res) {
         province: customer.province || '',
         notes: customer.notes || '',
       },
-      items,
+      items: enrichedItems,
       totalItems,
       totalAmount,
+      totalProfit,
       promoCode: validatedPromo,
       paymentMethodDiscount: paymentMethodDiscount || 0,
       discountAmount: discountAmount || 0,

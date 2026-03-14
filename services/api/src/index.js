@@ -12,6 +12,8 @@ import uploadRouter from './routes/upload.js';
 import ordersRouter from './routes/orders.js';
 import seedRouter from './routes/seed.js';
 import promoCodesRouter from './routes/promoCodes.js';
+import purchasesRouter from './routes/purchases.js';
+import dashboardRouter from './routes/dashboard.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -39,6 +41,8 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/seed', seedRouter);
 app.use('/api/promocodes', promoCodesRouter);
+app.use('/api/purchases', purchasesRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 // Start server
 app.listen(PORT, () => {
