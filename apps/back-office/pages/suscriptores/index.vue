@@ -107,6 +107,12 @@
         >
           Marcar como contactados
         </button>
+        <button
+          @click="confirmBulkDelete"
+          class="px-3 py-1 font-sans text-xs text-red-700 border border-red-300 hover:bg-red-50 transition-colors"
+        >
+          Eliminar seleccionados
+        </button>
       </div>
 
       <!-- Loading skeleton -->
@@ -188,12 +194,23 @@
                 <td class="py-3 pr-4 font-sans text-xs text-brand-olive/70">{{ getLastPromoSent(sub) || '—' }}</td>
                 <td class="py-3 pr-4 font-sans text-xs text-brand-olive/70">{{ getPromoUsed(sub.email) || '—' }}</td>
                 <td class="py-3">
-                  <button
-                    @click="openSingleContactModal(sub)"
-                    class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
-                  >
-                    Contactar
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button
+                      @click="openSingleContactModal(sub)"
+                      class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
+                    >
+                      Contactar
+                    </button>
+                    <button
+                      @click="confirmDeleteSubscriber(sub)"
+                      class="p-1.5 text-brand-olive/30 hover:text-red-600 transition-colors"
+                      title="Eliminar suscriptor"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -230,12 +247,23 @@
                 </span>
                 <span v-else class="font-sans text-xs text-brand-olive/40">Sin contactar</span>
               </div>
-              <button
-                @click="openSingleContactModal(sub)"
-                class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
-              >
-                Contactar
-              </button>
+              <div class="flex items-center gap-2">
+                <button
+                  @click="openSingleContactModal(sub)"
+                  class="px-3 py-1 font-sans text-xs text-brand-primary border border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
+                >
+                  Contactar
+                </button>
+                <button
+                  @click="confirmDeleteSubscriber(sub)"
+                  class="p-1.5 text-brand-olive/30 hover:text-red-600 transition-colors"
+                  title="Eliminar"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -264,6 +292,15 @@
         </div>
       </template>
 
+      <!-- Delete confirmation modal -->
+      <AdminConfirmModal
+        :visible="showDeleteModal"
+        :title="deleteModalTitle"
+        :message="deleteModalMessage"
+        @confirm="handleDelete"
+        @cancel="showDeleteModal = false"
+      />
+
       <!-- Contact Modal -->
       <AdminContactModal
         :visible="showContactModal"
@@ -278,7 +315,7 @@
 </template>
 
 <script setup>
-const { get, patch, post } = useApi()
+const { get, patch, post, delete: apiDelete } = useApi()
 
 const subscribers = ref([])
 const promoCodes = ref([])
@@ -294,6 +331,23 @@ const perPage = 25
 
 // Selection
 const selectedIds = ref(new Set())
+
+// Delete modal
+const showDeleteModal = ref(false)
+const deleteTarget = ref(null) // null = bulk, object = single subscriber
+
+const deleteModalTitle = computed(() => {
+  if (deleteTarget.value) return 'Eliminar suscriptor'
+  return `Eliminar ${selectedIds.value.size} suscriptores`
+})
+
+const deleteModalMessage = computed(() => {
+  if (deleteTarget.value) {
+    const name = deleteTarget.value.nombreRazonSocial || deleteTarget.value.nombre || deleteTarget.value.email || deleteTarget.value.telefono || ''
+    return `Se eliminara el suscriptor "${name}". Esta accion no se puede deshacer.`
+  }
+  return `Se eliminaran ${selectedIds.value.size} suscriptores seleccionados. Esta accion no se puede deshacer.`
+})
 
 // Contact modal
 const showContactModal = ref(false)
@@ -455,6 +509,40 @@ async function handleContact(data) {
     }
   } catch (error) {
     console.error('Error marking as contacted:', error)
+  }
+}
+
+// Delete handlers
+function confirmDeleteSubscriber(sub) {
+  deleteTarget.value = sub
+  showDeleteModal.value = true
+}
+
+function confirmBulkDelete() {
+  deleteTarget.value = null
+  showDeleteModal.value = true
+}
+
+async function handleDelete() {
+  showDeleteModal.value = false
+  try {
+    if (deleteTarget.value) {
+      // Single delete
+      await apiDelete(`/api/subscribe/${deleteTarget.value.id}`)
+      subscribers.value = subscribers.value.filter(s => s.id !== deleteTarget.value.id)
+      selectedIds.value.delete(deleteTarget.value.id)
+    } else {
+      // Bulk delete
+      const ids = [...selectedIds.value]
+      await post('/api/subscribe/bulk-delete', { subscriberIds: ids })
+      subscribers.value = subscribers.value.filter(s => !selectedIds.value.has(s.id))
+      selectedIds.value.clear()
+    }
+  } catch (error) {
+    console.error('Error deleting subscriber(s):', error)
+    alert(error.message || 'Error al eliminar suscriptor(es)')
+  } finally {
+    deleteTarget.value = null
   }
 }
 

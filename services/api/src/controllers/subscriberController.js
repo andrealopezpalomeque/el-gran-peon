@@ -55,6 +55,51 @@ export async function markAsContacted(req, res) {
   }
 }
 
+export async function deleteSubscriber(req, res) {
+  try {
+    const { id } = req.params;
+    const docRef = subscribersRef.doc(id);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Suscriptor no encontrado.' });
+    }
+
+    await docRef.delete();
+    res.json({ success: true, message: 'Suscriptor eliminado.' });
+  } catch (error) {
+    console.error('Error deleting subscriber:', error);
+    res.status(500).json({ error: 'Error del servidor.' });
+  }
+}
+
+export async function bulkDeleteSubscribers(req, res) {
+  try {
+    const { subscriberIds } = req.body;
+
+    if (!subscriberIds || !Array.isArray(subscriberIds) || subscriberIds.length === 0) {
+      return res.status(400).json({ error: 'Se requiere al menos un suscriptor.' });
+    }
+
+    const batch = db.batch();
+    let count = 0;
+
+    for (const id of subscriberIds) {
+      const docRef = subscribersRef.doc(id);
+      const doc = await docRef.get();
+      if (!doc.exists) continue;
+      batch.delete(docRef);
+      count++;
+    }
+
+    await batch.commit();
+    res.json({ success: true, deleted: count, message: `${count} suscriptores eliminados.` });
+  } catch (error) {
+    console.error('Error bulk deleting subscribers:', error);
+    res.status(500).json({ error: 'Error del servidor.' });
+  }
+}
+
 export async function bulkMarkAsContacted(req, res) {
   try {
     const { subscriberIds, channel, promoCodeSent, promoCodeId, contactedAt, note } = req.body;

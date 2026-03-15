@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { db } from '../config/firebase.js';
 import { requireAuth } from '../middleware/auth.js';
-import { listSubscribers, markAsContacted, bulkMarkAsContacted } from '../controllers/subscriberController.js';
+import { listSubscribers, markAsContacted, bulkMarkAsContacted, deleteSubscriber, bulkDeleteSubscribers } from '../controllers/subscriberController.js';
 
 const router = Router();
 
 router.get('/', requireAuth, listSubscribers);
 router.patch('/:id/contact', requireAuth, markAsContacted);
 router.post('/bulk-contact', requireAuth, bulkMarkAsContacted);
+router.delete('/:id', requireAuth, deleteSubscriber);
+router.post('/bulk-delete', requireAuth, bulkDeleteSubscribers);
 
 router.post('/', async (req, res) => {
   try {
