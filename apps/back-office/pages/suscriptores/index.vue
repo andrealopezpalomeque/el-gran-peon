@@ -295,11 +295,23 @@
       <!-- Delete confirmation modal -->
       <AdminConfirmModal
         :visible="showDeleteModal"
+        :loading="deleting"
         :title="deleteModalTitle"
         :message="deleteModalMessage"
         @confirm="handleDelete"
         @cancel="showDeleteModal = false"
       />
+
+      <!-- Toast -->
+      <Transition name="toast">
+        <div
+          v-if="toastMessage"
+          class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 font-sans text-sm px-6 py-3"
+          :class="toastType === 'success' ? 'bg-green-800 text-white' : 'bg-red-800 text-white'"
+        >
+          {{ toastMessage }}
+        </div>
+      </Transition>
 
       <!-- Contact Modal -->
       <AdminContactModal
@@ -335,6 +347,17 @@ const selectedIds = ref(new Set())
 // Delete modal
 const showDeleteModal = ref(false)
 const deleteTarget = ref(null) // null = bulk, object = single subscriber
+const deleting = ref(false)
+const toastMessage = ref('')
+const toastType = ref('success')
+let toastTimeout = null
+
+function showToast(message, type = 'success') {
+  toastMessage.value = message
+  toastType.value = type
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { toastMessage.value = '' }, 3000)
+}
 
 const deleteModalTitle = computed(() => {
   if (deleteTarget.value) return 'Eliminar suscriptor'
@@ -524,24 +547,32 @@ function confirmBulkDelete() {
 }
 
 async function handleDelete() {
-  showDeleteModal.value = false
+  deleting.value = true
   try {
     if (deleteTarget.value) {
       // Single delete
+      const name = deleteTarget.value.nombreRazonSocial || deleteTarget.value.nombre || deleteTarget.value.email || ''
       await apiDelete(`/api/subscribe/${deleteTarget.value.id}`)
       subscribers.value = subscribers.value.filter(s => s.id !== deleteTarget.value.id)
       selectedIds.value.delete(deleteTarget.value.id)
+      showDeleteModal.value = false
+      showToast(`Suscriptor "${name}" eliminado`)
     } else {
       // Bulk delete
       const ids = [...selectedIds.value]
+      const count = ids.length
       await post('/api/subscribe/bulk-delete', { subscriberIds: ids })
       subscribers.value = subscribers.value.filter(s => !selectedIds.value.has(s.id))
       selectedIds.value.clear()
+      showDeleteModal.value = false
+      showToast(`${count} suscriptores eliminados`)
     }
   } catch (error) {
     console.error('Error deleting subscriber(s):', error)
-    alert(error.message || 'Error al eliminar suscriptor(es)')
+    showDeleteModal.value = false
+    showToast(error.message || 'Error al eliminar suscriptor(es)', 'error')
   } finally {
+    deleting.value = false
     deleteTarget.value = null
   }
 }
@@ -615,3 +646,15 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 1rem);
+}
+</style>

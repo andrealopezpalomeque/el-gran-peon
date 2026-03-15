@@ -57,7 +57,7 @@ async function handleSave(productData) {
       await put(`/api/products/${created.id}`, { images })
     }
 
-    router.push('/productos')
+    router.push({ path: '/productos', query: { toast: `Producto "${dataWithoutImages.name}" creado` } })
   } catch (err) {
     error.value = err.message || 'Error al crear el producto'
   } finally {

@@ -48,6 +48,7 @@
 
     <AdminConfirmModal
       :visible="showDeleteModal"
+      :loading="deletingProduct"
       title="Eliminar producto"
       :message="`Se eliminara el producto '${product?.name}' y todas sus imagenes. Esta accion no se puede deshacer.`"
       @confirm="deleteProduct"
@@ -68,6 +69,7 @@ const saving = ref(false)
 const error = ref('')
 const loadError = ref('')
 const showDeleteModal = ref(false)
+const deletingProduct = ref(false)
 const isDirty = ref(false)
 
 onMounted(async () => {
@@ -130,7 +132,7 @@ async function handleSave(productData) {
   try {
     await put(`/api/products/${route.params.id}`, productData)
     isDirty.value = false
-    router.push('/productos')
+    router.push({ path: '/productos', query: { toast: `Producto "${productData.name || product.value?.name}" actualizado` } })
   } catch (err) {
     error.value = err.message || 'Error al actualizar el producto'
   } finally {
@@ -146,15 +148,18 @@ function handleCancel() {
 }
 
 async function deleteProduct() {
+  deletingProduct.value = true
   try {
+    const name = product.value?.name || ''
     await apiDelete(`/api/products/${route.params.id}`)
     isDirty.value = false
-    router.push('/productos')
+    router.push({ path: '/productos', query: { toast: `Producto "${name}" eliminado` } })
   } catch (err) {
     console.error('Error deleting product:', err)
-    alert(err.message || 'Error al eliminar el producto')
-  } finally {
     showDeleteModal.value = false
+    error.value = err.message || 'Error al eliminar el producto'
+  } finally {
+    deletingProduct.value = false
   }
 }
 </script>

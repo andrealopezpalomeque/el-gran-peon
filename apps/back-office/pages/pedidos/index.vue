@@ -202,11 +202,23 @@
       <!-- Delete confirmation modal -->
       <AdminConfirmModal
         :visible="showDeleteModal"
+        :loading="deleting"
         title="Eliminar pedido"
         :message="`Se eliminara el pedido ${orderToDelete?.orderNumber}. Esta accion no se puede deshacer.`"
         @confirm="handleDeleteOrder"
         @cancel="showDeleteModal = false"
       />
+
+      <!-- Toast -->
+      <Transition name="toast">
+        <div
+          v-if="toastMessage"
+          class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 font-sans text-sm px-6 py-3"
+          :class="toastType === 'success' ? 'bg-green-800 text-white' : 'bg-red-800 text-white'"
+        >
+          {{ toastMessage }}
+        </div>
+      </Transition>
     </NuxtLayout>
   </div>
 </template>
@@ -225,6 +237,17 @@ const statusFilter = ref(route.query.status || '')
 const sortBy = ref('newest')
 const showDeleteModal = ref(false)
 const orderToDelete = ref(null)
+const deleting = ref(false)
+const toastMessage = ref('')
+const toastType = ref('success')
+let toastTimeout = null
+
+function showToast(message, type = 'success') {
+  toastMessage.value = message
+  toastType.value = type
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { toastMessage.value = '' }, 3000)
+}
 
 // Sync status filter with URL
 watch(statusFilter, (val) => {
@@ -302,15 +325,21 @@ function confirmDeleteOrder(order) {
 
 async function handleDeleteOrder() {
   if (!orderToDelete.value) return
+  deleting.value = true
   try {
     await apiDelete(`/api/orders/${orderToDelete.value.id}`)
+    const orderNumber = orderToDelete.value.orderNumber
     orders.value = orders.value.filter(o => o.id !== orderToDelete.value.id)
-  } catch (error) {
-    console.error('Error deleting order:', error)
-    alert(error.message || 'Error al eliminar el pedido')
-  } finally {
     showDeleteModal.value = false
     orderToDelete.value = null
+    showToast(`Pedido ${orderNumber} eliminado`)
+  } catch (error) {
+    console.error('Error deleting order:', error)
+    showDeleteModal.value = false
+    orderToDelete.value = null
+    showToast(error.message || 'Error al eliminar el pedido', 'error')
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -324,3 +353,15 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 1rem);
+}
+</style>

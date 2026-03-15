@@ -326,11 +326,23 @@
 
     <AdminConfirmModal
       :visible="showDeleteModal"
+      :loading="deleting"
       title="Eliminar producto"
       :message="`Se eliminara el producto '${productToDelete?.name}' y todas sus imagenes. Esta accion no se puede deshacer.`"
       @confirm="deleteProduct"
       @cancel="showDeleteModal = false"
     />
+
+    <!-- Toast -->
+    <Transition name="toast">
+      <div
+        v-if="toastMessage"
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 font-sans text-sm px-6 py-3"
+        :class="toastType === 'success' ? 'bg-green-800 text-white' : 'bg-red-800 text-white'"
+      >
+        {{ toastMessage }}
+      </div>
+    </Transition>
   </NuxtLayout>
 </template>
 
@@ -340,15 +352,31 @@ import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 
 const { get, put, patch, delete: apiDelete } = useApi()
 
+const route = useRoute()
+const router = useRouter()
+
 const products = ref([])
 const categories = ref([])
 const loading = ref(true)
 const showDeleteModal = ref(false)
 const productToDelete = ref(null)
+const deleting = ref(false)
 const togglingFeatured = ref({})
 const savingOrder = ref(false)
 const justDroppedId = ref(null)
 let dropTimeoutId = null
+
+// Toast
+const toastMessage = ref('')
+const toastType = ref('success')
+let toastTimeout = null
+
+function showToast(message, type = 'success') {
+  toastMessage.value = message
+  toastType.value = type
+  if (toastTimeout) clearTimeout(toastTimeout)
+  toastTimeout = setTimeout(() => { toastMessage.value = '' }, 3000)
+}
 
 // Search & Filters
 const searchQuery = ref('')
@@ -561,21 +589,46 @@ function confirmDelete(product) {
 
 async function deleteProduct() {
   if (!productToDelete.value) return
-
+  deleting.value = true
   try {
+    const name = productToDelete.value.name
     await apiDelete(`/api/products/${productToDelete.value.id}`)
     products.value = products.value.filter(p => p.id !== productToDelete.value.id)
-  } catch (error) {
-    console.error('Error deleting product:', error)
-    alert(error.message || 'Error al eliminar el producto')
-  } finally {
     showDeleteModal.value = false
     productToDelete.value = null
+    showToast(`Producto "${name}" eliminado`)
+  } catch (error) {
+    console.error('Error deleting product:', error)
+    showDeleteModal.value = false
+    productToDelete.value = null
+    showToast(error.message || 'Error al eliminar el producto', 'error')
+  } finally {
+    deleting.value = false
   }
 }
 
-onMounted(loadData)
+onMounted(async () => {
+  await loadData()
+
+  // Show toast from query param (after create/update redirect)
+  if (route.query.toast) {
+    showToast(route.query.toast)
+    router.replace({ query: {} })
+  }
+})
 </script>
+
+<style scoped>
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, 1rem);
+}
+</style>
 
 <style>
 .drag-active {
