@@ -222,7 +222,7 @@
     </section>
 
     <!-- Section 6: Noticias y Historias -->
-    <section id="noticias" class="bg-brand-cream py-20 md:py-28 scroll-mt-16">
+    <section v-if="blogPosts.length > 0" id="noticias" class="bg-brand-cream py-20 md:py-28 scroll-mt-16">
       <div class="container mx-auto px-6">
         <div class="max-w-6xl mx-auto">
           <div class="text-center mb-12">
@@ -232,31 +232,45 @@
             <div class="mx-auto mt-4 h-px w-12 bg-brand-primary/30" />
           </div>
 
-          <!-- Blog article card (centered) -->
-          <div class="max-w-lg mx-auto">
-            <NuxtLink to="/blog/capsula-raiz" class="group block">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <NuxtLink
+              v-for="post in blogPosts"
+              :key="post.id"
+              :to="`/blog/${post.slug}`"
+              class="group block"
+            >
               <div class="aspect-[4/3] bg-white border border-brand-olive/10 overflow-hidden">
                 <img
-                  :src="capsulaRaizImg"
-                  alt="Cápsula Raíz - Accesorios artesanales hechos en Argentina"
+                  v-if="post.heroImage?.url"
+                  :src="post.heroImage.url"
+                  :alt="post.title"
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
               </div>
               <div class="mt-5">
                 <span class="font-sans text-xs uppercase tracking-wide text-brand-olive/50">
-                  Lanzamiento
+                  {{ post.category }}
                 </span>
                 <h3 class="font-sans font-medium text-brand-olive text-lg mt-1 group-hover:text-brand-primary transition-colors">
-                  El Gran Peón presenta la Cápsula Raíz: accesorios artesanales hechos en Argentina
+                  {{ post.title }}
                 </h3>
                 <p class="font-serif text-brand-olive/60 text-sm mt-2 leading-relaxed line-clamp-3">
-                  Una cápsula permanente que reúne productos tradicionales desarrollados con un criterio claro: perdurar en el tiempo. 100% artesanal, fabricado en Corrientes.
+                  {{ post.excerpt }}
                 </p>
                 <span class="inline-block mt-3 font-sans text-sm text-brand-primary border-b border-brand-primary/30 group-hover:border-brand-primary/60 transition-colors">
-                  Leer más
+                  Leer mas
                 </span>
               </div>
+            </NuxtLink>
+          </div>
+
+          <div class="text-center mt-10">
+            <NuxtLink
+              to="/blog"
+              class="inline-block font-sans text-sm text-brand-primary border-b border-brand-primary/30 hover:border-brand-primary/60 transition-colors"
+            >
+              Ver todas las noticias
             </NuxtLink>
           </div>
         </div>
@@ -268,6 +282,14 @@
 <script setup>
 import capsulaRaizImg from '~/assets/images/capsula-raiz-hero.jpg'
 import workshopImg from '~/assets/images/workshop-artesano.jpg'
+
+const { get } = useApi()
+const blogPosts = ref([])
+
+onMounted(async () => {
+  const data = await get('/api/blog?limit=3')
+  blogPosts.value = data?.posts || []
+})
 
 useSeoMeta({
   title: 'Nosotros | El Gran Peón - Herencia Clásica',
