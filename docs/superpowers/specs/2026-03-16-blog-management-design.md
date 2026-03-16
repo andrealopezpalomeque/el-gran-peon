@@ -20,13 +20,13 @@ Firestore collection: `blog-posts`
 | `seoTitle` | string | no | Optional override for `<title>` meta tag |
 | `seoDescription` | string | no | Optional override for meta description |
 | `isPublished` | boolean | yes | Draft/published toggle, defaults to `false` |
-| `publishedAt` | timestamp | no | Date displayed on post, set when first published |
+| `publishedAt` | timestamp | no | Date displayed on post. Logic: on create with `isPublished: true`, set to `now`. On update transitioning from unpublished to published, set to `now`. Once set, never reset (unpublishing keeps the original date for re-publishing). |
 | `createdAt` | timestamp | yes | Auto-set on creation |
 | `updatedAt` | timestamp | yes | Auto-set on every update |
 
 ### Slug Generation
 
-Same approach as products: slugify the title (lowercase, replace spaces with hyphens, strip special characters). Must be unique within the collection.
+Same approach as products: slugify the title (lowercase, replace spaces with hyphens, strip special characters). Must be unique within the collection. On collision, append numeric suffix (e.g., `capsula-raiz-2`). The API checks for existing slugs before saving and auto-increments the suffix.
 
 ### Category Labels
 
@@ -43,12 +43,12 @@ New routes under `/api/blog`. Same controller/route pattern as products and cate
 
 ### Public Endpoints
 
-- `GET /api/blog` - returns published posts sorted by `publishedAt` desc
-- `GET /api/blog/:slug` - single post by slug (published only)
+- `GET /api/blog` - returns published posts sorted by `publishedAt` desc. Supports `?limit=N` query param (used by nosotros to fetch 3). Excludes `body` field from list response for performance.
+- `GET /api/blog/:slug` - single post by slug (published only), returns all fields including `body`
 
 ### Protected Endpoints (x-api-key)
 
-- `GET /api/blog/admin/all` - returns all posts (including drafts) for back-office
+- `GET /api/blog/all` - returns all posts (including drafts) for back-office. Declared before `/:slug` route to avoid Express matching "all" as a slug parameter.
 - `POST /api/blog` - create post
 - `PUT /api/blog/:id` - update post
 - `DELETE /api/blog/:id` - delete post (also deletes hero image from Cloudinary)
@@ -70,7 +70,7 @@ New routes under `/api/blog`. Same controller/route pattern as products and cate
 }
 ```
 
-**List response:**
+**List response** (excludes `body`, `seoTitle`, `seoDescription` for performance):
 ```json
 {
   "posts": [
@@ -110,6 +110,8 @@ Extend the existing `AdminRichTextEditor` component. Currently only Bold and Ita
 
 The editor already outputs HTML via `editor.getHTML()`. No change needed to the output format.
 
+**Editor styles:** Add styles for the new elements inside `.rich-editor .tiptap` so they render visually in the editor (h2, h3 sizing/color, ul/ol with list styles and padding).
+
 **Important:** This change affects the product description field too, which also uses this component. The additional toolbar buttons will appear there as well. This is acceptable since product descriptions could also benefit from lists and headings.
 
 ### Navigation
@@ -138,9 +140,9 @@ Dashboard | Productos | Categorias | Pedidos | Compras | Rentabilidad | Promo Co
     - Category (dropdown select from predefined list, required)
     - Excerpt (textarea, max 200 chars, required)
   - **Section: Imagen Principal**
-    - AdminImageUpload component (single image)
+    - AdminMultiImageUpload component with `max-images="1"` (returns `{ url, publicId }` needed for Cloudinary cleanup on delete)
     - Upload endpoint: `/api/upload/product-image`
-    - Folder: `blog`
+    - Folder: `blog` (images stored under `el-gran-peon/products/blog/` in Cloudinary — acceptable, avoids new upload route)
   - **Section: Contenido**
     - AdminRichTextEditor (enhanced with H2, H3, lists)
     - Minimum height: 300px (taller than product description)
@@ -161,7 +163,7 @@ Dashboard | Productos | Categorias | Pedidos | Compras | Rentabilidad | Promo Co
 
 All inputs follow existing back-office conventions:
 - `px-4 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors`
-- Section headers: `font-display uppercase text-brand-primary text-lg`
+- Section headers: `font-display uppercase text-brand-olive text-lg mb-4` (matches ProductForm convention)
 - No rounded corners, no shadows
 
 ## Storefront Changes
@@ -186,6 +188,7 @@ All inputs follow existing back-office conventions:
 **`apps/home/pages/blog/index.vue`**
 
 - Fetches all published posts from `GET /api/blog`
+- Breadcrumb: Inicio > Blog
 - Page title: "NOTICIAS E HISTORIAS"
 - Grid of post cards (1 col mobile, 2 col tablet, 3 col desktop)
 - Each card: hero image, category label, title, excerpt (line-clamp-3), "Leer mas" link
@@ -196,7 +199,7 @@ All inputs follow existing back-office conventions:
 
 Replace the hardcoded single card in "Noticias e Historias" section (`nosotros.vue` lines 224-264):
 
-- Fetch latest 3 published posts from `GET /api/blog`
+- Fetch latest 3 published posts from `GET /api/blog?limit=3`
 - Render as responsive grid (1 col mobile, 3 col desktop)
 - Each card same styling as current
 - Add "Ver todas las noticias" link to `/blog` below the grid
