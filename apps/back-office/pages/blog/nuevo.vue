@@ -178,11 +178,26 @@ const generatedSlug = computed(() =>
   form.value.title ? slugify(form.value.title, { lower: true, strict: true }) : ''
 )
 
+function validateHeadingOrder(html) {
+  const headings = [...html.matchAll(/<(h[23])\b/gi)].map(m => m[1].toLowerCase())
+  if (headings.length === 0) return null
+  if (headings[0] === 'h3') {
+    return 'Los subtitulos (H3) deben ir despues de un titulo (H2). Agrega un H2 antes del primer H3.'
+  }
+  return null
+}
+
 async function handleSubmit() {
   error.value = ''
 
   if (heroImages.value.length === 0) {
     error.value = 'Imagen principal requerida.'
+    return
+  }
+
+  const headingError = validateHeadingOrder(form.value.body)
+  if (headingError) {
+    error.value = headingError
     return
   }
 
