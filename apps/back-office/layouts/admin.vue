@@ -48,6 +48,7 @@ const navItems = [
   { label: 'Rentabilidad', to: '/rentabilidad' },
   { label: 'Promo Codes', to: '/promocodes' },
   { label: 'Suscriptores', to: '/suscriptores' },
+  { label: 'Blog', to: '/blog' },
 ]
 
 function handleLogout() {
