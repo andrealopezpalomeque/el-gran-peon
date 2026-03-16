@@ -215,7 +215,7 @@ Replace the hardcoded single card in "Noticias e Historias" section (`nosotros.v
 
 ### New Files
 - `services/api/src/routes/blog.js` - API routes
-- `services/api/src/controllers/blog.js` - Business logic
+- `services/api/src/controllers/blogController.js` - Business logic
 - `apps/back-office/pages/blog/index.vue` - Post list
 - `apps/back-office/pages/blog/nuevo.vue` - Create post
 - `apps/back-office/pages/blog/[id].vue` - Edit post
