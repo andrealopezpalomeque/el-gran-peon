@@ -173,7 +173,11 @@ export const useCartStore = defineStore('cart', () => {
     message += `*Cliente:*\n`
     message += `${orderData.customer.name}\n`
     message += `Tel: ${orderData.customer.phone}\n`
-    message += `Email: ${orderData.customer.email}\n\n`
+    message += `Email: ${orderData.customer.email}\n`
+    if (orderData.customer.dni) {
+      message += `DNI: ${orderData.customer.dni}\n`
+    }
+    message += `\n`
 
     message += `*Direccion:*\n`
     message += `${orderData.customer.address}\n`

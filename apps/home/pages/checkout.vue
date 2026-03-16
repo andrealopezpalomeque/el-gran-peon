@@ -74,6 +74,20 @@
                 />
                 <p v-if="errors.email" class="font-sans text-xs text-red-500 mt-1">{{ errors.email }}</p>
               </div>
+
+              <div>
+                <label for="dni" class="block font-sans text-sm text-brand-olive mb-1">DNI *</label>
+                <input
+                  id="dni"
+                  v-model="form.dni"
+                  type="text"
+                  required
+                  class="w-full px-4 py-3 border font-sans text-sm text-brand-olive bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                  :class="errors.dni ? 'border-red-500' : 'border-brand-olive/20'"
+                  placeholder="12345678"
+                />
+                <p v-if="errors.dni" class="font-sans text-xs text-red-500 mt-1">{{ errors.dni }}</p>
+              </div>
             </div>
           </fieldset>
 
@@ -129,14 +143,17 @@
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label for="zipCode" class="block font-sans text-sm text-brand-olive mb-1">Codigo postal</label>
+                  <label for="zipCode" class="block font-sans text-sm text-brand-olive mb-1">Codigo postal *</label>
                   <input
                     id="zipCode"
                     v-model="form.zipCode"
                     type="text"
-                    class="w-full px-4 py-3 border border-brand-olive/20 font-sans text-sm text-brand-olive bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                    required
+                    class="w-full px-4 py-3 border font-sans text-sm text-brand-olive bg-white focus:outline-none focus:border-brand-primary transition-colors"
+                    :class="errors.zipCode ? 'border-red-500' : 'border-brand-olive/20'"
                     placeholder="3400"
                   />
+                  <p v-if="errors.zipCode" class="font-sans text-xs text-red-500 mt-1">{{ errors.zipCode }}</p>
                 </div>
               </div>
 
@@ -282,6 +299,7 @@ const form = reactive({
   name: '',
   phone: '',
   email: '',
+  dni: '',
   address: '',
   city: '',
   province: '',
@@ -294,9 +312,11 @@ const errors = reactive({
   name: '',
   phone: '',
   email: '',
+  dni: '',
   address: '',
   city: '',
   province: '',
+  zipCode: '',
   paymentMethod: '',
 })
 
@@ -420,9 +440,11 @@ function validate() {
   errors.name = ''
   errors.phone = ''
   errors.email = ''
+  errors.dni = ''
   errors.address = ''
   errors.city = ''
   errors.province = ''
+  errors.zipCode = ''
   errors.paymentMethod = ''
 
   if (!form.name.trim()) {
@@ -443,6 +465,11 @@ function validate() {
     valid = false
   }
 
+  if (!form.dni.trim()) {
+    errors.dni = 'El DNI es obligatorio'
+    valid = false
+  }
+
   if (!form.address.trim()) {
     errors.address = 'La direccion es obligatoria'
     valid = false
@@ -458,6 +485,11 @@ function validate() {
     valid = false
   }
 
+  if (!form.zipCode.trim()) {
+    errors.zipCode = 'El codigo postal es obligatorio'
+    valid = false
+  }
+
   if (!form.paymentMethod) {
     errors.paymentMethod = 'Selecciona un metodo de pago'
     valid = false
@@ -467,7 +499,7 @@ function validate() {
 }
 
 function scrollToFirstError() {
-  const fieldIds = ['name', 'phone', 'email', 'address', 'city', 'province']
+  const fieldIds = ['name', 'phone', 'email', 'dni', 'address', 'city', 'province', 'zipCode']
   for (const id of fieldIds) {
     if (errors[id]) {
       const el = document.getElementById(id)
@@ -503,6 +535,7 @@ async function submitOrder() {
         name: form.name.trim(),
         phone: `+54${form.phone.trim()}`,
         email: form.email.trim(),
+        dni: form.dni.trim(),
         address: form.address.trim(),
         city: form.city.trim(),
         province: form.province,

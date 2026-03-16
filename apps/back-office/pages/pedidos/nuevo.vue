@@ -147,6 +147,15 @@
                 />
               </div>
               <div>
+                <label class="font-sans text-xs text-brand-olive/60 mb-1 block">DNI</label>
+                <input
+                  v-model="customer.dni"
+                  type="text"
+                  placeholder="12345678"
+                  class="w-full px-3 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+                />
+              </div>
+              <div>
                 <label class="font-sans text-xs text-brand-olive/60 mb-1 block">Ciudad</label>
                 <input
                   v-model="customer.city"
@@ -167,6 +176,15 @@
                 <input
                   v-model="customer.province"
                   type="text"
+                  class="w-full px-3 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
+                />
+              </div>
+              <div>
+                <label class="font-sans text-xs text-brand-olive/60 mb-1 block">Codigo postal</label>
+                <input
+                  v-model="customer.zipCode"
+                  type="text"
+                  placeholder="3400"
                   class="w-full px-3 py-2 border-2 border-brand-olive/20 bg-white font-sans text-sm text-brand-olive focus:outline-none focus:border-brand-primary transition-colors"
                 />
               </div>
@@ -270,9 +288,11 @@ const customer = ref({
   name: '',
   phone: '',
   email: '',
+  dni: '',
   address: '',
   city: '',
   province: '',
+  zipCode: '',
   notes: '',
 })
 

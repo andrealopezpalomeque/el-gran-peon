@@ -55,6 +55,12 @@
                   </svg>
                   <a :href="`mailto:${order.customer.email}`" class="font-sans text-sm text-brand-primary hover:underline">{{ order.customer.email }}</a>
                 </div>
+                <div v-if="order.customer?.dni" class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-brand-olive/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="square" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
+                  </svg>
+                  <span class="font-sans text-sm text-brand-olive">DNI: {{ order.customer.dni }}</span>
+                </div>
                 <div v-if="fullAddress" class="flex items-start gap-2">
                   <svg class="w-4 h-4 text-brand-olive/40 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="square" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -368,7 +374,9 @@ const fullAddress = computed(() => {
     order.value.customer.city,
     order.value.customer.province,
   ].filter(Boolean)
-  return parts.join(', ')
+  const addr = parts.join(', ')
+  const zip = order.value.customer.zipCode
+  return zip ? `${addr} (CP ${zip})` : addr
 })
 
 const editableSubtotal = computed(() => {
