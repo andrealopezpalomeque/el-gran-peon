@@ -232,12 +232,16 @@
             <div class="mx-auto mt-4 h-px w-12 bg-brand-primary/30" />
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div
+            :class="blogPosts.length < 3
+              ? 'flex flex-wrap justify-center gap-8'
+              : 'grid grid-cols-1 md:grid-cols-3 gap-8'"
+          >
             <NuxtLink
               v-for="post in blogPosts"
               :key="post.id"
               :to="`/blog/${post.slug}`"
-              class="group block"
+              :class="['group block', blogPosts.length < 3 ? 'w-full md:w-96' : '']"
             >
               <div class="aspect-[4/3] bg-white border border-brand-olive/10 overflow-hidden">
                 <img
