@@ -154,6 +154,14 @@ watch(() => props.isOpen, async (open) => {
   }
 })
 
+const route = useRoute()
+
+watch(() => route.fullPath, () => {
+  if (props.isOpen) {
+    close()
+  }
+})
+
 watch(query, (val) => {
   clearTimeout(debounceTimer)
   if (val.length < 2) {
