@@ -5,8 +5,9 @@
       <div class="relative aspect-[3/4] overflow-hidden bg-brand-cream">
         <img
           v-if="product.images && product.images.length && !imgBroken"
-          :src="product.images[0].url"
+          :src="optimizedUrl(product.images[0].url, { width: 400 })"
           :alt="product.name"
+          loading="lazy"
           class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           @error="imgBroken = true"
         />
@@ -98,6 +99,8 @@ defineProps({
 })
 
 defineEmits(['quickBuy', 'addToCart'])
+
+const { optimizedUrl } = useCloudinaryUrl()
 
 const imgBroken = ref(false)
 </script>
