@@ -45,7 +45,7 @@
                   <NuxtLink :to="`/productos/${item.productSlug}`" class="shrink-0 w-20 h-20 bg-brand-olive/5 overflow-hidden">
                     <img
                       v-if="item.image"
-                      :src="item.image"
+                      :src="optimizedUrl(item.image, { width: 100, height: 100 })"
                       :alt="item.productName"
                       class="w-full h-full object-cover"
                       @error="onImgError"
@@ -138,7 +138,7 @@
             <NuxtLink :to="`/productos/${item.productSlug}`" class="shrink-0 w-20 h-20 bg-brand-olive/5 overflow-hidden">
               <img
                 v-if="item.image"
-                :src="item.image"
+                :src="optimizedUrl(item.image, { width: 100, height: 100 })"
                 :alt="item.productName"
                 class="w-full h-full object-cover"
                 @error="onImgError"
@@ -268,6 +268,7 @@
 import { formatPrice } from '~/utils/format'
 
 const cart = useCartStore()
+const { optimizedUrl } = useCloudinaryUrl()
 
 function onImgError(e) {
   e.target.style.display = 'none'

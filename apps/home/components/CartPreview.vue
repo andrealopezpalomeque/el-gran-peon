@@ -23,7 +23,7 @@
           <NuxtLink :to="`/productos/${item.productSlug}`" class="shrink-0 w-14 h-14 bg-brand-olive/5 overflow-hidden">
             <img
               v-if="item.image"
-              :src="item.image"
+              :src="optimizedUrl(item.image, { width: 80, height: 80 })"
               :alt="item.productName"
               class="w-full h-full object-cover"
             />
@@ -73,4 +73,5 @@
 import { formatPrice } from '~/utils/format'
 
 const cart = useCartStore()
+const { optimizedUrl } = useCloudinaryUrl()
 </script>
