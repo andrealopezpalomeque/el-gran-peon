@@ -9,12 +9,14 @@ import {
   reorderFeatured,
   deleteProduct,
 } from '../controllers/productController.js';
+import { searchProducts } from '../controllers/searchController.js';
 
 const router = Router();
 
 router.get('/', listActiveProducts);
 router.get('/all', requireAuth, listAllProducts);
 router.patch('/reorder-featured', requireAuth, reorderFeatured);
+router.get('/search', searchProducts);
 router.get('/:idOrSlug', getProduct);
 router.post('/', requireAuth, createProduct);
 router.put('/:id', requireAuth, updateProduct);
