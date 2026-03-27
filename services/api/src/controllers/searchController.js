@@ -2,13 +2,13 @@ import { db } from '../config/firebase.js';
 import { cache, withRetry } from '../utils/cache.js';
 
 export async function searchProducts(req, res) {
-  const q = (req.query.q || '').trim().toLowerCase();
+  const q = (req.query.q || '').trim().toLowerCase().slice(0, 100);
   if (q.length < 2) {
     return res.json({ products: [], categories: [] });
   }
 
-  const productLimit = parseInt(req.query.limit, 10) || 5;
-  const categoryLimit = parseInt(req.query.categoryLimit, 10) || 3;
+  const productLimit = Math.min(parseInt(req.query.limit, 10) || 5, 50);
+  const categoryLimit = Math.min(parseInt(req.query.categoryLimit, 10) || 3, 10);
   const cacheKey = `search:${q}:${productLimit}:${categoryLimit}`;
 
   try {
@@ -20,20 +20,14 @@ export async function searchProducts(req, res) {
       db.collection('products').where('isActive', '==', true).get()
     );
 
-    // Fetch visible categories
+    // Fetch all active categories (single query instead of two)
     const categorySnapshot = await withRetry(() =>
       db.collection('categories').where('isActive', '==', true).get()
     );
 
-    const allCategories = categorySnapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter(c => !c.hiddenFromStore);
-
-    // Build a set of hidden category IDs for filtering products
-    const hiddenCatSnapshot = await withRetry(() =>
-      db.collection('categories').where('hiddenFromStore', '==', true).get()
-    );
-    const hiddenIds = new Set(hiddenCatSnapshot.docs.map(d => d.id));
+    const allCats = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const allCategories = allCats.filter(c => !c.hiddenFromStore);
+    const hiddenIds = new Set(allCats.filter(c => c.hiddenFromStore).map(c => c.id));
 
     // Search products: match against name, tags, categoryName, parentCategoryName
     const matchedProducts = productSnapshot.docs

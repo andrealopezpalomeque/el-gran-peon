@@ -141,6 +141,7 @@ const searchInput = ref(null)
 const searchContainer = ref(null)
 
 let debounceTimer = null
+let currentSearchQuery = null
 
 const showDropdown = computed(() => query.value.length >= 2)
 
@@ -166,6 +167,7 @@ watch(query, (val) => {
   clearTimeout(debounceTimer)
   if (val.length < 2) {
     results.value = { products: [], categories: [] }
+    loading.value = false
     return
   }
   loading.value = true
@@ -173,7 +175,9 @@ watch(query, (val) => {
 })
 
 async function search(q) {
+  currentSearchQuery = q
   const data = await get(`/api/products/search?q=${encodeURIComponent(q)}&limit=5&categoryLimit=3`)
+  if (currentSearchQuery !== q) return
   if (data) {
     results.value = data
   }
@@ -181,9 +185,6 @@ async function search(q) {
 }
 
 function categoryUrl(cat) {
-  if (cat.parentId) {
-    return `/productos?categoria=${cat.slug}`
-  }
   return `/productos?categoria=${cat.slug}`
 }
 

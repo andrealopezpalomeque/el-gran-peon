@@ -58,7 +58,6 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { formatPrice } from '~/utils/format'
 
 const route = useRoute()
 const { get } = useApi()
