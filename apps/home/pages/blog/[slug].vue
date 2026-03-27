@@ -48,9 +48,10 @@
         <div class="max-w-3xl mx-auto">
           <div class="aspect-[16/9] overflow-hidden">
             <img
-              :src="post.heroImage?.url"
+              :src="optimizedUrl(post.heroImage?.url, { width: 800 })"
               :alt="post.title"
               class="w-full h-full object-cover"
+              loading="lazy"
             />
           </div>
         </div>
@@ -77,6 +78,7 @@
 <script setup>
 const { get } = useApi()
 const route = useRoute()
+const { optimizedUrl } = useCloudinaryUrl()
 
 const post = ref(null)
 const loading = ref(true)

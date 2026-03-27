@@ -40,7 +40,7 @@
             <div class="aspect-[4/3] bg-white border border-brand-olive/10 overflow-hidden">
               <img
                 v-if="post.heroImage?.url"
-                :src="post.heroImage.url"
+                :src="optimizedUrl(post.heroImage.url, { width: 500 })"
                 :alt="post.title"
                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
@@ -69,6 +69,7 @@
 
 <script setup>
 const { get } = useApi()
+const { optimizedUrl } = useCloudinaryUrl()
 
 const posts = ref([])
 const loading = ref(true)
