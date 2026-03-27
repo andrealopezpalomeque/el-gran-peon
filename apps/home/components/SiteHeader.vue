@@ -33,7 +33,7 @@
         <!-- Right: Cart + WhatsApp CTA -->
         <div class="flex items-center gap-4">
           <button
-            @click="searchOpen = true"
+            @click.stop="searchOpen = true"
             class="text-brand-olive hover:text-brand-primary transition-colors"
             aria-label="Buscar productos"
           >
@@ -102,7 +102,7 @@
         <!-- Right: Cart + WhatsApp -->
         <div class="flex items-center gap-1">
           <button
-            @click="searchOpen = true"
+            @click.stop="searchOpen = true"
             class="text-brand-olive hover:text-brand-primary transition-colors p-2"
             aria-label="Buscar productos"
           >
