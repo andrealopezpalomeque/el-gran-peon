@@ -145,7 +145,7 @@
               <!-- Image thumbnail -->
               <img
                 v-if="item.type === 'image'"
-                :src="item.url"
+                :src="item.thumbUrl || item.url"
                 :alt="`${product.name} - ${index + 1}`"
                 class="w-full h-full object-cover"
                 @error="onThumbError"
@@ -495,7 +495,7 @@
               @click="lightboxGoTo(index)"
             >
               <img
-                :src="img.url"
+                :src="optimizedUrl(img.url, { width: 80, height: 80 })"
                 :alt="`${product.name} - ${index + 1}`"
                 class="w-full h-full object-cover"
               />
@@ -544,6 +544,7 @@ import { formatPrice } from '~/utils/format'
 
 const route = useRoute()
 const { get } = useApi()
+const { optimizedUrl } = useCloudinaryUrl()
 
 const product = ref(null)
 const relatedProducts = ref([])
@@ -782,7 +783,13 @@ const galleryItems = computed(() => {
   const items = []
   if (product.value?.images?.length) {
     product.value.images.forEach((img, i) => {
-      items.push({ type: 'image', url: img.url, imageIndex: i })
+      items.push({
+        type: 'image',
+        url: optimizedUrl(img.url, { width: 800 }),
+        thumbUrl: optimizedUrl(img.url, { width: 80, height: 80 }),
+        fullUrl: optimizedUrl(img.url, { width: 1200, crop: 'limit' }),
+        imageIndex: i,
+      })
     })
   }
   if (product.value?.videos?.length) {
@@ -819,7 +826,8 @@ const slideDirection = ref('left')
 // mainImage: used by the lightbox (image-only context)
 const mainImage = computed(() => {
   if (product.value?.images?.length) {
-    return product.value.images[selectedImageIndex.value]?.url || product.value.images[0].url
+    const img = product.value.images[selectedImageIndex.value] || product.value.images[0]
+    return optimizedUrl(img?.url, { width: 1200, crop: 'limit' })
   }
   return null
 })
