@@ -17,9 +17,10 @@
         <div class="aspect-square w-full flex items-center justify-center overflow-hidden bg-brand-cream p-4">
           <img
             v-if="category.image"
-            :src="category.image"
+            :src="optimizedUrl(category.image, { width: 400, crop: 'limit' })"
             :alt="category.name"
             class="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
           />
           <div v-else class="w-16 h-16 bg-brand-primary/10" />
         </div>
@@ -36,6 +37,7 @@
 import { ref, onMounted } from 'vue'
 
 const { get } = useApi()
+const { optimizedUrl } = useCloudinaryUrl()
 const categories = ref([])
 
 onMounted(async () => {
