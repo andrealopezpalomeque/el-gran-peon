@@ -32,6 +32,16 @@
 
         <!-- Right: Cart + WhatsApp CTA -->
         <div class="flex items-center gap-4">
+          <button
+            @click="searchOpen = true"
+            class="text-brand-olive hover:text-brand-primary transition-colors"
+            aria-label="Buscar productos"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" stroke-width="1.5" />
+              <path stroke-linecap="round" stroke-width="1.5" d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
           <div
             class="relative"
             @mouseenter="showCartPreview = true"
@@ -91,6 +101,16 @@
 
         <!-- Right: Cart + WhatsApp -->
         <div class="flex items-center gap-1">
+          <button
+            @click="searchOpen = true"
+            class="text-brand-olive hover:text-brand-primary transition-colors p-2"
+            aria-label="Buscar productos"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" stroke-width="1.5" />
+              <path stroke-linecap="round" stroke-width="1.5" d="m21 21-4.35-4.35" />
+            </svg>
+          </button>
           <NuxtLink to="/carrito" class="relative text-brand-olive hover:text-brand-primary transition-colors p-2" aria-label="Ver carrito">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -116,6 +136,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Search Bar -->
+    <SearchBar :is-open="searchOpen" @close="searchOpen = false" />
 
     <!-- Mobile Menu Overlay -->
     <Transition name="slide">
@@ -196,6 +219,7 @@ const mobileNavLinks = [
 
 const mobileMenuOpen = ref(false)
 const showCartPreview = ref(false)
+const searchOpen = ref(false)
 const scrolled = ref(false)
 
 function handleScroll() {
