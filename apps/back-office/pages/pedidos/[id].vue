@@ -128,7 +128,7 @@
                           target="_blank"
                           class="inline-block mt-1"
                         >
-                          <img :src="item.customizations.grabado.logoUrl" alt="Logo del cliente" class="w-12 h-12 object-contain border border-brand-olive/10" />
+                          <img :src="optimizedUrl(item.customizations.grabado.logoUrl, { width: 80, height: 80 })" alt="Logo del cliente" class="w-12 h-12 object-contain border border-brand-olive/10" />
                         </a>
                       </template>
                       <p v-if="item.freeShipping" class="font-sans text-xs text-brand-primary/80">Envío gratis</p>
@@ -342,6 +342,7 @@
 <script setup>
 import { formatPrice } from '~/utils/format'
 
+const { optimizedUrl } = useCloudinaryUrl()
 const route = useRoute()
 const router = useRouter()
 const { get, put, delete: del } = useApi()

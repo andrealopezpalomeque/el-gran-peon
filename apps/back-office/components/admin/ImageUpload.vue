@@ -4,7 +4,7 @@
     <div v-if="modelValue" class="mb-4">
       <div class="relative inline-block">
         <img
-          :src="modelValue"
+          :src="optimizedUrl(modelValue, { width: 200, height: 200 })"
           alt="Imagen actual"
           class="w-40 h-40 object-cover border-2 border-brand-olive/10"
         />
@@ -45,6 +45,8 @@
 </template>
 
 <script setup>
+const { optimizedUrl } = useCloudinaryUrl()
+
 const props = defineProps({
   modelValue: { type: String, default: '' },
   endpoint: { type: String, required: true },

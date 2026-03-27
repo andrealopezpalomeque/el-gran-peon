@@ -8,7 +8,7 @@
         class="relative group border-2 border-brand-olive/10"
       >
         <img
-          :src="img.url"
+          :src="optimizedUrl(img.url, { width: 300 })"
           :alt="`Imagen ${index + 1}`"
           class="w-full aspect-square object-cover"
           @error="e => { e.target.src = '/images/icon.png'; e.target.classList.remove('object-cover'); e.target.classList.add('object-contain', 'p-6', 'opacity-20') }"
@@ -86,6 +86,8 @@
 </template>
 
 <script setup>
+const { optimizedUrl } = useCloudinaryUrl()
+
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
   maxImages: { type: Number, default: 6 },

@@ -48,7 +48,7 @@
             <td class="py-3 pr-4">
               <div class="flex items-center gap-3">
                 <div v-if="post.heroImage?.url" class="w-12 h-9 flex-shrink-0 overflow-hidden bg-brand-cream">
-                  <img :src="post.heroImage.url" :alt="post.title" class="w-full h-full object-cover" />
+                  <img :src="optimizedUrl(post.heroImage.url, { width: 80, height: 60 })" :alt="post.title" class="w-full h-full object-cover" />
                 </div>
                 <span class="text-brand-olive font-medium">{{ post.title }}</span>
               </div>
@@ -112,6 +112,7 @@
 </template>
 
 <script setup>
+const { optimizedUrl } = useCloudinaryUrl()
 const { get, delete: apiDelete } = useApi()
 const route = useRoute()
 const router = useRouter()

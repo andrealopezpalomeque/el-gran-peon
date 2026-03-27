@@ -108,7 +108,7 @@
           <!-- Thumbnail -->
           <img
             v-if="product.images && product.images.length > 0"
-            :src="product.images[0].url"
+            :src="optimizedUrl(product.images[0].url, { width: 80, height: 80 })"
             :alt="product.name"
             class="w-10 h-10 object-cover border border-brand-olive/10 flex-shrink-0"
             @error="e => { e.target.src = '/images/icon.png'; e.target.classList.remove('object-cover'); e.target.classList.add('object-contain', 'p-1', 'opacity-30') }"
@@ -177,7 +177,7 @@
             <td class="py-3 pr-4">
               <img
                 v-if="product.images && product.images.length > 0"
-                :src="product.images[0].url"
+                :src="optimizedUrl(product.images[0].url, { width: 80, height: 80 })"
                 :alt="product.name"
                 class="w-12 h-12 object-cover border border-brand-olive/10"
                 @error="e => { e.target.src = '/images/icon.png'; e.target.classList.remove('object-cover'); e.target.classList.add('object-contain', 'p-1', 'opacity-30') }"
@@ -350,6 +350,7 @@
 import { formatPrice } from '~/utils/format'
 import { useDragAndDrop } from '@formkit/drag-and-drop/vue'
 
+const { optimizedUrl } = useCloudinaryUrl()
 const { get, put, patch, delete: apiDelete } = useApi()
 
 const route = useRoute()

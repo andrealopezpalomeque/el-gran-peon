@@ -33,7 +33,7 @@
             <div class="flex items-center gap-3">
               <img
                 v-if="parent.image"
-                :src="parent.image"
+                :src="optimizedUrl(parent.image, { width: 80, height: 80 })"
                 :alt="parent.name"
                 class="w-10 h-10 object-cover border border-brand-olive/10"
               />
@@ -122,6 +122,7 @@
 </template>
 
 <script setup>
+const { optimizedUrl } = useCloudinaryUrl()
 const { get, delete: apiDelete } = useApi()
 
 const categories = ref([])
