@@ -51,7 +51,6 @@
               :src="optimizedUrl(post.heroImage?.url, { width: 800 })"
               :alt="post.title"
               class="w-full h-full object-cover"
-              loading="lazy"
             />
           </div>
         </div>

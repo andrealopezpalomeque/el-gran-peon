@@ -787,7 +787,6 @@ const galleryItems = computed(() => {
         type: 'image',
         url: optimizedUrl(img.url, { width: 800 }),
         thumbUrl: optimizedUrl(img.url, { width: 80, height: 80 }),
-        fullUrl: optimizedUrl(img.url, { width: 1200, crop: 'limit' }),
         imageIndex: i,
       })
     })

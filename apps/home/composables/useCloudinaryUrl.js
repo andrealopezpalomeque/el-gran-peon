@@ -8,6 +8,9 @@ export function useCloudinaryUrl() {
   function optimizedUrl(url, { width, height, crop = 'fill', quality = 'auto' } = {}) {
     if (!url || !url.includes('res.cloudinary.com')) return url
 
+    // Skip if URL already has transforms applied
+    if (/\/upload\/[a-z]_/.test(url)) return url
+
     const transforms = [`f_auto`, `q_${quality}`]
     if (width) transforms.push(`w_${width}`)
     if (height) transforms.push(`h_${height}`)
